@@ -1,43 +1,91 @@
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-let physics = {
-    gravity: 10
+let simulation = {
+    gravity: 10,
+    time: 0, //in ms
+    timePerTick: 1, //in ms
+    items: [],
+    tickHandling: function () {
+        setInterval(() => {
+            this.items.forEach(item => {
+                item.checkDimensions();
+                item.moveX();
+            })
+            this.time += this.timePerTick;
+        }, this.timePerTick);
+    }
 }
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const geometry = new THREE.BoxGeometry(2, 0.2, 0.5);
-const material = new THREE.MeshBasicMaterial({ color: 0xfbe9e7 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
-
 camera.position.z = 5;
 
-let movingDirection = 1;
+class item {
+    constructor(type, dimensions, color, position) {
+        this.type = type;
+        
+        if (type == 'box') {
+            this.geometry = new THREE.BoxGeometry(dimensions.width, dimensions.height, dimensions.depth);
+            this.material = new THREE.MeshBasicMaterial(`{ color: ${color}}`);
+            this.object = new THREE.Mesh(this.geometry, this.material);
+            this.dimensions = dimensions;
+            this.position = position;
+            scene.add(this.object);
+        }
+
+        this.velocity = {
+            x: 0,
+            y: 0,
+            z: 0
+        }
+
+        this.acceleration = {
+            x: 0,
+            y: 0,
+            z: 0
+        }
+
+        this.moveX = function(){
+            this.position.x = this.position.x + (this.velocity.x * simulation.timePerTick) + ( 0.5 * this.acceleration.x * Math.pow(simulation.timePerTick / 1000, 2));
+            this.velocity.x = this.velocity.x + this.acceleration.x * simulation.timePerTick;
+            this.object.position.x = this.position.x;
+        }
+
+        this.moveY = function(){
+            this.position.y = this.position.y + (this.velocity.y * simulation.timePerTick) + ( 0.5 * this.acceleration.y * Math.pow(simulation.timePerTick / 1000, 2));
+            this.velocity.y = this.velocity.y + this.acceleration.y * simulation.timePerTick;
+            this.object.position.y = this.position.y;
+        }
+
+        this.moveZ = function(){
+            this.position.z = this.position.z + (this.velocity.z * simulation.timePerTick) + ( 0.5 * this.acceleration.z * Math.pow(simulation.timePerTick / 1000, 2));
+            this.velocity.z = this.velocity.z + this.acceleration.z * simulation.timePerTick;
+            this.object.position.z = this.position.z;
+        }
+
+        this.checkDimensions = function (){
+            this.dimensions.width = this.geometry.parameters.width * this.object.scale.x;
+            this.dimensions.height = this.geometry.parameters.height * this.object.scale.y;
+            this.dimensions.depth = this.geometry.parameters.depth * this.object.scale.z;
+        }
+    }
+}
 
 const animate = function () {
     requestAnimationFrame(animate);
 
-    // cube.rotation.x += 0.01;
-    // cube.rotation.y += 0.01;
-    cube.rotation.z += 0.01;
-
-    if (cube.position.x >= window.innerWidth / 2){
-        movingDirection = -1;
-    } else if (cube.position.x <= -window.innerWidth / 2){
-        movingDirection = 1;
-    }
-    cube.position.x += 0.02 * movingDirection;
-
-    // console.log(cube.rotation._z, cube.quaternion._z);
-    // console.log(cube.position.x, movingDirection);
-
     renderer.render(scene, camera);
 };
 
-animate();
+simulation.items.push(new item('box', {width: 3, height: 0.1, depth: 0.5}, '0x00ff00', {x: 0, y: 0, z: 0}));
+simulation.items.push(new item('box', {width: 3, height: 0.1, depth: 0.5}, '0x00ff00', {x: 0, y: 0, z: 0}));
 
-console.log(renderer.getSize());
+simulation.items[0].acceleration.x = 0.000001;
+simulation.items[1].acceleration.x = -0.000001;
+
+simulation.tickHandling();
+
+animate();
