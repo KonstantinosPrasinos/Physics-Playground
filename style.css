@@ -1,0 +1,101 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+}
+canvas {
+    top: 4%;
+    left: 4%;
+    width: 84%;
+    height: 96%;
+    position: absolute;
+    z-index: 3;
+}
+#app {
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #f1f2f6;
+}
+#left-ui {
+    width: 4%;
+    height: 100%;
+    background: #1C212E;
+    margin: 0;
+    min-width: 50px;
+    z-index: 1;
+}
+#right-ui {
+    top: 0;
+    right: 0;
+    width: 12%;
+    height: 100%;
+    background: #1C212E;
+    margin: 0;
+    position: absolute;
+    min-width: 170px;
+    z-index: 0;
+}
+#top-ui {
+    width: 84%;
+    height: 4%;
+    top: 0;
+    left: 4%;
+    background: #212836;
+    margin: 0;
+    position: absolute;
+    z-index: 1;
+}
+#collapse-right-ui {
+    background-color: Transparent;
+    background-image: url(/assets/collapse-right-white.png);
+    background-size: 24px;
+    background-repeat: no-repeat;
+    background-position: -2px;
+    height: 24px;
+    width: 24px;
+    position: fixed;
+    border: none;
+    top: 0.55%;
+    right: 10%;
+    visibility: visible;
+    z-index: 2;
+}
+#right-ui-features {
+    position: absolute;
+    top: 100px;
+    color: white;
+    width: 100%;
+}
+#color-picker {
+    position: relative;
+    border: hidden;
+    background-color: rgba(255, 255, 255, 0);
+    float: right;
+    top: -2px;
+    margin-left: 5px;
+}
+.right-ui-hr {
+    margin-top: 10px;
+    width: 75%;
+    text-align: center;
+    border-color: #363a43;
+    border-width:0;
+    height:2px;
+    border-width:0;
+    color:#212836;
+    background-color:#2a3346;
+}
+.right-ui-text {
+    float: left;
+}
+.right-ui-field {
+    margin-bottom: 5px;
+    padding-left: 10px;
+    width: 90%;
+    height: 20px;
+    
+}
+.object-name {
+    color: white;
+    text-align: center;
+}

@@ -4,21 +4,33 @@
 <head>
     <meta charset="utf-8">
     <title>My first three.js app</title>
-    <style>
-        body {
-            margin: 0;
-        }
-        canvas {
-            width: 100%;
-            height: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <button onclick="simulationParameters.items[0].object.scale.x += 0.5; console.log(simulationParameters.items[0].object);">Click me</button>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
+    <div id="app">
+        <p id="left-ui"></p>
+        <p id="top-ui">
+            <button id="collapse-right-ui" onclick="toggleRightUI();"></button>
+        </p>
+        <div id="right-ui">
+            <div id="right-ui-features">
+                <div id="object-name">No Item is Selected</div>
+                <hr class="right-ui-hr">
+                <div class="right-ui-field">
+                    <span class="right-ui-text">This is some text:</span>
+                    <input type="color" value="#ffffff" id="color-picker">
+                </div>
+            </div>
+        </div>
+        <canvas id="viewportCanvas" onclick="objectClicked();"></canvas>
+    </div>
     <script src="main.js"></script>
+    <script src="styling.js"></script>
 </body>
-
 </html>
