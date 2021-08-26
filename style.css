@@ -61,10 +61,11 @@ canvas {
     z-index: 2;
 }
 #right-ui-features {
+    padding-top: 5vh;
     position: absolute;
-    top: 100px;
     color: white;
     width: 100%;
+    height: 50%;
 }
 #color-picker {
     position: relative;
@@ -74,13 +75,31 @@ canvas {
     top: -2px;
     margin-left: 5px;
 }
+#right-ui-items {
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    top: 50%;
+}
+#right-features-items-separator {
+    width: 100%;
+    height: 3px;
+}
+#right-ui-item-container {
+    background-color: #212836;
+    position: absolute;
+    left: 5px;
+    width: calc(100% - 10px);
+    height: 88%;
+    border-radius: 8px;
+}
 .right-ui-hr {
     margin-top: 10px;
     width: 75%;
     text-align: center;
     border-color: #363a43;
     border-width:0;
-    height:2px;
+    height: 2px;
     border-width:0;
     color:#212836;
     background-color:#2a3346;
@@ -89,13 +108,41 @@ canvas {
     float: left;
 }
 .right-ui-field {
+    color: white;
     margin-bottom: 5px;
     padding-left: 10px;
     width: 90%;
     height: 20px;
-    
+    opacity: inherit;
 }
 .object-name {
     color: white;
     text-align: center;
+}
+.item-list-field {
+    color: white;
+    margin: 5px;
+}
+.item-list-field-button {
+    background-color: Transparent;
+    background-image: url(/assets/edit-white.png);
+    background-size: 24px;
+    background-repeat: no-repeat;
+    background-position: -2px;
+    height: 24px;
+    width: 24px;
+    position: relative;
+    float: right;
+    top: -2px;
+    margin-left: 5px;
+    border: none;
+    visibility: visible;
+    z-index: 2;
+}
+.item-list-editable {
+    width: 50%;
+    display: inline;
+    background-color: inherit;
+    border: none;
+    color: inherit;
 }

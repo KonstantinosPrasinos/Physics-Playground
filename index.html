@@ -20,12 +20,19 @@
         </p>
         <div id="right-ui">
             <div id="right-ui-features">
-                <div id="object-name">No Item is Selected</div>
+                <div class="right-ui-field">
+                    <div id="object-name">No item is Selected</div>
+                </div>
                 <hr class="right-ui-hr">
                 <div class="right-ui-field">
                     <span class="right-ui-text">This is some text:</span>
                     <input type="color" value="#ffffff" id="color-picker">
                 </div>
+            </div>
+            <div id="right-ui-items">
+                <hr class="right-ui-hr" id="right-features-items-separator">
+                <div class="right-ui-field" id="items-in-scene">Items in Scene:</div>
+                <div id="right-ui-item-container"></div>
             </div>
         </div>
         <canvas id="viewportCanvas" onclick="objectClicked();"></canvas>

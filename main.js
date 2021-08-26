@@ -86,6 +86,31 @@ class item {
             this.dimensions.height = this.geometry.parameters.height * this.object.scale.y;
             this.dimensions.depth = this.geometry.parameters.depth * this.object.scale.z;
         }
+        let node = document.createElement("DIV");
+        let textNode = document.createElement("input");
+        let buttonNode = document.createElement('input');
+        node.classList.add("item-list-field");
+        textNode.type = 'text';
+        textNode.value = this.name;
+        textNode.setAttribute('required', "");
+        textNode.classList.add("item-list-editable");
+        buttonNode.type = 'button';
+        buttonNode.classList.add("item-list-field-button");
+        buttonNode.addEventListener('click', () =>{
+            textNode.focus();
+        });
+        this.previousTextNodeItemZero = textNode.innerText[0];
+        textNode.addEventListener("blur", () => {
+            if (textNode.value.length == 0) {
+                textNode.focus();
+            } else {
+                this.name = textNode.value;
+                console.log(this.name);
+            }
+        });
+        node.appendChild(textNode);
+        node.appendChild(buttonNode);
+        document.getElementById("right-ui-item-container").appendChild(node);
     }
 }
 
@@ -96,5 +121,7 @@ const animate = function () {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
 };
+
+animate();
 
 simulation.tickHandling();
