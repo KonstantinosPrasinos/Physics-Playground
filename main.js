@@ -105,7 +105,6 @@ class item {
                 textNode.focus();
             } else {
                 this.name = textNode.value;
-                console.log(this.name);
             }
         });
         node.appendChild(textNode);

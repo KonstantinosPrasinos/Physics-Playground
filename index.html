@@ -14,10 +14,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
     <div id="app">
-        <p id="left-ui"></p>
-        <p id="top-ui">
+        <div id="left-ui">
+            <button onclick="toggleSettings();" class="left-ui-buttons" id="settings-button"></button>
+        </div>
+        <div id="top-ui">
             <button id="collapse-right-ui" onclick="toggleRightUI();"></button>
-        </p>
+        </div>
         <div id="right-ui">
             <div id="right-ui-features">
                 <div class="right-ui-field">
@@ -36,6 +38,18 @@
             </div>
         </div>
         <canvas id="viewportCanvas" onclick="objectClicked();"></canvas>
+        <div id="settings-overlay">
+            <div id="settings-box">
+                <button class="close-button" onclick="toggleSettings()"></button>
+                <span class="title">Settings:</span>
+                <div class="settings-row">
+                    <span class="chapter">Theme:</span>
+                    <input id="light-theme-radio" type="radio" name="theme" value="light">
+                    <input id="dark-theme-radio" type="radio" name="theme" value="dark">
+                    <input id="midnight-theme-radio" type="radio" name="theme" value="midnight">
+                </div>
+            </div>
+        </div>
     </div>
     <script src="main.js"></script>
     <script src="styling.js"></script>
