@@ -15,10 +15,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
     <div id="app">
         <div id="left-ui">
-            <button onclick="toggleSettings();" class="left-ui-buttons" id="settings-button"></button>
+            <button onclick="toggleSettings();" class="left-ui-buttons icon-buttons big-icon-buttons" id="settings-button"></button>
+            <button onclick="simulation.addCube()" class="left-ui-buttons icon-buttons big-icon-buttons" id="add-cube-button"></button>
+            <button onclick="simulation.addCube()" class="left-ui-buttons icon-buttons big-icon-buttons" id="add-sphere-button"></button>
         </div>
         <div id="top-ui">
-            <button id="collapse-right-ui" onclick="toggleRightUI();"></button>
+            <button id="collapse-right-ui-button" class="icon-buttons big-icon-buttons" onclick="toggleRightUI();"></button>
         </div>
         <div id="right-ui">
             <div id="right-ui-features">
@@ -40,13 +42,12 @@
         <canvas id="viewportCanvas" onclick="objectClicked();"></canvas>
         <div id="settings-overlay">
             <div id="settings-box">
-                <button class="close-button" onclick="toggleSettings()"></button>
+                <button class="close-button icon-buttons big-icon-buttons" onclick="toggleSettings()" style="visibility: inherit;"></button>
                 <span class="title">Settings:</span>
                 <div class="settings-row">
                     <span class="chapter">Theme:</span>
-                    <input id="light-theme-radio" type="radio" name="theme" value="light">
-                    <input id="dark-theme-radio" type="radio" name="theme" value="dark">
-                    <input id="midnight-theme-radio" type="radio" name="theme" value="midnight">
+                    <button onclick="setTheme('light');" id="light-theme-button" class="theme-button-unselected"></button>
+                    <button onclick="setTheme('dark');" id="dark-theme-button" class="theme-button-selected"></button>
                 </div>
             </div>
         </div>

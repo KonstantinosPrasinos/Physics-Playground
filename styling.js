@@ -1,8 +1,13 @@
 let rightUIisCollapsed = false;
+let storedTheme = 'dark';
+let itemSelected = 'No item is Selected';
+let tutorialCompleted = false;
+
+let root = document.documentElement;
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
 let canvas = document.getElementById("viewportCanvas");
-let collapseRightUIButton = document.getElementById("collapse-right-ui");
+let collapseRightUIButton = document.getElementById("collapse-right-ui-button");
 let rightFeatures = document.getElementById("right-ui-features");
 let objectNameField = document.getElementById("object-name");
 let rightItems = document.getElementById("right-ui-item-container");
@@ -10,19 +15,17 @@ let itemsInScene = document.getElementById("items-in-scene");
 let settingsOverlay = document.getElementById("settings-overlay");
 let settingsBox = document.getElementById("settings-box");
 
-let itemSelected = 'No item is Selected';
-
 function toggleRightUI() {
     if (rightUIisCollapsed) {
         let timeline = gsap.timeline();
-        gsap.to(topUI, { duration: 0.2, width: '84%' });
-        gsap.to(collapseRightUIButton, { duration: 0.2, right: '10%' });
-        gsap.to(canvas, { duration: 0.2, width: '84%' });
-        timeline.to(rightUI, { duration: 0.2, width: '12%' })
+        gsap.to(topUI, { duration: 0.2, width: 'calc(100% - 240px)' });
+        gsap.to(collapseRightUIButton, { duration: 0.2, right: '144px' });
+        gsap.to(collapseRightUIButton, {duration: 0.2, rotation: 0});
+        gsap.to(canvas, { duration: 0.2, width: 'calc(100% - 240px)' });
+        timeline.to(rightUI, { duration: 0.2, width: '180px' })
             .to(rightFeatures, { duration: 0.2, opacity: 1 })
             .to(rightItems, { duration: 0.2, opacity: 1 }, '-=0.2')
             .to(itemsInScene, { duration: 0.2, opacity: 1 }, '-=0.2');
-        collapseRightUIButton.style.backgroundImage = 'url(/assets/collapse-right-white.png)';
         rightUIisCollapsed = !rightUIisCollapsed;
 
     } else {
@@ -30,12 +33,13 @@ function toggleRightUI() {
         timeline.to(rightFeatures, { duration: 0.2, opacity: 0 },)
             .to(rightItems, { duration: 0.2, opacity: 0 }, '-=0.2')
             .to(itemsInScene, { duration: 0.2, opacity: 0 }, '-=0.2')
-            .to(topUI, { duration: 0.2, width: '96%' },)
-            .to(rightUI, { duration: 0.2, width: '1%' }, '-=0.2')
-            .to(collapseRightUIButton, { duration: 0.2, right: '0.5%' }, '-=0.2')
-            .to(canvas, { duration: 0.2, width: '96%' }, '-=0.2');
-        collapseRightUIButton.style.backgroundImage = 'url(/assets/collapse-left-white.png)';
+            .to(topUI, { duration: 0.2, width: 'calc(100% - 60px)' },)
+            .to(rightUI, { duration: 0.2, width: '1px' }, '-=0.2')
+            .to(collapseRightUIButton, { duration: 0.2, right: '8px' }, '-=0.2')
+            .to(canvas, { duration: 0.2, width: 'calc(100% - 60px)' }, '-=0.2')
+            .to(collapseRightUIButton, {duration: 0.2, rotation: 180}, '-=0.2');
         rightUIisCollapsed = !rightUIisCollapsed;
+
     }
 }
 
@@ -45,11 +49,41 @@ function toggleSettings() {
         let timeline = gsap.timeline();
         settingsOverlay.style.visibility = 'visible';
         timeline.to(settingsOverlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)', duration: 0.15 })
-            .to(settingsBox, { backgroundColor: 'rgba(28, 33, 46, 1)', duration: 0.15 }, '-=0.16');
+            .to(settingsBox, { opacity: 1, duration: 0.15 }, '-=0.16');
     } else {
         let timeline = gsap.timeline();
         timeline.to(settingsOverlay, { backgroundColor: 'rgba(0, 0, 0, 0)', duration: 0.15, onComplete: toggleVisibility })
-            .to(settingsBox, { backgroundColor: 'rgba(28, 33, 46, 0)', duration: 0.15 }, '-=0.15');;
+            .to(settingsBox, { opacity: 0, duration: 0.15 }, '-=0.15');;
+    }
+}
+
+function setTheme(theme) {
+    if (theme != storedTheme) {
+        switch (theme) {
+            case 'light':
+                gsap.to("html", {duration: 0.2, "--primary-color": '#f1f2f6'});
+                gsap.to("html", {duration: 0.2, "--secondary-color": '#1C212E'});
+                localStorage.setItem("theme", "light");
+                storedTheme = theme;
+                document.getElementById("dark-theme-button").classList.toggle("theme-button-selected");
+                document.getElementById("light-theme-button").classList.toggle("theme-button-selected");
+                document.getElementById("dark-theme-button").classList.toggle("theme-button-unselected");
+                document.getElementById("light-theme-button").classList.toggle("theme-button-unselected");
+                break;
+            case 'dark':
+                gsap.to("html", {duration: 0.2, "--primary-color": '#1C212E'});
+                gsap.to("html", {duration: 0.2, "--secondary-color": '#f1f2f6'});
+                localStorage.setItem("theme", "dark");
+                storedTheme = theme;
+                document.getElementById("dark-theme-button").classList.toggle("theme-button-selected");
+                document.getElementById("light-theme-button").classList.toggle("theme-button-selected");
+                document.getElementById("dark-theme-button").classList.toggle("theme-button-unselected");
+                document.getElementById("light-theme-button").classList.toggle("theme-button-unselected");
+                break;
+            default:
+                break;
+        }
+        
     }
 }
 
@@ -84,6 +118,7 @@ canvas.addEventListener('click', (event) => {
         objectNameField.innerText = itemSelected;
     }
 });
+
 canvas.addEventListener('mousemove', (event) => {
     if (rightUIisCollapsed) {
         convertedPositionX = (cameraMetrics.aspectRatio * cameraMetrics.viewHeight / canvas.getBoundingClientRect().width * event.offsetX) - (cameraMetrics.aspectRatio * cameraMetrics.viewHeight / 2);
@@ -91,4 +126,15 @@ canvas.addEventListener('mousemove', (event) => {
         simulation.items[0].position.x = convertedPositionX;
         simulation.items[0].position.y = convertedPositionY;
     }
-})
+});
+
+if(!localStorage.theme) {
+    localStorage.setItem("theme", "dark");
+} else {
+    setTheme(localStorage.getItem("theme"));
+}
+
+if(!localStorage.tutorialCompleted) {
+    //Start tutorial
+    localStorage.setItem("tutorialCompleted", "true");
+}

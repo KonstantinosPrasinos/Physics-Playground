@@ -1,13 +1,19 @@
+:root {
+    --primary-color: #1C212E;
+    --secondary-color: #f1f2f6;
+    --theme: 'dark';
+}
 body {
     font-family: 'Roboto', sans-serif;
     margin: 0;
+    color: var(--secondary-color);
 }
 canvas {
-    top: 4%;
-    left: 4%;
-    width: 84%;
-    height: 96%;
-    position: absolute;
+    top: 40px;
+    left: 60px;
+    width: calc(100% - 240px);
+    height: calc(100% - 40px);
+    position: fixed;
     z-index: 3;
 }
 #app {
@@ -16,54 +22,129 @@ canvas {
     height: 100vh;
     background: #f1f2f6;
 }
+button {
+    cursor: pointer;
+}
+/* Random Universal */
+.title {
+    font-size: 30px;
+}
+.settings-row {
+    margin-top: 50px;
+}
+.chapter {
+    font-size: 20px;
+}
+
+/* Basic UI Elements */
 #left-ui {
-    width: 4%;
+    width: 60px;
     height: 100%;
-    background: #1C212E;
+    background: var(--primary-color);
     margin: 0;
     min-width: 50px;
+    border-right: var(--secondary-color);
     z-index: 1;
+    position: fixed;
 }
 #right-ui {
     top: 0;
     right: 0;
-    width: 12%;
+    width: 180px;
     height: 100%;
-    background: #1C212E;
+    background: var(--primary-color);
     margin: 0;
-    position: absolute;
+    position: fixed;
     min-width: 170px;
     z-index: 0;
 }
 #top-ui {
-    width: 84%;
-    height: 4%;
+    width: calc(100% - 240px);
+    height: 40px;
     top: 0;
-    left: 4%;
-    background: #212836;
+    left: 60px;
+    background: var(--primary-color);
     margin: 0;
-    position: absolute;
+    position: fixed;
     z-index: 1;
 }
-#collapse-right-ui {
-    background-color: Transparent;
-    background-image: url(/assets/collapse-right-white.png);
-    background-size: 24px;
+
+/* Buttons */
+#collapse-right-ui-button {
+    -webkit-mask-image:  url(/assets/collapse.svg);
+    mask-image: url(assets/collapse.svg);
+    position: fixed;
+    top: 4px;
+    right: 144px;
+}
+#settings-button {
+    bottom: 1vh;
+    -webkit-mask-image:  url(/assets/settings.svg);
+    mask-image: url(assets/settings.svg);
+}
+#add-cube-button {
+    -webkit-mask-image:  url(/assets/cube.svg);
+    mask-image: url(assets/cube.svg);
+    top: 50px;
+    position: relative;
+}
+#add-sphere-button {
+    -webkit-mask-image:  url(/assets/sphere.svg);
+    mask-image: url(assets/sphere.svg);
+    top: 60px;
+    position: relative;
+}
+.close-button {
+    -webkit-mask-image:  url(/assets/close.svg);
+    mask-image: url(assets/close.svg);
+    right: 10px;
+    top: 10px;
+}
+.item-list-field-edit-button {
+    -webkit-mask-image:  url(/assets/edit.svg);
+    mask-image: url(assets/edit.svg);
+    float: right;
+}
+.item-list-field-delete-button {
+    -webkit-mask-image:  url(/assets/delete.svg);
+    mask-image: url(assets/delete.svg);
+    float: right;
+}
+.left-ui-buttons {
+    z-index: 2;
+    left: 12px;
+}
+.icon-buttons {
+    background-color: var(--secondary-color);
+    -webkit-mask-size: contain;
+    mask-size: contain;
     background-repeat: no-repeat;
     background-position: -2px;
+    border: none;
+    visibility: visible;
+}
+.big-icon-buttons{
+    height: 32px;
+    width: 32px;
+    background-size: 32px;
+    position: absolute;
+}
+.small-icon-buttons{
     height: 24px;
     width: 24px;
-    position: fixed;
-    border: none;
-    top: 0.55%;
-    right: 10%;
-    visibility: visible;
-    z-index: 2;
+    background-size: 24px;
+    position: relative;
 }
+.icon-buttons:active{
+    background-color: gray;
+    transform: translateY(2px);
+}
+
+/* Right UI */
+
 #right-ui-features {
     padding-top: 5vh;
     position: absolute;
-    color: white;
     width: 100%;
     height: 50%;
 }
@@ -86,13 +167,49 @@ canvas {
     height: 3px;
 }
 #right-ui-item-container {
-    background-color: #212836;
+    background-color: var(--primary-color);
     position: absolute;
     left: 5px;
     width: calc(100% - 10px);
     height: 88%;
     border-radius: 8px;
 }
+.right-ui-hr {
+    margin-top: 10px;
+    width: 75%;
+    text-align: center;
+    border-color: #363a43;
+    border-width:0;
+    height: 2px;
+    border-width:0;
+    color:var(--primary-color);
+    background-color:#2a3346;
+}
+.right-ui-text {
+    float: left;
+}
+.right-ui-field {
+    margin-bottom: 5px;
+    padding-left: 10px;
+    width: 90%;
+    height: 20px;
+    opacity: inherit;
+}
+.object-name {
+    text-align: center;
+}
+.item-list-field {
+    margin: 5px;
+}
+.item-list-editable {
+    width: 50%;
+    display: inline;
+    background-color: inherit;
+    border: none;
+    color: inherit;
+}
+
+/* Settings */
 #settings-overlay {
     background-color: rgba(255, 255, 255, 0);
     width: 100%;
@@ -111,24 +228,41 @@ canvas {
     transform: translate(-50%, -50%);
     height: 70%;
     width: 50%;
-    background-color: rgba(28, 33, 46, 0);
-    color: white;
+    background-color: var(--primary-color);
     border-radius: 8px;
     padding: 20px;
 }
-#dark-theme-radio {
+#dark-theme-button {
     background-color: #1C212E;
     top: 0;
     left: 0;
+    height: 32px;
+    width: 32px;
     border-radius: 50%;
-    border: 2px solid #999;
+    margin-left: 10px;
+    position: relative;
+    top: 6px;
 }
-#light-theme-radio {
-    background-color: white;
+#light-theme-button {
+    background-color: #f1f2f6;
     top: 0;
     left: 0;
+    height: 32px;
+    width: 32px;
     border-radius: 50%;
-    border: 2px solid #999;
+    margin-left: 10px;
+    position: relative;
+    top: 6px;
+}
+.theme-button-selected {
+    border-color: orange;
+    border-width: 2px;
+    border-style: solid;
+}
+.theme-button-unselected {
+    border-color: #999;
+    border-width: 2px;
+    border-style: solid;
 }
 #midnight-theme-radio {
     background-color: black;
@@ -136,84 +270,6 @@ canvas {
     left: 0;
     border-radius: 50%;
     border: 2px solid #999;
-}
-#settings-button {
-    background-image: url(/assets/settings-white.png);
-    bottom: 1vh;
-}
-.right-ui-hr {
-    margin-top: 10px;
-    width: 75%;
-    text-align: center;
-    border-color: #363a43;
-    border-width:0;
-    height: 2px;
-    border-width:0;
-    color:#212836;
-    background-color:#2a3346;
-}
-.right-ui-text {
-    float: left;
-}
-.right-ui-field {
-    color: white;
-    margin-bottom: 5px;
-    padding-left: 10px;
-    width: 90%;
-    height: 20px;
-    opacity: inherit;
-}
-.object-name {
-    color: white;
-    text-align: center;
-}
-.item-list-field {
-    color: white;
-    margin: 5px;
-}
-.item-list-field-button {
-    background-color: Transparent;
-    background-image: url(/assets/edit-white.png);
-    background-size: 24px;
-    background-repeat: no-repeat;
-    background-position: -2px;
-    height: 24px;
-    width: 24px;
-    position: relative;
-    float: right;
-    top: -2px;
-    margin-left: 5px;
-    border: none;
-    visibility: visible;
-    z-index: 2;
-}
-.item-list-editable {
-    width: 50%;
-    display: inline;
-    background-color: inherit;
-    border: none;
-    color: inherit;
-}
-.close-button {
-    background-color: Transparent;
-    background-image: url(/assets/close-white.png);
-    background-size: 24px;
-    background-repeat: no-repeat;
-    background-position: -2px;
-    height: 24px;
-    width: 24px;
-    float: right;
-    border: none;
-    position: relative;
-}
-.title {
-    font-size: 30px;
-}
-.settings-row {
-    margin-top: 50px;
-}
-.chapter {
-    font-size: 20px;
 }
 .settings-row input {
     -webkit-appearance: none;
@@ -225,17 +281,4 @@ canvas {
 }
 .settings-row input:checked {
     border: 2px solid orange;
-}
-.left-ui-buttons {
-    background-color: Transparent;
-    background-size: 32px;
-    background-repeat: no-repeat;
-    background-position: -2px;
-    height: 32px;
-    width: 32px;
-    position: absolute;
-    border: none;
-    visibility: visible;
-    z-index: 2;
-    left: calc(2% - 16px);
 }
