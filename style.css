@@ -11,10 +11,10 @@ body {
 canvas {
     top: 40px;
     left: 60px;
-    width: calc(100% - 240px);
+    width: calc(100% - 60px);
     height: calc(100% - 40px);
     position: fixed;
-    z-index: 3;
+    z-index: 0;
 }
 #app {
     top: 0;
@@ -48,25 +48,27 @@ button {
     position: fixed;
 }
 #right-ui {
-    top: 0;
+    top: 40px;
     right: 0;
     width: 180px;
-    height: 100%;
+    height: calc(100% - 40px);
     background: var(--primary-color);
     margin: 0;
     position: fixed;
     min-width: 170px;
-    z-index: 0;
+    z-index: 2;
+    opacity: 0;
+    visibility: hidden;
 }
 #top-ui {
-    width: calc(100% - 240px);
+    width: calc(100% - 60px);
     height: 40px;
     top: 0;
     left: 60px;
     background: var(--primary-color);
     margin: 0;
     position: fixed;
-    z-index: 1;
+    z-index: 3;
 }
 
 /* Buttons */
@@ -75,7 +77,8 @@ button {
     mask-image: url(assets/collapse.svg);
     position: fixed;
     top: 4px;
-    right: 144px;
+    right: 8px;
+    transform: rotate(180deg);
 }
 #settings-button {
     bottom: 1vh;
@@ -107,6 +110,11 @@ button {
 }
 .item-list-field-delete-button {
     -webkit-mask-image:  url(/assets/delete.svg);
+    mask-image: url(assets/delete.svg);
+    float: right;
+}
+.item-list-lock-button {
+    -webkit-mask-image:  url(/assets/lock.svg);
     mask-image: url(assets/delete.svg);
     float: right;
 }
@@ -143,12 +151,21 @@ button {
 /* Right UI */
 
 #right-ui-features {
-    padding-top: 5vh;
+    opacity: 0;
+    padding-top: 10px;
     position: absolute;
     width: 100%;
     height: 50%;
 }
+#right-ui-items-list {
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    top: 50%;
+}
 #color-picker {
+    opacity: inherit;
     position: relative;
     border: hidden;
     background-color: rgba(255, 255, 255, 0);
@@ -156,17 +173,13 @@ button {
     top: -2px;
     margin-left: 5px;
 }
-#right-ui-items {
-    position: absolute;
-    width: 100%;
-    height: 50%;
-    top: 50%;
-}
 #right-features-items-separator {
+    opacity: inherit;
     width: 100%;
     height: 3px;
 }
 #right-ui-item-container {
+    opacity: inherit;
     background-color: var(--primary-color);
     position: absolute;
     left: 5px;
@@ -175,6 +188,7 @@ button {
     border-radius: 8px;
 }
 .right-ui-hr {
+    opacity: inherit;
     margin-top: 10px;
     width: 75%;
     text-align: center;
@@ -186,27 +200,61 @@ button {
     background-color:#2a3346;
 }
 .right-ui-text {
+    opacity: inherit;
     float: left;
 }
 .right-ui-field {
+    opacity: inherit;
     margin-bottom: 5px;
     padding-left: 10px;
     width: 90%;
     height: 20px;
     opacity: inherit;
 }
-.object-name {
+#object-name {
+    display: block;
+    opacity: inherit;
     text-align: center;
 }
 .item-list-field {
+    opacity: hidden;
     margin: 5px;
 }
 .item-list-editable {
+    opacity: inherit;
     width: 50%;
     display: inline;
     background-color: inherit;
     border: none;
     color: inherit;
+}
+
+/* Right UI Grid */
+
+.right-ui-grid-container {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-row-gap: 5px;
+    grid-column-gap: 5px;
+    padding: 10px;
+    font-size: 12px;
+}
+.right-ui-grid-text-editable {
+    background-color: var(--primary-color);
+    border-width: 0 0 2px 0;
+    border-bottom-color: var(--secondary-color);
+    width: 60%;
+    float: right;
+    padding-bottom: 2px;
+}
+.right-ui-grid-text {
+    position: relative;
+    top: 3px;
+    float: left;
+}
+.right-ui-grid-headline {
+    display: block;
+    text-align: center;
 }
 
 /* Settings */

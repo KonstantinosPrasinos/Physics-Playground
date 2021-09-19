@@ -1,28 +1,33 @@
-let rightUIisCollapsed = false;
+let rightUIisCollapsed = true;
 let storedTheme = 'dark';
-let itemSelected = 'No item is Selected';
+let itemSelected = -1;
 let tutorialCompleted = false;
 
 let root = document.documentElement;
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
-let canvas = document.getElementById("viewportCanvas");
 let collapseRightUIButton = document.getElementById("collapse-right-ui-button");
 let rightFeatures = document.getElementById("right-ui-features");
 let objectNameField = document.getElementById("object-name");
-let rightItems = document.getElementById("right-ui-item-container");
+let rightItems = document.getElementById("right-ui-items-list");
 let itemsInScene = document.getElementById("items-in-scene");
 let settingsOverlay = document.getElementById("settings-overlay");
 let settingsBox = document.getElementById("settings-box");
+let widthInput = document.getElementById("right-ui-width");
+let heightInput = document.getElementById("right-ui-height");
+let depthInput = document.getElementById("right-ui-depth");
+let xInput = document.getElementById("right-ui-x");
+let yInput = document.getElementById("right-ui-y");
+let zInput = document.getElementById("right-ui-z");
 
 function toggleRightUI() {
     if (rightUIisCollapsed) {
         let timeline = gsap.timeline();
-        gsap.to(topUI, { duration: 0.2, width: 'calc(100% - 240px)' });
+        rightUI.style.visibility = 'visible';
         gsap.to(collapseRightUIButton, { duration: 0.2, right: '144px' });
         gsap.to(collapseRightUIButton, {duration: 0.2, rotation: 0});
-        gsap.to(canvas, { duration: 0.2, width: 'calc(100% - 240px)' });
-        timeline.to(rightUI, { duration: 0.2, width: '180px' })
+        gsap.to(rightUI, { duration: 0.2, opacity: 1 });
+        timeline.to(rightUI, { duration: 0.2, width: '180px', opacity: 1})
             .to(rightFeatures, { duration: 0.2, opacity: 1 })
             .to(rightItems, { duration: 0.2, opacity: 1 }, '-=0.2')
             .to(itemsInScene, { duration: 0.2, opacity: 1 }, '-=0.2');
@@ -34,12 +39,10 @@ function toggleRightUI() {
             .to(rightItems, { duration: 0.2, opacity: 0 }, '-=0.2')
             .to(itemsInScene, { duration: 0.2, opacity: 0 }, '-=0.2')
             .to(topUI, { duration: 0.2, width: 'calc(100% - 60px)' },)
-            .to(rightUI, { duration: 0.2, width: '1px' }, '-=0.2')
             .to(collapseRightUIButton, { duration: 0.2, right: '8px' }, '-=0.2')
-            .to(canvas, { duration: 0.2, width: 'calc(100% - 60px)' }, '-=0.2')
+            .to(rightUI, { duration: 0.2, opacity: 0 }, '-=0.2')
             .to(collapseRightUIButton, {duration: 0.2, rotation: 180}, '-=0.2');
         rightUIisCollapsed = !rightUIisCollapsed;
-
     }
 }
 
@@ -87,6 +90,24 @@ function setTheme(theme) {
     }
 }
 
+function setInputObjectParameters() {
+    if (itemSelected >= 0) {
+        widthInput.value = simulation.items[itemSelected].dimensions.width;
+        heightInput.value = simulation.items[itemSelected].dimensions.height;
+        depthInput.value = simulation.items[itemSelected].dimensions.depth;
+        xInput.value = simulation.items[itemSelected].position.x;
+        yInput.value = simulation.items[itemSelected].position.y;
+        zInput.value = simulation.items[itemSelected].position.z;
+    } else {
+        widthInput.value = '';
+        heightInput.value = '';
+        depthInput.value = '';
+        xInput.value = '';
+        yInput.value = '';
+        zInput.value = '';
+    }
+}
+
 function objectClicked() {
 
 }
@@ -99,34 +120,27 @@ settingsOverlay.addEventListener('click', (event) => {
     }
 });
 
-canvas.addEventListener('click', (event) => {
-    let clickedOnItem = false;
-    convertedPositionX = (cameraMetrics.aspectRatio * cameraMetrics.viewHeight / canvas.getBoundingClientRect().width * event.offsetX) - (cameraMetrics.aspectRatio * cameraMetrics.viewHeight / 2);
-    convertedPositionY = (cameraMetrics.viewHeight / 2) - (cameraMetrics.viewHeight / canvas.getBoundingClientRect().height * event.offsetY);
-    simulation.items.forEach(item => {
-        if (item.position.x + (item.dimensions.width / 2) >= convertedPositionX && item.position.x - (item.dimensions.width / 2) <= convertedPositionX && item.position.y + (item.dimensions.height / 2) >= convertedPositionY && item.position.y - (item.dimensions.height / 2) <= convertedPositionY) {
-            if (rightUIisCollapsed) {
-                toggleRightUI();
+canvas.addEventListener('mousedown', (event) => {
+    let intersectedObjects = checkForObject(event);
+    if (intersectedObjects.length > 0) {
+        for (let i = 0; i < simulation.items.length; i++){
+            if (simulation.items[i].uuid == intersectedObjects[0].uuid){
+                objectNameField.innerText = simulation.items[i].name;
+                itemSelected = i;
+                setInputObjectParameters();
+                break;
+            } else {
+                itemSelected = -1;
+                setInputObjectParameters();
+                objectNameField.innerText = 'No Item is Selected';
             }
-            itemSelected = item;
-            clickedOnItem = true;
-            objectNameField.innerText = itemSelected.name;
         }
-    });
-    if (!clickedOnItem) {
-        itemSelected = 'No Item is Selected';
-        objectNameField.innerText = itemSelected;
+    } else {
+        itemSelected = -1;
+        setInputObjectParameters();
+        objectNameField.innerText = 'No Item is Selected';
     }
-});
-
-canvas.addEventListener('mousemove', (event) => {
-    if (rightUIisCollapsed) {
-        convertedPositionX = (cameraMetrics.aspectRatio * cameraMetrics.viewHeight / canvas.getBoundingClientRect().width * event.offsetX) - (cameraMetrics.aspectRatio * cameraMetrics.viewHeight / 2);
-        convertedPositionY = (cameraMetrics.viewHeight / 2) - (cameraMetrics.viewHeight / canvas.getBoundingClientRect().height * event.offsetY);
-        simulation.items[0].position.x = convertedPositionX;
-        simulation.items[0].position.y = convertedPositionY;
-    }
-});
+}, false);
 
 if(!localStorage.theme) {
     localStorage.setItem("theme", "dark");
@@ -134,7 +148,67 @@ if(!localStorage.theme) {
     setTheme(localStorage.getItem("theme"));
 }
 
+window.addEventListener('resize', () => {
+    console.log("hello");
+    console.log(camera.aspect);
+    camera.aspect = parseInt(window.getComputedStyle(topUI).width) / parseInt(window.getComputedStyle(rightUI).height);
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(parseInt(window.getComputedStyle(topUI).width), parseInt(window.getComputedStyle(rightUI).height));
+
+});
+
 if(!localStorage.tutorialCompleted) {
     //Start tutorial
     localStorage.setItem("tutorialCompleted", "true");
 }
+
+widthInput.addEventListener("blur", () => {
+    console.log(itemSelected);
+    if (widthInput.value.length == 0 || isNaN(widthInput.value) || itemSelected < 0){
+        widthInput.focus();
+    } else {
+        simulation.items[itemSelected].dimensions.width = widthInput.value;
+    }
+});
+
+heightInput.addEventListener("blur", () => {
+    if (heightInput.value.length == 0 || isNaN(heightInput.value) || itemSelected < 0){
+        heightInput.focus();
+    } else {
+        simulation.items[itemSelected].dimensions.height = heightInput.value;
+    }
+});
+
+depthInput.addEventListener("blur", () => {
+    if (depthInput.value.length == 0 || isNaN(depthInput.value) || itemSelected < 0){
+        depthInput.focus();
+    } else {
+        simulation.items[itemSelected].dimensions.depth = depthInput.value;
+    }
+});
+
+xInput.addEventListener("blur", () => {
+    if (xInput.value.length == 0 || isNaN(xInput.value) || itemSelected < 0){
+        xInput.focus();
+    } else {
+        simulation.items[itemSelected].dimensions.x = xInput.value;
+    }
+});
+
+yInput.addEventListener("blur", () => {
+    if (yInput.value.length == 0 || isNaN(yInput.value) || itemSelected < 0){
+        yInput.focus();
+    } else {
+        simulation.items[itemSelected].dimensions.y = yInput.value;
+    }
+});
+
+zInput.addEventListener("blur", () => {
+    console.log(simulation.items[itemSelected]);
+    if (zInput.value.length == 0 || isNaN(zInput.value) || itemSelected < 0){
+        zInput.focus();
+    } else {
+        simulation.items[itemSelected].dimensions.z = zInput.value;
+    }
+});

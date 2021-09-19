@@ -1,18 +1,26 @@
+let canvas = document.getElementById("viewportCanvas");
+
 const scene = new THREE.Scene();
 
-const renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas,})
+const renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true});
 renderer.setClearColor( 0xffffff, 1);
+
+renderer.setSize(parseInt(window.getComputedStyle(canvas).width), parseInt(window.getComputedStyle(canvas).height));
 
 let cameraMetrics = {
     viewHeight: 900,
-    aspectRatio: window.innerWidth / window.innerHeight
+    aspectRatio: parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height),
+    near: 0.1,
+    far: 20000,
+    viewAngle: 45
 }
 
-let userInterface = {
-    isDarkMode: true
-}
+let camera = new THREE.PerspectiveCamera( cameraMetrics.viewAngle, cameraMetrics.aspectRatio, cameraMetrics.near, cameraMetrics.far);
+// var winResize	= new THREEx.WindowResize(renderer, camera);
+camera.position.set(0,150,400);
+camera.lookAt(scene.position);
 
-const camera = new THREE.OrthographicCamera(-cameraMetrics.aspectRatio * cameraMetrics.viewHeight / 2, cameraMetrics.aspectRatio * cameraMetrics.viewHeight / 2, cameraMetrics.viewHeight / 2, -cameraMetrics.viewHeight / 2, -1000, 1000);
+// const camera = new THREE.OrthographicCamera(-cameraMetrics.aspectRatio * cameraMetrics.viewHeight / 2, cameraMetrics.aspectRatio * cameraMetrics.viewHeight / 2, cameraMetrics.viewHeight / 2, -cameraMetrics.viewHeight / 2, -1000, 1000);
 
 let simulation = {
     gravity: 10,
@@ -42,6 +50,7 @@ let simulation = {
         let textNode = document.createElement("input");
         let editButtonNode = document.createElement('input');
         let deleteButtonNode = document.createElement('input');
+        let lockButtonNode = document.createElement('input');
         
         node.classList.add("item-list-field");
         textNode.type = 'text';
@@ -65,6 +74,21 @@ let simulation = {
             this.deleteObject(index);
         });
 
+
+        lockButtonNode.type = 'button';
+        lockButtonNode.classList.add("item-list-lock-button");
+        lockButtonNode.classList.add("icon-buttons");
+        lockButtonNode.classList.add("small-icon-buttons");
+        lockButtonNode.addEventListener('click', () => {
+            this.items[index].moveable = !this.items[index].moveable;
+            console.log(this.items[index].moveable);
+            if(!this.items[index].moveable) {
+                lockButtonNode.style.backgroundColor = 'orange';
+            } else {
+                lockButtonNode.style.backgroundColor = 'var(--secondary-color)';
+            }
+        })
+
         textNode.addEventListener("blur", () => {
             if (textNode.value.length == 0) {
                 textNode.focus();
@@ -75,6 +99,7 @@ let simulation = {
         node.appendChild(textNode);
         node.appendChild(deleteButtonNode);
         node.appendChild(editButtonNode);
+        node.appendChild(lockButtonNode);
         document.getElementById("right-ui-item-container").appendChild(node);
     },
     refreshListOfObjects(){
@@ -85,8 +110,8 @@ let simulation = {
             this.addObjectToList(index);
         }
     },
-    addCube(){
-        simulation.items.push(new item('box', { width: 100, height: 100, depth: 100 }, 0x000000, { x: 0, y: 0, z: 0 }));
+    addCube(coordX, coordY, coordz){
+        simulation.items.push(new item('box', { width: 10, height: 10, depth: 10 }, 0x000000, { x: coordX, y: coordY, z: coordz }));
         this.refreshListOfObjects();
     },
     checkCollisions(){
@@ -109,7 +134,7 @@ let simulation = {
 class item {
     constructor(type, dimensions, color, position) {
         this.type = type;
-        this.moveable = type
+        this.moveable = true;
         this.itemNode;
 
         if (type == 'box') {
@@ -168,7 +193,7 @@ class item {
 
 // simulation.items.push(new item('box', { width: 10, height: 300, depth: 100 }, 0x000000, { x: 500, y: 100, z: 0 }));
 // simulation.items.push(new item('box', { width: 100, height: 300, depth: 100 }, 0x000000, { x: -670, y: 0, z: 0 }));
-
+// simulation.addCube();
 const animate = function () {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
@@ -179,6 +204,17 @@ animate();
 simulation.tickHandling();
 simulation.refreshListOfObjects();
 
-setInterval(() => {
-    simulation.checkCollisions();
-}, 2000);
+// var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
+
+function checkForObject(event){
+    let mouseVector = new THREE.Vector2();
+    let rayCaster = new THREE.Raycaster();
+
+    mouseVector.x = (event.offsetX /  parseInt(window.getComputedStyle(canvas).width)) * 2 - 1;
+    mouseVector.y = -(event.offsetY /  parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
+
+    rayCaster.setFromCamera(mouseVector, camera);
+    const intersectedObjects = rayCaster.intersectObjects(scene.children);
+
+    return intersectedObjects;
+}

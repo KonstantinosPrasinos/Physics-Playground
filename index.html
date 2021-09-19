@@ -11,12 +11,13 @@
 </head>
 
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.js"></script>
+    <script src="/libraries/three.js"></script>
+    <script src="/libraries/cannon.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
     <div id="app">
         <div id="left-ui">
             <button onclick="toggleSettings();" class="left-ui-buttons icon-buttons big-icon-buttons" id="settings-button"></button>
-            <button onclick="simulation.addCube()" class="left-ui-buttons icon-buttons big-icon-buttons" id="add-cube-button"></button>
+            <button onclick="simulation.addCube(0, 0, 0)" class="left-ui-buttons icon-buttons big-icon-buttons" id="add-cube-button"></button>
             <button onclick="simulation.addCube()" class="left-ui-buttons icon-buttons big-icon-buttons" id="add-sphere-button"></button>
         </div>
         <div id="top-ui">
@@ -27,14 +28,56 @@
                 <div class="right-ui-field">
                     <div id="object-name">No item is Selected</div>
                 </div>
-                <hr class="right-ui-hr">
-                <div class="right-ui-field">
-                    <span class="right-ui-text">This is some text:</span>
-                    <input type="color" value="#ffffff" id="color-picker">
+                <div class="right-ui-grid-container">
+                    <div class="right-ui-grid-item">
+                        <span class="right-ui-grid-headline">Dimensions:</span>
+                    </div>
+                    <div class="right-ui-grid-item">
+                        <span class="right-ui-grid-headline">Position:</span>
+                    </div>
+                    <div class="right-ui-grid-item">
+                        <span class="right-ui-grid-text">W:</span>
+                        <input type="text" class="right-ui-grid-text-editable" id="right-ui-width">
+                    </div>
+                    <div class="right-ui-grid-item">
+                        <span class="right-ui-grid-text">X:</span>
+                        <input type="text" class="right-ui-grid-text-editable" id="right-ui-x">
+                    </div>
+                    <div class="right-ui-grid-item">
+                        <span class="right-ui-grid-text">H:</span>
+                        <input type="text" class="right-ui-grid-text-editable" id="right-ui-height">
+                    </div>
+                    <div class="right-ui-grid-item">
+                        <span class="right-ui-grid-text">Y:</span>
+                        <input type="text" class="right-ui-grid-text-editable" id="right-ui-y">
+                    </div>
+                    <div class="right-ui-grid-item">
+                        <span class="right-ui-grid-text">D:</span>
+                        <input type="text" class="right-ui-grid-text-editable" id="right-ui-depth">
+                    </div>
+                    <div class="right-ui-grid-item">
+                        <span class="right-ui-grid-text">Z:</span>
+                        <input type="text" class="right-ui-grid-text-editable" id="right-ui-z">
+                    </div>
+                    <!-- <div class="right-ui-grid-item">
+                        <span class="right-ui-grid-text">Rotation:</span>
+                    </div>
+                    <div class="right-ui-grid-item">
+                        <span class="right-ui-grid-text">X:</span>
+                        <input type="text">
+                    </div>
+                    <div class="right-ui-grid-item">
+                        <span class="right-ui-grid-text">Y:</span>
+                        <input type="text">
+                    </div>
+                    <div class="right-ui-grid-item">
+                        <span class="right-ui-grid-text">Z:</span>
+                        <input type="text">
+                    </div> -->
+                    <!-- <input type="color" value="#ffffff" id="color-picker"> -->
                 </div>
             </div>
-            <div id="right-ui-items">
-                <hr class="right-ui-hr" id="right-features-items-separator">
+            <div id="right-ui-items-list">
                 <div class="right-ui-field" id="items-in-scene">Items in Scene:</div>
                 <div id="right-ui-item-container"></div>
             </div>
