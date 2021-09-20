@@ -256,6 +256,28 @@ button {
     display: block;
     text-align: center;
 }
+#right-ui-rotation {
+    padding: 10px;
+    font-size: 12px;
+}
+#right-small-headline {
+    width: 100%;
+    display: block;
+    text-align: center;
+    margin-bottom: 5px;
+}
+.right-rotation-field {
+    width: 32%;
+    display: inline-block;
+}
+.right-ui-text-editable {
+    background-color: var(--primary-color);
+    border-width: 0 0 2px 0;
+    border-bottom-color: var(--secondary-color);
+    width: 60%;
+    float: right;
+    padding-bottom: 2px;
+}
 
 /* Settings */
 #settings-overlay {
