@@ -25,64 +25,65 @@
         </div>
         <div id="right-ui">
             <div id="right-ui-features">
-                <div class="right-ui-field">
-                    <div id="object-name">No item is Selected</div>
-                </div>
+                <div class="right-title title-medium" id="object-name">No item is Selected</div>
                 <div class="right-ui-grid-container">
                     <div class="right-ui-grid-item">
-                        <span class="right-ui-grid-headline">Dimensions:</span>
+                        <span class="right-title title-small">Dimensions:</span>
                     </div>
                     <div class="right-ui-grid-item">
-                        <span class="right-ui-grid-headline">Position:</span>
+                        <span class="right-title title-small">Position:</span>
                     </div>
                     <div class="right-ui-grid-item">
                         <span class="right-ui-grid-text">W:</span>
-                        <input type="text" class="right-ui-grid-text-editable" id="right-ui-width">
+                        <input type="text" class="right-text-editable" id="right-ui-width">
                     </div>
                     <div class="right-ui-grid-item">
                         <span class="right-ui-grid-text">X:</span>
-                        <input type="text" class="right-ui-grid-text-editable" id="right-ui-x">
+                        <input type="text" class="right-text-editable" id="right-ui-x">
                     </div>
                     <div class="right-ui-grid-item">
                         <span class="right-ui-grid-text">H:</span>
-                        <input type="text" class="right-ui-grid-text-editable" id="right-ui-height">
+                        <input type="text" class="right-text-editable" id="right-ui-height">
                     </div>
                     <div class="right-ui-grid-item">
                         <span class="right-ui-grid-text">Y:</span>
-                        <input type="text" class="right-ui-grid-text-editable" id="right-ui-y">
+                        <input type="text" class="right-text-editable" id="right-ui-y">
                     </div>
                     <div class="right-ui-grid-item">
                         <span class="right-ui-grid-text">D:</span>
-                        <input type="text" class="right-ui-grid-text-editable" id="right-ui-depth">
+                        <input type="text" class="right-text-editable" id="right-ui-depth">
                     </div>
                     <div class="right-ui-grid-item">
                         <span class="right-ui-grid-text">Z:</span>
-                        <input type="text" class="right-ui-grid-text-editable" id="right-ui-z">
+                        <input type="text" class="right-text-editable" id="right-ui-z">
                     </div>
-                    <!-- <input type="color" value="#ffffff" id="color-picker"> -->
                 </div>
                 <div id="right-ui-rotation">
-                    <div id="right-small-headline">Rotation:</div>
+                    <div class="right-title title-small">Rotation:</div>
                     <div class="right-rotation-field">
                         <span>X:</span>
-                        <input type="text" class="right-ui-text-editable small-text-editable" id="right-rotation-x">
+                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-x">
                     </div>
                     <div class="right-rotation-field">
                         <span>Y:</span>
-                        <input type="text" class="right-ui-text-editable small-text-editable" id="right-rotation-y">
+                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-y">
                     </div>
                     <div class="right-rotation-field">
                         <span>Z:</span>
-                        <input type="text" class="right-ui-text-editable small-text-editable" id="right-rotation-z">
+                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-z">
                     </div>
+                </div>
+                <div id="right-color">
+                    <span>Color:</span>
+                    <input type="color" value="#ffffff" id="color-picker">
                 </div>
             </div>
             <div id="right-ui-items-list">
-                <div class="right-ui-field" id="items-in-scene">Items in Scene:</div>
+                <div class="right-title title-medium">Items in Scene:</div>
                 <div id="right-ui-item-container"></div>
             </div>
         </div>
-        <canvas id="viewportCanvas" onclick="objectClicked();"></canvas>
+        <canvas id="viewportCanvas"></canvas>
         <div id="settings-overlay">
             <div id="settings-box">
                 <button class="close-button icon-buttons big-icon-buttons" onclick="toggleSettings()" style="visibility: inherit;"></button>
