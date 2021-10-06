@@ -69,6 +69,46 @@ button {
 }
 
 /* Buttons */
+#top-select {
+    -webkit-mask-image:  url(/assets/select.svg);
+    mask-image: url(assets/select.svg);
+    /* top: 4px; */
+    position: relative;
+}
+#top-rotate {
+    -webkit-mask-image:  url(/assets/rotate.svg);
+    mask-image: url(assets/rotate.svg);
+    /* top: 4px; */
+    position: relative;
+}
+#top-resize {
+    -webkit-mask-image:  url(/assets/resize.svg);
+    mask-image: url(assets/resize.svg);
+    /* top: 4px; */
+    position: relative;
+}
+#top-play {
+    position: relative;
+}
+.top-play {
+    -webkit-mask-image:  url(/assets/play.svg);
+    mask-image: url(assets/resize.svg);
+    position: relative;
+}
+.top-pause {
+    -webkit-mask-image:  url(/assets/pause.svg);
+    mask-image: url(assets/resize.svg);
+    position: relative;
+}
+#top-replay {
+    -webkit-mask-image:  url(/assets/replay.svg);
+    mask-image: url(assets/resize.svg);
+    position: relative;
+    height: 28px;
+    width: 28px;
+    background-size: 28px;
+    top: -2px;
+}
 #collapse-right-ui-button {
     -webkit-mask-image:  url(/assets/collapse.svg);
     mask-image: url(assets/collapse.svg);
@@ -135,14 +175,30 @@ button {
     position: absolute;
 }
 .small-icon-buttons{
-    height: 24px;
-    width: 24px;
-    background-size: 24px;
+    height: 20px;
+    width: 20px;
+    background-size: 20px;
     position: relative;
 }
 .icon-buttons:active{
     background-color: gray;
     transform: translateY(2px);
+}
+/* Top UI */
+
+.top-field{
+    display: inline-block;
+    /* width: 110px; */
+    position: relative;
+    margin-right: 15px;
+    top: 4px;
+    height: 40px;
+    /* right: 190px;
+    top: 4px */
+}
+#top-mode {
+    position: relative;
+    top: -5px;
 }
 
 /* Right UI */
@@ -251,6 +307,7 @@ button {
     background-color: var(--primary-color);
     border-width: 0 0 2px 0;
     border-bottom-color: var(--secondary-color);
+    color: var(--secondary-color);
     width: 60%;
     margin-left: 3px;
     padding-bottom: 2px;
