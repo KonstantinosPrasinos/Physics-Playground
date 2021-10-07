@@ -1,8 +1,9 @@
 let canvas = document.getElementById("viewportCanvas");
+let topTime = document.getElementById("time");
 
 let scene, renderer, camera, world, timeStep = 1 / 60;
 
-let savedSimulationState = {};
+let savedBoxes = [];
 
 function isObject(item){
     return (typeof item === "object" && !Array.isArray(item) && item !== null);
@@ -29,11 +30,13 @@ function initCannon() {
 
 function updatePhysics() {
     world.step(timeStep);
+    topTime.innerText = parseInt(world.time);
 
     simulation.boxes.forEach(element => {
         element.mesh.position.copy(element.body.position);
         element.mesh.quaternion.copy(element.body.quaternion);
     });
+
 }
 
 function render() {
@@ -48,37 +51,42 @@ function animate() {
     render();
 }
 
-function makeCopyofBodies(){
+async function copyBoxes(){
+    
     for (let i = 0; i < simulation.boxes.length; i++){
-        // let tempBody = new CANNON.Body({
-        //     mass: simulation.boxes[i].mass
-        // });
-        // tempBody.shapes.push(simulation.boxes[i].body.shapes[0]);
-        // tempBody.position.set(simulation.boxes[i].body.position.clone());
-        // tempBody.velocity.set(simulation.boxes[i].body.velocity.clone());
-        // tempBody.force.set(simulation.boxes[i].body.force.clone());
-        // tempBody.quaternion.set(simulation.boxes[i].body.quaternion.clone());
-        // console.log(tempBody);
-        let clone = {};
+        let copyBody = {}, copyMesh, copyName;
+        //Deep copy of the cannonjs body
         for (key in simulation.boxes[i].body){
-            // console.log(simulation.boxes[i].body);
             if (simulation.boxes[i].body){
                 if (isObject(simulation.boxes[i].body[key])){
                     if (key === "world"){
-                        clone[key] = world;
+                        copyBody[key] = world;
                     } else if (key === "invInertiaWorld"){
-                        clone[key] = simulation.boxes[i].body[key];
+                        copyBody[key] = simulation.boxes[i].body[key];
                     } else if (key === "invInertiaWorldSolve"){
-                        clone[key] = simulation.boxes[i].body[key];
+                        copyBody[key] = simulation.boxes[i].body[key];
                     } else {
-                        clone[key] = simulation.boxes[i].body[key].clone();
+                        copyBody[key] = simulation.boxes[i].body[key].clone();
                     }
                 } else {
-                    clone[key] = simulation.boxes[i].body[key];
+                    copyBody[key] = simulation.boxes[i].body[key];
                 }
             }
         }
+        //Deep copy of the threejs mesh
+        copyMesh = simulation.boxes[i].mesh.clone();
+        //Copy of the name of the object
+        copyName = simulation.boxes[i].name;
+
+        //Assigning all of the above to an object ... object and adding it to the copied boxes array
+        let box = {
+            body: copyBody,
+            mesh: copyMesh,
+            name: copyName
+        }
+        savedBoxes.push(box);
     }
+    
 }
 
 let simulation = {
@@ -93,7 +101,7 @@ let simulation = {
         tempBody.position.set(x, y, z);
         // tempBody.angularVelocity.set(0, 10, 0);
         // tempBody.angularDamping = 0.5;
-        world.add(tempBody);
+        world.addBody(tempBody);
 
         let geometry = new THREE.BoxGeometry( width, height, depth);
         let material = new THREE.MeshBasicMaterial( {color: 0xff0000, wireframe: true} );
@@ -138,23 +146,25 @@ let simulation = {
         return intersectedObjects;
     },
     removeAllObjects(){
+        world.time = 0;
         //Remove all Meshes from scene
         for (let i = 0; i < scene.children.length; i++){
             if(scene.children[i].type === "Mesh"){
                 scene.remove(scene.children[i]);
+                i--;
             }
         }
         //Remove all Bodies from world
-        for (let i = 0; i < world.bodies.length; i++){
-            world.remove(world.bodies[i]);
+        while (world.bodies.length > 0){
+            world.removeBody(world.bodies[0]);
         }
-        console.log("Removed All Objects");
     },
     addAllObjects(){
         //Adds all Bodies to the world and Meshes to the scene
+        console.log(world.bodies.length);
         for (let i = 0; i < this.boxes.length; i++){
             scene.add(this.boxes[i].mesh);
-            world.add(this.boxes[i].body);
+            world.addBody(this.boxes[i].body);
         }
     }
 }

@@ -127,7 +127,6 @@ function setInputObjectParameters() {
 
 function pauseSimulation(){
     if (!simulation.isPaused){
-        console.log("pausing simulation");
         togglePauseButton.classList.remove('top-pause');
         togglePauseButton.classList.add('top-play');
     }
@@ -136,7 +135,6 @@ function pauseSimulation(){
 
 function resumeSimulation(){
     if (simulation.isPaused){
-        console.log("resuming simulation");
         togglePauseButton.classList.remove('top-play');
         togglePauseButton.classList.add('top-pause');
         
@@ -146,7 +144,7 @@ function resumeSimulation(){
 
 function togglePause(){
     if (mode == "setup"){
-        setupHistory = simulation;
+        copyBoxes();
         mode = "simulation";
         topMode.innerHTML = "<b>Mode:</b> Simulation";
     }
@@ -157,14 +155,20 @@ function togglePause(){
     }
 }
 
-function toggleMode(){
-    console.log(simulation.boxes[0].body);
-    // if (mode == "simulation"){
-    //     pauseSimulation();
-    //     mode = "setup";
-    //     simulation = setupHistory;
-    //     topMode.innerHTML = "<b>Mode:</b> Setup";
-    // }
+async function toggleMode(){
+    if (mode == "simulation"){
+        pauseSimulation();
+        mode = "setup";
+
+        simulation.removeAllObjects();
+        
+        // simulation.addAllObjects();
+        
+        simulation.boxes = savedBoxes;
+        savedBoxes = [];
+        simulation.addAllObjects();
+        topMode.innerHTML = "<b>Mode:</b> Setup";
+    }
     //Make a new function for saving the state of the setup. Use the code below for the body. For the meshes use the whole save three.js save scene thing and export meshes from there. Don't forget to reset time to 0 (may have to do something else with time as well)
     //I think that changing the mass of an object is harder than I would think. Google it (https://github.com/schteppe/cannon.js/issues/122).
     //Instead of the thing I have below I can just copy everything to the new object except the things I have an issue with (the world child-object).
