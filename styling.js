@@ -4,6 +4,7 @@ let itemSelected = -1;
 let tutorialCompleted = false;
 let mode = "setup";
 let setupHistory;
+let selectedCursor = "move";
 // let colorPicker 
 
 let root = document.documentElement;
@@ -37,6 +38,30 @@ if (!localStorage.theme) {
 if (!localStorage.tutorialCompleted) {
     //Start tutorial
     localStorage.setItem("tutorialCompleted", "true");
+}
+
+function selectCursorMove(){
+    if (simulation.shapesForChanges.length > 0 && selectedCursor != "move" && itemSelected >= 0) {
+        simulation.removeAllArrows();
+        simulation.makeArrows(itemSelected, "move");
+    }
+    selectedCursor = "move";
+}
+
+function selectCursorScale(){
+    if (simulation.shapesForChanges.length > 0 && selectedCursor != "scale" && itemSelected >= 0) {
+        simulation.removeAllArrows();
+        simulation.makeArrows(itemSelected, "scale");
+    }
+    selectedCursor = "scale";
+}
+
+function selectCursorRotate(){
+    if (simulation.shapesForChanges.length > 0 && selectedCursor != "rotate" && itemSelected >= 0) {
+        simulation.removeAllArrows();
+        simulation.makeArrows(itemSelected, "rotate");
+    }
+    selectedCursor = "rotate";
 }
 
 function toggleRightUI() {
@@ -147,6 +172,9 @@ function togglePause(){
         copyBoxes();
         mode = "simulation";
         topMode.innerHTML = "<b>Mode:</b> Simulation";
+        if (simulation.shapesForChanges.length > 0){
+            simulation.removeAllArrows();
+        }
     }
     if (simulation.isPaused){
         resumeSimulation();
@@ -186,23 +214,55 @@ canvas.addEventListener('mousedown', (event) => {
     if (document.activeElement !== colorPicker) {
         let intersectedObjects = simulation.checkForObject(event);
         if (intersectedObjects.length > 0) {
+            let loopSucceeded = false;
             for (let i = 0; i < simulation.boxes.length; i++) {
                 if (simulation.boxes[i].mesh.uuid == intersectedObjects[0].object.uuid) {
                     objectNameField.innerText = simulation.boxes[i].name;
                     itemSelected = i;
                     setInputObjectParameters();
                     colorPicker.value = `#${simulation.boxes[i].mesh.material.color.getHexString()}`;
+                    // simulation.removeAllArrows();
+                    if (simulation.shapesForChanges.length > 0){
+                        simulation.removeAllArrows();
+                    }
+                    simulation.makeArrows(i, selectedCursor);
+                    loopSucceeded = true;
                     break;
                 } else {
+                    console.log(intersectedObjects[0])
                     itemSelected = -1;
                     setInputObjectParameters();
                     objectNameField.innerText = 'No Item is Selected';
+                    // simulation.removeAllArrows();
+                }
+            }
+            if (!loopSucceeded){
+                for (index in simulation.shapesForChanges){
+                    if (simulation.shapesForChanges[index].uuid == intersectedObjects[0].object.uuid){
+                        switch (selectedCursor) {
+                            case "move":
+                                //Move
+                                break;
+                            case "rotate":
+                                //Rotate
+                                break;
+                            case "scale":
+                                //Scale
+                                break
+                            default:
+                                break;
+                        }
+                    }
                 }
             }
         } else {
             itemSelected = -1;
             setInputObjectParameters();
             objectNameField.innerText = 'No Item is Selected';
+            if (simulation.shapesForChanges.length > 0){
+                simulation.removeAllArrows();
+            }
+            // simulation.removeAllArrows();
         }
     }
 }, false);
