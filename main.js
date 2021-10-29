@@ -7,6 +7,10 @@ let scene, renderer, camera, world, timeStep = 1 / 60;
 
 let savedBoxes = [];
 
+let rightUIisCollapsed = true, storedTheme = 'dark', itemSelected = -1, tutorialCompleted = false, mode = "setup", setupHistory, selectedCursor = "move";
+
+let ratio = null, differences = [], intersectedObject = null;
+
 function isObject(item){
     return (typeof item === "object" && !Array.isArray(item) && item !== null);
 }

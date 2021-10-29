@@ -1,10 +1,3 @@
-let rightUIisCollapsed = true;
-let storedTheme = 'dark';
-let itemSelected = -1;
-let tutorialCompleted = false;
-let mode = "setup";
-let setupHistory;
-let selectedCursor = "move";
 // let colorPicker 
 
 let root = document.documentElement;
@@ -175,6 +168,10 @@ function togglePause(){
         if (simulation.shapesForChanges.length > 0){
             simulation.removeAllArrows();
         }
+        simulation.boxes.forEach(element => {
+            element.body.position.copy(element.mesh.position);
+            element.body.quaternion.copy(element.mesh.quaternion);
+        });
     }
     if (simulation.isPaused){
         resumeSimulation();
@@ -209,8 +206,6 @@ settingsOverlay.addEventListener('click', (event) => {
         toggleSettings();
     }
 });
-
-let ratio = null, differences = [], intersectedObject = null;
 
 function moveObjectToMouseMovement(event){
     let direction = intersectedObject.userData.direction;
@@ -250,9 +245,7 @@ function moveObjectToMouseMovement(event){
     }
 }
 
-let eventListenerVar;
-
-canvas.addEventListener("mouseup", () => {
+window.addEventListener("mouseup", () => {
     if (ratio){
         canvas.removeEventListener("mousemove", moveObjectToMouseMovement);
         ratio = null;
@@ -290,7 +283,9 @@ canvas.addEventListener('mousedown', (event) => {
                             if (simulation.shapesForChanges.length > 0){
                                 simulation.removeAllArrows();
                             }
-                            simulation.makeArrows(i, selectedCursor);
+                            if (mode != "simulation"){
+                                simulation.makeArrows(i, selectedCursor);
+                            }
                             loopSucceeded = true;
                             break;
                         } else {
