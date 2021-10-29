@@ -210,7 +210,7 @@ settingsOverlay.addEventListener('click', (event) => {
     }
 });
 
-let ratio = null, differences = [], intersectedObject;
+let ratio = null, differences = [], intersectedObject = null;
 
 function moveObjectToMouseMovement(event){
     let direction = intersectedObject.userData.direction;
@@ -255,6 +255,9 @@ let eventListenerVar;
 canvas.addEventListener("mouseup", () => {
     if (ratio){
         canvas.removeEventListener("mousemove", moveObjectToMouseMovement);
+        ratio = null;
+        differences = [];
+        intersectedObject = null;
     }
 })
 
