@@ -210,32 +210,97 @@ settingsOverlay.addEventListener('click', (event) => {
     }
 });
 
+let ratio = null, differences = [], intersectedObject;
+
+function moveObjectToMouseMovement(event){
+    let direction = intersectedObject.userData.direction;
+    if (ratio == null){
+        if (rayDirection[direction] == 0){
+            ratio = intersectedObject.position[direction] / (rayDirection[direction] + 0.00001);
+        } else {
+            ratio = intersectedObject.position[direction] / rayDirection[direction];
+        }
+        differences.push({
+            item: simulation.boxes[itemSelected].mesh,
+            difference: intersectedObject.position[direction] - simulation.boxes[itemSelected].mesh.position[direction]
+        });
+        for (let i = 0; i < simulation.shapesForChanges.length; i++){
+            differences.push({
+                item: simulation.shapesForChanges[i],
+                difference: intersectedObject.position[direction] - simulation.shapesForChanges[i].position[direction]
+            });
+        }
+    }
+    
+    let previousRayDirection = rayDirection[direction];
+    simulation.checkForObject(event);
+
+    if (intersectedObject.position[direction] == 0) {
+        if (rayDirection[direction] > previousRayDirection){
+            intersectedObject.position[direction] = 0.00001;
+        } else {
+            intersectedObject.position[direction] = -0.00001;
+        }
+    } else {
+        intersectedObject.position[direction] = ratio * rayDirection[direction];
+    }
+
+    for (let i = 0; i < differences.length; i++){
+        differences[i].item.position[direction] = intersectedObject.position[direction] - differences[i].difference;
+    }
+}
+
+let eventListenerVar;
+
+canvas.addEventListener("mouseup", () => {
+    if (ratio){
+        canvas.removeEventListener("mousemove", moveObjectToMouseMovement);
+    }
+})
+
 canvas.addEventListener('mousedown', (event) => {
     if (document.activeElement !== colorPicker) {
         let intersectedObjects = simulation.checkForObject(event);
         if (intersectedObjects.length > 0) {
             let loopSucceeded = false;
-            for (let i = 0; i < simulation.boxes.length; i++) {
-                if (simulation.boxes[i].mesh.uuid == intersectedObjects[0].object.uuid) {
-                    objectNameField.innerText = simulation.boxes[i].name;
-                    itemSelected = i;
-                    setInputObjectParameters();
-                    colorPicker.value = `#${simulation.boxes[i].mesh.material.color.getHexString()}`;
-                    // simulation.removeAllArrows();
-                    if (simulation.shapesForChanges.length > 0){
-                        simulation.removeAllArrows();
+            intersectedObjects.forEach(element => {
+                if (!loopSucceeded){
+                    for (index in simulation.shapesForChanges){
+                        if (element.object.uuid == simulation.shapesForChanges[index].uuid){
+                            collisionPoint = element.point;
+                            // console.log(intersectedObjects);
+                            intersectedObject = intersectedObjects[0].object;
+                            eventListenerVar = canvas.addEventListener("mousemove", moveObjectToMouseMovement);
+                            loopSucceeded = true;
+                            break;
+                        }
                     }
-                    simulation.makeArrows(i, selectedCursor);
-                    loopSucceeded = true;
-                    break;
-                } else {
-                    console.log(intersectedObjects[0])
-                    itemSelected = -1;
-                    setInputObjectParameters();
-                    objectNameField.innerText = 'No Item is Selected';
-                    // simulation.removeAllArrows();
                 }
-            }
+                if (!loopSucceeded){
+                    for (let i = 0; i < simulation.boxes.length; i++) {
+                        if (simulation.boxes[i].mesh.uuid == intersectedObjects[0].object.uuid) {
+                            objectNameField.innerText = simulation.boxes[i].name;
+                            itemSelected = i;
+                            setInputObjectParameters();
+                            colorPicker.value = `#${simulation.boxes[i].mesh.material.color.getHexString()}`;
+                            // simulation.removeAllArrows();
+                            if (simulation.shapesForChanges.length > 0){
+                                simulation.removeAllArrows();
+                            }
+                            simulation.makeArrows(i, selectedCursor);
+                            loopSucceeded = true;
+                            break;
+                        } else {
+                            // console.log(intersectedObjects[0])
+                            itemSelected = -1;
+                            setInputObjectParameters();
+                            objectNameField.innerText = 'No Item is Selected';
+                            // simulation.removeAllArrows();
+                        }
+                    }
+                }
+            });
+            
             if (!loopSucceeded){
                 for (index in simulation.shapesForChanges){
                     if (simulation.shapesForChanges[index].uuid == intersectedObjects[0].object.uuid){

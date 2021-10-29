@@ -1,6 +1,8 @@
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
 
+let rayDirection, collisionPoint;
+
 let scene, renderer, camera, world, timeStep = 1 / 60;
 
 let savedBoxes = [];
@@ -13,7 +15,7 @@ function initThree() {
     scene = new THREE.Scene();
 
     camera = new THREE.PerspectiveCamera( 45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
-    camera.position.z = 15;
+    camera.position.z = 50;
     scene.add(camera);
 
     renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true});
@@ -142,9 +144,9 @@ let simulation = {
         mouseVector.y = -(event.offsetY /  parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
     
         rayCaster.setFromCamera(mouseVector, camera);
-        const intersectedObjects = rayCaster.intersectObjects(scene.children);
-    
-        return intersectedObjects;
+        rayDirection = rayCaster.ray.direction;
+
+        return rayCaster.intersectObjects(scene.children);
     },
     removeAllObjects(){
         world.time = 0;
@@ -176,45 +178,57 @@ let simulation = {
         const radius = height / 20;
         
 
-        function makeCylinders(){
+        function makeCylinders(type){
             const cylinderGeometry = new THREE.CylinderGeometry(radius, radius, height, 20);
 
             const cylinderX = new THREE.Mesh( cylinderGeometry, materialX );
             cylinderX.position.set(mesh.position.x + mesh.geometry.parameters.width, mesh.position.y, mesh.position.z);
             cylinderX.rotateZ(Math.PI / 2);
+            cylinderX.userData.type = type;
+            cylinderX.userData.direction = "x";
             scene.add(cylinderX);
             simulation.shapesForChanges.push(cylinderX);
 
             const cylinderY = new THREE.Mesh( cylinderGeometry, materialY);
             cylinderY.position.set(mesh.position.x, mesh.position.y + mesh.geometry.parameters.height, mesh.position.z);
+            cylinderY.userData.type = type;
+            cylinderY.userData.direction = "y";
             scene.add(cylinderY);
             simulation.shapesForChanges.push(cylinderY);
 
             const cylinderZ = new THREE.Mesh( cylinderGeometry, materialZ);
             cylinderZ.position.set(mesh.position.x, mesh.position.y, mesh.position.y + mesh.geometry.parameters.depth);
-            cylinderZ.rotateX(Math.PI / 2)
+            cylinderZ.rotateX(Math.PI / 2);
+            cylinderZ.userData.type = type;
+            cylinderZ.userData.direction = "z";
             scene.add(cylinderZ);
             simulation.shapesForChanges.push(cylinderZ);
         }
 
         switch (type) {
             case "move":
-                makeCylinders();
-                let headGeometry = new THREE.CylinderGeometry(0, radius * 2, height / 2, 20);
+                makeCylinders(type);
+                let headGeometry = new THREE.ConeGeometry(radius * 2, height / 2, 20);
 
                 const headX = new THREE.Mesh( headGeometry, materialX );
                 headX.position.set(mesh.position.x + mesh.geometry.parameters.width * 2, mesh.position.y, mesh.position.z)
                 headX.rotateZ(3 * Math.PI / 2);
+                headX.userData.type = type;
+                headX.userData.direction = "x";
                 scene.add(headX);
                 simulation.shapesForChanges.push(headX);
 
                 const headY = new THREE.Mesh( headGeometry, materialY );
                 headY.position.set(mesh.position.x, mesh.position.y + mesh.geometry.parameters.height * 2, mesh.position.z);
+                headY.userData.type = type;
+                headY.userData.direction = "y";
                 scene.add(headY);
                 simulation.shapesForChanges.push(headY);
 
                 const headZ = new THREE.Mesh( headGeometry, materialZ );
                 headZ.position.set(mesh.position.x, mesh.position.y, mesh.position.z + mesh.geometry.parameters.depth * 2);
+                headZ.userData.type = type;
+                headZ.userData.direction = "z";
                 headZ.rotateX(Math.PI / 2)
                 scene.add(headZ);
                 simulation.shapesForChanges.push(headZ);
