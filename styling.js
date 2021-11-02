@@ -34,11 +34,11 @@ if (!localStorage.tutorialCompleted) {
 }
 
 function selectCursorMove(){
-    if (simulation.shapesForChanges.length > 0 && selectedCursor != "move" && itemSelected >= 0) {
+    if (simulation.shapesForChanges.length > 0 && selectedCursor != "position" && itemSelected >= 0) {
         simulation.removeAllArrows();
-        simulation.makeArrows(itemSelected, "move");
+        simulation.makeArrows(itemSelected, "position");
     }
-    selectedCursor = "move";
+    selectedCursor = "position";
 }
 
 function selectCursorScale(){
@@ -50,11 +50,11 @@ function selectCursorScale(){
 }
 
 function selectCursorRotate(){
-    if (simulation.shapesForChanges.length > 0 && selectedCursor != "rotate" && itemSelected >= 0) {
+    if (simulation.shapesForChanges.length > 0 && selectedCursor != "rotation" && itemSelected >= 0) {
         simulation.removeAllArrows();
-        simulation.makeArrows(itemSelected, "rotate");
+        simulation.makeArrows(itemSelected, "rotation");
     }
-    selectedCursor = "rotate";
+    selectedCursor = "rotation";
 }
 
 function toggleRightUI() {
@@ -211,18 +211,19 @@ function moveObjectToMouseMovement(event){
     let direction = intersectedObject.userData.direction;
     if (ratio == null){
         if (rayDirection[direction] == 0){
-            ratio = intersectedObject.position[direction] / (rayDirection[direction] + 0.00001);
+            ratio = intersectedObject[typeOfArrow][direction] / (rayDirection[direction] + 0.00001);
         } else {
-            ratio = intersectedObject.position[direction] / rayDirection[direction];
+            console.log(intersectedObject[typeOfArrow], intersectedObject, typeOfArrow);
+            ratio = intersectedObject[typeOfArrow][direction] / rayDirection[direction];
         }
         differences.push({
             item: simulation.boxes[itemSelected].mesh,
-            difference: intersectedObject.position[direction] - simulation.boxes[itemSelected].mesh.position[direction]
+            difference: intersectedObject[typeOfArrow][direction] - simulation.boxes[itemSelected].mesh[typeOfArrow][direction]
         });
         for (let i = 0; i < simulation.shapesForChanges.length; i++){
             differences.push({
                 item: simulation.shapesForChanges[i],
-                difference: intersectedObject.position[direction] - simulation.shapesForChanges[i].position[direction]
+                difference: intersectedObject[typeOfArrow][direction] - simulation.shapesForChanges[i][typeOfArrow][direction]
             });
         }
     }
@@ -230,18 +231,39 @@ function moveObjectToMouseMovement(event){
     let previousRayDirection = rayDirection[direction];
     simulation.checkForObject(event);
 
-    if (intersectedObject.position[direction] == 0) {
+    if (intersectedObject[typeOfArrow][direction] == 0) {
         if (rayDirection[direction] > previousRayDirection){
-            intersectedObject.position[direction] = 0.00001;
+            intersectedObject[typeOfArrow][direction] = 0.00001;
         } else {
-            intersectedObject.position[direction] = -0.00001;
+            intersectedObject[typeOfArrow][direction] = -0.00001;
         }
     } else {
-        intersectedObject.position[direction] = ratio * rayDirection[direction];
+        intersectedObject[typeOfArrow][direction] = ratio * rayDirection[direction];
     }
 
     for (let i = 0; i < differences.length; i++){
-        differences[i].item.position[direction] = intersectedObject.position[direction] - differences[i].difference;
+        differences[i].item[typeOfArrow][direction] = intersectedObject[typeOfArrow][direction] - differences[i].difference;
+    }
+}
+
+function rotateObjectToMouseMovement(event){
+    let direction = intersectedObject.userData.direction;
+    if (ratio == null){
+        if (rayDirection[direction] == 0){
+            ratio = intersectedObject.rotation[direction] / (rayDirection[direction] + 0.00001);
+        } else {
+            ratio = intersectedObject.rotation[direction] / rayDirection[direction];
+        }
+        differences.push({
+            item: simulation.boxes[itemSelected].mesh,
+            difference: intersectedObject.rotation[direction] - simulation.boxes[itemSelected].mesh.rotation[direction]
+        });
+        for (let i = 0; i < simulation.shapesForChanges.length; i++){
+            differences.push({
+                item: simulation.shapesForChanges[i],
+                difference: intersectedObject.rotation[direction] - simulation.shapesForChanges
+            })
+        }
     }
 }
 
@@ -261,15 +283,11 @@ canvas.addEventListener('mousedown', (event) => {
             let loopSucceeded = false;
             intersectedObjects.forEach(element => {
                 if (!loopSucceeded){
-                    for (index in simulation.shapesForChanges){
-                        if (element.object.uuid == simulation.shapesForChanges[index].uuid){
-                            collisionPoint = element.point;
-                            // console.log(intersectedObjects);
-                            intersectedObject = intersectedObjects[0].object;
-                            eventListenerVar = canvas.addEventListener("mousemove", moveObjectToMouseMovement);
-                            loopSucceeded = true;
-                            break;
-                        }
+                    if (element.object.userData.type){
+                        intersectedObject = intersectedObjects[0].object;
+                        typeOfArrow = intersectedObject.userData.type;
+                        eventListenerVar = canvas.addEventListener("mousemove", moveObjectToMouseMovement);
+                        loopSucceeded = true;
                     }
                 }
                 if (!loopSucceeded){
@@ -303,11 +321,11 @@ canvas.addEventListener('mousedown', (event) => {
                 for (index in simulation.shapesForChanges){
                     if (simulation.shapesForChanges[index].uuid == intersectedObjects[0].object.uuid){
                         switch (selectedCursor) {
-                            case "move":
+                            case "position":
                                 //Move
                                 break;
-                            case "rotate":
-                                //Rotate
+                            case "rotation":
+                                //rotation
                                 break;
                             case "scale":
                                 //Scale
