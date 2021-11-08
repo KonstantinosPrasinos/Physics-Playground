@@ -13,28 +13,29 @@
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js" integrity="sha512-UxP+UhJaGRWuMG2YC6LPWYpFQnsSgnor0VUF3BHdD83PS/pOpN+FYbZmrYN+ISX8jnvgVUciqP/fILOXDjZSwg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js" integrity="sha512-avLcnGxl5mqAX/wIKERdb1gFNkOLHh2W5JNCfJm5OugpEPBz7LNXJJ3BDjjwO00AxEY1MqdNjtEmiYhKC0ld7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- <script src="three.js"></script>
+    <script src="OrbitControls.js" type="module"></script> -->
     <div id="app">
         <div id="left-ui">
-            <button onclick="toggleSettings();" class="left-ui-buttons icon-buttons big-icon-buttons"
+            <button class="left-ui-buttons icon-buttons big-icon-buttons"
                 id="settings-button"></button>
-            <button onclick="simulation.createBox(10, 0, 0, 2, 2, 2); simulation.boxes[0].body.velocity.set(-1, 0, 0);" class="left-ui-buttons icon-buttons big-icon-buttons"
+            <button class="left-ui-buttons icon-buttons big-icon-buttons"
                 id="add-cube-button"></button>
-            <button onclick="simulation.createBox(-10, 0, 0, 2, 2, 2); simulation.boxes[0].body.velocity.set(1, 0, 0);" class="left-ui-buttons icon-buttons big-icon-buttons"
+            <button onclick="simulation.createBox(0, 0, 0, 2, 2, 2); simulation.boxes[0].body.velocity.set(1, 0, 0);" class="left-ui-buttons icon-buttons big-icon-buttons"
                 id="add-sphere-button"></button>
         </div>
         <div id="top-ui">
             <div class="top-field">
-                <button onclick="selectCursorMove()" id="top-select" class="icon-buttons big-icon-buttons"></button>
-                <button onclick="selectCursorScale()" id="top-resize" class="icon-buttons big-icon-buttons"></button>
-                <button onclick="selectCursorRotate()" id="top-rotate" class="icon-buttons big-icon-buttons"></button>
+                <button id="top-select" class="icon-buttons big-icon-buttons"></button>
+                <button id="top-resize" class="icon-buttons big-icon-buttons"></button>
+                <button id="top-rotate" class="icon-buttons big-icon-buttons"></button>
             </div>
             <div class="top-field">
-                <button id="top-play" class="icon-buttons big-icon-buttons top-play" onclick="togglePause()"></button>
-                <button id="top-replay" class="icon-buttons big-icon-buttons" onclick="toggleMode()"></button>
+                <button id="top-play" class="icon-buttons big-icon-buttons top-play"></button>
+                <button id="top-replay" class="icon-buttons big-icon-buttons"></button>
             </div>
             <div id="top-mode" class="top-field"><b>Mode:</b> Setup</div>
-            <button id="collapse-right-ui-button" class="icon-buttons big-icon-buttons" onclick="toggleRightUI();"></button>
+            <button id="collapse-right-ui-button" class="icon-buttons big-icon-buttons"></button>
             <div>Time: <p id="time">0</p></div>
         </div>
         <div id="right-ui">
@@ -100,19 +101,18 @@
         <canvas id="viewportCanvas"></canvas>
         <div id="settings-overlay">
             <div id="settings-box">
-                <button class="close-button icon-buttons big-icon-buttons" onclick="toggleSettings()"
-                    style="visibility: inherit;"></button>
+                <button class="close-button icon-buttons big-icon-buttons" style="visibility: inherit;" id="close-settings"></button>
                 <span class="title">Settings:</span>
                 <div class="settings-row">
                     <span class="chapter">Theme:</span>
-                    <button onclick="setTheme('light');" id="light-theme-button"
+                    <button id="light-theme-button"
                         class="theme-button-unselected"></button>
-                    <button onclick="setTheme('dark');" id="dark-theme-button" class="theme-button-selected"></button>
+                    <button id="dark-theme-button" class="theme-button-selected"></button>
                 </div>
             </div>
         </div>
     </div>
-    <script src="main.js"></script>
-    <script src="styling.js"></script>
+    <script src="main.js" type="module"></script>
+    <script src="styling.js" type="module"></script>
 </body>
 </html>

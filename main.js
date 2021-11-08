@@ -1,18 +1,20 @@
+import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
+
+import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
+import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
+
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
 
-let rayDirection, collisionPoint;
+let rayDirection, savedBoxes = [], scene, renderer, camera, world, timeStep = 1 / 60, orbitControls, transformControls;
 
-let scene, renderer, camera, world, timeStep = 1 / 60;
+//Init Functions
 
-let savedBoxes = [];
-
-let rightUIisCollapsed = true, storedTheme = 'dark', itemSelected = -1, tutorialCompleted = false, mode = "setup", setupHistory, selectedCursor = "position";
-
-let ratio = null, differences = [], intersectedObject = null, typeOfArrow = null;
-
-function isObject(item){
-    return (typeof item === "object" && !Array.isArray(item) && item !== null);
+function initControls(){
+    orbitControls = new OrbitControls( camera, renderer.domElement );
+    transformControls = new TransformControls(camera, renderer.domElement);
+    transformControls.addEventListener('change', render);
+    scene.add(transformControls);
 }
 
 function initThree() {
@@ -34,6 +36,8 @@ function initCannon() {
     world.solver.iterations = 10;
 }
 
+//Timed Functions
+
 function updatePhysics() {
     world.step(timeStep);
 
@@ -47,6 +51,7 @@ function updatePhysics() {
 function render() {
     topTime.innerText = parseInt(world.time);
     renderer.render(scene, camera);
+    
 }
 
 function animate() {
@@ -57,8 +62,13 @@ function animate() {
     render();
 }
 
+//General Functions
+
+function isObject(item){
+    return (typeof item === "object" && !Array.isArray(item) && item !== null);
+}
+
 async function copyBoxes(){
-    
     for (let i = 0; i < simulation.boxes.length; i++){
         let copyBody = {}, copyMesh, copyName;
         //Deep copy of the cannonjs body
@@ -95,6 +105,8 @@ async function copyBoxes(){
     
 }
 
+//Simulation Object
+
 let simulation = {
     boxes: [],
     shapesForChanges: [],
@@ -106,8 +118,6 @@ let simulation = {
         });
         tempBody.addShape(shape);
         tempBody.position.set(x, y, z);
-        // tempBody.angularVelocity.set(0, 10, 0);
-        // tempBody.angularDamping = 0.5;
         world.addBody(tempBody);
 
         let geometry = new THREE.BoxGeometry( width, height, depth);
@@ -133,6 +143,7 @@ let simulation = {
                 }
             }
         }
+        tempMesh.userData.name = `Box-${i}`
         let box = {
             body: tempBody,
             mesh: tempMesh,
@@ -172,136 +183,15 @@ let simulation = {
             scene.add(this.boxes[i].mesh);
             world.addBody(this.boxes[i].body);
         }
-    },
-    makeArrows(index, type){
-        let mesh = simulation.boxes[index].mesh;
-        const materialX = new THREE.MeshBasicMaterial( {color: 0xff0000});
-        const materialY = new THREE.MeshBasicMaterial( {color: 0x00ff00});
-        const materialZ = new THREE.MeshBasicMaterial( {color: 0x0000ff});
-        const height = (mesh.geometry.parameters.width >= mesh.geometry.parameters.depth && mesh.geometry.parameters.width >= mesh.geometry.parameters.height) ? mesh.geometry.parameters.width  * 2: (mesh.geometry.parameters.height >= mesh.geometry.parameters.depth ? mesh.geometry.parameters.height * 2: mesh.geometry.parameters.depth * 2);
-        const radius = height / 20;
-        
-
-        function makeCylinders(type){
-            const cylinderGeometry = new THREE.CylinderGeometry(radius, radius, height, 20);
-
-            const cylinderX = new THREE.Mesh( cylinderGeometry, materialX );
-            cylinderX.position.set(mesh.position.x + mesh.geometry.parameters.width, mesh.position.y, mesh.position.z);
-            cylinderX.rotateZ(Math.PI / 2);
-            cylinderX.userData.type = type;
-            cylinderX.userData.direction = "x";
-            scene.add(cylinderX);
-            simulation.shapesForChanges.push(cylinderX);
-
-            const cylinderY = new THREE.Mesh( cylinderGeometry, materialY);
-            cylinderY.position.set(mesh.position.x, mesh.position.y + mesh.geometry.parameters.height, mesh.position.z);
-            cylinderY.userData.type = type;
-            cylinderY.userData.direction = "y";
-            scene.add(cylinderY);
-            simulation.shapesForChanges.push(cylinderY);
-
-            const cylinderZ = new THREE.Mesh( cylinderGeometry, materialZ);
-            cylinderZ.position.set(mesh.position.x, mesh.position.y, mesh.position.y + mesh.geometry.parameters.depth);
-            cylinderZ.rotateX(Math.PI / 2);
-            cylinderZ.userData.type = type;
-            cylinderZ.userData.direction = "z";
-            scene.add(cylinderZ);
-            simulation.shapesForChanges.push(cylinderZ);
-        }
-
-        switch (type) {
-            case "position":
-                makeCylinders(type);
-                let headGeometry = new THREE.ConeGeometry(radius * 2, height / 2, 20);
-
-                const headX = new THREE.Mesh( headGeometry, materialX );
-                headX.position.set(mesh.position.x + mesh.geometry.parameters.width * 2, mesh.position.y, mesh.position.z)
-                headX.rotateZ(3 * Math.PI / 2);
-                headX.userData.type = type;
-                headX.userData.direction = "x";
-                scene.add(headX);
-                simulation.shapesForChanges.push(headX);
-
-                const headY = new THREE.Mesh( headGeometry, materialY );
-                headY.position.set(mesh.position.x, mesh.position.y + mesh.geometry.parameters.height * 2, mesh.position.z);
-                headY.userData.type = type;
-                headY.userData.direction = "y";
-                scene.add(headY);
-                simulation.shapesForChanges.push(headY);
-
-                const headZ = new THREE.Mesh( headGeometry, materialZ );
-                headZ.position.set(mesh.position.x, mesh.position.y, mesh.position.z + mesh.geometry.parameters.depth * 2);
-                headZ.userData.type = type;
-                headZ.userData.direction = "z";
-                headZ.rotateX(Math.PI / 2)
-                scene.add(headZ);
-                simulation.shapesForChanges.push(headZ);
-                break;
-            case "scale":
-                makeCylinders();
-                let headGeometryScale = new THREE.BoxGeometry(radius * 4, radius * 4, radius * 4);
-
-                const scaleX = new THREE.Mesh( headGeometryScale, materialX );
-                scaleX.position.set(mesh.position.x + mesh.geometry.parameters.width * 2, mesh.position.y, mesh.position.z)
-                scaleX.rotateZ(3 * Math.PI / 2);
-                scaleX.userData.type = type;
-                scaleX.userData.direction = "x";
-                scene.add(scaleX);
-                simulation.shapesForChanges.push(scaleX);
-
-                const scaleY = new THREE.Mesh( headGeometryScale, materialY );
-                scaleY.position.set(mesh.position.x, mesh.position.y + mesh.geometry.parameters.height * 2, mesh.position.z);
-                scaleY.userData.type = type;
-                scaleY.userData.direction = "y";
-                scene.add(scaleY);
-                simulation.shapesForChanges.push(scaleY);
-
-                const scaleZ = new THREE.Mesh( headGeometryScale, materialZ );
-                scaleZ.position.set(mesh.position.x, mesh.position.y, mesh.position.z + mesh.geometry.parameters.depth * 2);
-                scaleZ.rotateX(Math.PI / 2);
-                scaleZ.userData.type = type;
-                scaleZ.userData.direction = "z";
-                scene.add(scaleZ);
-                simulation.shapesForChanges.push(scaleZ);
-                break;
-            case "rotation":
-                let torusGeometry = new THREE.TorusGeometry(height * 0.75, height / 20, 4, 50);
-
-                const rotateX = new THREE.Mesh( torusGeometry, materialX );
-                rotateX.position.set(mesh.position.x, mesh.position.y, mesh.position.z);
-                rotateX.rotateY(Math.PI / 2);
-                rotateX.userData.type = type;
-                rotateX.userData.direction = "x";
-                scene.add(rotateX);
-                simulation.shapesForChanges.push(rotateX);
-
-                const rotateY = new THREE.Mesh( torusGeometry, materialY );
-                rotateY.position.set(mesh.position.x, mesh.position.y, mesh.position.z);
-                rotateY.rotateX(Math.PI / 2);
-                rotateY.userData.type = type;
-                rotateY.userData.direction = "y";
-                scene.add(rotateY);
-                simulation.shapesForChanges.push(rotateY);
-
-                const rotateZ = new THREE.Mesh( torusGeometry, materialZ );
-                rotateZ.position.set(mesh.position.x, mesh.position.y, mesh.position.z);
-                rotateZ.rotateZ(Math.PI / 2);
-                rotateZ.userData.type = type;
-                rotateZ.userData.direction = "z";
-                scene.add(rotateZ);
-                simulation.shapesForChanges.push(rotateZ);
-            default:
-                break;
-        }
-    },
-    removeAllArrows(){
-        while(simulation.shapesForChanges.length){
-            scene.remove(simulation.shapesForChanges[0]);
-            simulation.shapesForChanges.shift();
-        }
     }
 }
 
+//Function Call and Export
+
 initThree();
 initCannon();
+initControls();
+
 animate();
+
+export {simulation, camera, transformControls, orbitControls};

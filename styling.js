@@ -1,6 +1,7 @@
-// let colorPicker 
+import {simulation, transformControls, orbitControls} from '/main.js'
 
-let root = document.documentElement;
+let itemSelected = -1, tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark';
+
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
 let collapseRightUIButton = document.getElementById("collapse-right-ui-button");
@@ -21,6 +22,9 @@ let rotationZInput = document.getElementById("right-rotation-z");
 let colorPicker = document.getElementById("color-picker");
 let togglePauseButton = document.getElementById("top-play");
 let topMode = document.getElementById("top-mode");
+let canvas = document.getElementById("viewportCanvas");
+
+//Local Storage Stuff
 
 if (!localStorage.theme) {
     localStorage.setItem("theme", "dark");
@@ -33,31 +37,101 @@ if (!localStorage.tutorialCompleted) {
     localStorage.setItem("tutorialCompleted", "true");
 }
 
-function selectCursorMove(){
-    if (simulation.shapesForChanges.length > 0 && selectedCursor != "position" && itemSelected >= 0) {
-        simulation.removeAllArrows();
-        simulation.makeArrows(itemSelected, "position");
+//General Functions
+
+function pauseSimulation(){
+    if (!simulation.isPaused){
+        togglePauseButton.classList.remove('top-pause');
+        togglePauseButton.classList.add('top-play');
     }
-    selectedCursor = "position";
+    simulation.isPaused = true;
 }
 
-function selectCursorScale(){
-    if (simulation.shapesForChanges.length > 0 && selectedCursor != "scale" && itemSelected >= 0) {
-        simulation.removeAllArrows();
-        simulation.makeArrows(itemSelected, "scale");
+function resumeSimulation(){
+    if (simulation.isPaused){
+        togglePauseButton.classList.remove('top-play');
+        togglePauseButton.classList.add('top-pause');
+        
     }
-    selectedCursor = "scale";
+    simulation.isPaused = false;
 }
 
-function selectCursorRotate(){
-    if (simulation.shapesForChanges.length > 0 && selectedCursor != "rotation" && itemSelected >= 0) {
-        simulation.removeAllArrows();
-        simulation.makeArrows(itemSelected, "rotation");
+function updateRightUiName(){
+    if (itemSelected == "none"){
+        document.getElementById("object-name").innerText = "No item is Selected";
+    } else {
+        document.getElementById("object-name").innerText = itemSelected.userData.name;
     }
-    selectedCursor = "rotation";
 }
 
-function toggleRightUI() {
+//Click Events
+
+document.getElementById("settings-overlay").addEventListener('click', (event) => {
+    if (event.target !== event.currentTarget) {
+        event.stopPropagation();
+    } else {
+        toggleSettings();
+    }
+});
+
+document.getElementById("top-select").onclick = function selectCursorMove(){
+    if (selectedCursor != "translate"){
+        document.getElementById("top-select").style.backgroundColor = "orange";
+        document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
+        document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
+        transformControls.setMode('translate');
+        transformControls.enabled = true;
+        orbitControls.enabled = false;
+        selectedCursor = "translate";
+    } else {
+        transformControls.detach();
+        document.getElementById("object-name").innerText = "No item is Selected";
+        document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
+        transformControls.enabled = false;
+        orbitControls.enabled = true;
+        selectedCursor = "none";
+    }
+}
+
+document.getElementById("top-resize").onclick = function selectCursorScale(){
+    if (selectedCursor != "scale"){
+        document.getElementById("top-resize").style.backgroundColor = "orange";
+        document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
+        document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
+        transformControls.setMode('scale');
+        transformControls.enabled = true;
+        orbitControls.enabled = false;
+        selectedCursor = "scale";
+    } else {
+        transformControls.detach();
+        document.getElementById("object-name").innerText = "No item is Selected";
+        document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
+        transformControls.enabled = false;
+        orbitControls.enabled = true;
+        selectedCursor = "none";
+    }
+}
+
+document.getElementById("top-rotate").onclick = function selectCursorRotate(){
+    if (selectedCursor != "rotate"){
+        document.getElementById("top-rotate").style.backgroundColor = "orange";
+        document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
+        document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
+        transformControls.setMode('rotate');
+        transformControls.enabled = true;
+        orbitControls.enabled = false;
+        selectedCursor = "rotate";
+    } else {
+        transformControls.detach();
+        document.getElementById("object-name").innerText = "No item is Selected";
+        document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
+        transformControls.enabled = false;
+        orbitControls.enabled = true;
+        selectedCursor = "none";
+    }
+}
+
+document.getElementById("collapse-right-ui-button").onclick = function toggleRightUI() {
     if (rightUIisCollapsed) {
         let timeline = gsap.timeline();
         rightUI.style.visibility = 'visible';
@@ -80,7 +154,7 @@ function toggleRightUI() {
     }
 }
 
-function toggleSettings() {
+document.getElementById("settings-button").onclick = document.getElementById("close-settings").onclick = function toggleSettings() {
     function toggleVisibility() { settingsOverlay.style.visibility = 'hidden'; }
     if (window.getComputedStyle(settingsOverlay).visibility == 'hidden') {
         let timeline = gsap.timeline();
@@ -93,6 +167,8 @@ function toggleSettings() {
             .to(settingsBox, { opacity: 0, duration: 0.15 }, '-=0.15');;
     }
 }
+
+
 
 function setTheme(theme) {
     if (theme != storedTheme) {
@@ -124,43 +200,10 @@ function setTheme(theme) {
     }
 }
 
-function setInputObjectParameters() {
-    // if (itemSelected >= 0) {
-    //     widthInput.value = simulation.items[itemSelected].dimensions.width;
-    //     heightInput.value = simulation.items[itemSelected].dimensions.height;
-    //     depthInput.value = simulation.items[itemSelected].dimensions.depth;
-    //     xInput.value = simulation.items[itemSelected].position.x;
-    //     yInput.value = simulation.items[itemSelected].position.y;
-    //     zInput.value = simulation.items[itemSelected].position.z;
-    //     // rotationXInput.value = simulation.items[itemSelected].rotation.x;
-    // } else {
-    //     widthInput.value = '';
-    //     heightInput.value = '';
-    //     depthInput.value = '';
-    //     xInput.value = '';
-    //     yInput.value = '';
-    //     zInput.value = '';
-    // }
-}
+document.getElementById("light-theme-button").onclick = setTheme.bind('light');
+document.getElementById("dark-theme-button").onclick = setTheme.bind('dark');
 
-function pauseSimulation(){
-    if (!simulation.isPaused){
-        togglePauseButton.classList.remove('top-pause');
-        togglePauseButton.classList.add('top-play');
-    }
-    simulation.isPaused = true;
-}
-
-function resumeSimulation(){
-    if (simulation.isPaused){
-        togglePauseButton.classList.remove('top-play');
-        togglePauseButton.classList.add('top-pause');
-        
-    }
-    simulation.isPaused = false;
-}
-
-function togglePause(){
+document.getElementById("top-play").onclick = function togglePause(){
     if (mode == "setup"){
         copyBoxes();
         mode = "simulation";
@@ -180,7 +223,7 @@ function togglePause(){
     }
 }
 
-async function toggleMode(){
+document.getElementById("top-replay").onclick = async function toggleMode(){
     if (mode == "simulation"){
         pauseSimulation();
         mode = "setup";
@@ -194,159 +237,26 @@ async function toggleMode(){
         simulation.addAllObjects();
         topMode.innerHTML = "<b>Mode:</b> Setup";
     }
-    //Make a new function for saving the state of the setup. Use the code below for the body. For the meshes use the whole save three.js save scene thing and export meshes from there. Don't forget to reset time to 0 (may have to do something else with time as well)
-    //I think that changing the mass of an object is harder than I would think. Google it (https://github.com/schteppe/cannon.js/issues/122).
-    //Instead of the thing I have below I can just copy everything to the new object except the things I have an issue with (the world child-object).
 }
 
-settingsOverlay.addEventListener('click', (event) => {
-    if (event.target !== event.currentTarget) {
-        event.stopPropagation();
+//Other Event Listeners
+
+canvas.addEventListener("mousedown", (event) => {
+    let intersectedObjects = simulation.checkForObject(event);
+    if (intersectedObjects.length > 0){
+        transformControls.attach(intersectedObjects[0].object);
+        itemSelected = intersectedObjects[0].object;
+        updateRightUiName();
     } else {
-        toggleSettings();
+        if (transformControls.object && !transformControls.dragging){
+            transformControls.detach();
+            itemSelected = "none";
+            updateRightUiName();
+            
+        }
     }
 });
 
-function moveObjectToMouseMovement(event){
-    let direction = intersectedObject.userData.direction;
-    if (ratio == null){
-        if (rayDirection[direction] == 0){
-            ratio = intersectedObject[typeOfArrow][direction] / (rayDirection[direction] + 0.00001);
-        } else {
-            console.log(intersectedObject[typeOfArrow], intersectedObject, typeOfArrow);
-            ratio = intersectedObject[typeOfArrow][direction] / rayDirection[direction];
-        }
-        differences.push({
-            item: simulation.boxes[itemSelected].mesh,
-            difference: intersectedObject[typeOfArrow][direction] - simulation.boxes[itemSelected].mesh[typeOfArrow][direction]
-        });
-        for (let i = 0; i < simulation.shapesForChanges.length; i++){
-            differences.push({
-                item: simulation.shapesForChanges[i],
-                difference: intersectedObject[typeOfArrow][direction] - simulation.shapesForChanges[i][typeOfArrow][direction]
-            });
-        }
-    }
-    
-    let previousRayDirection = rayDirection[direction];
-    simulation.checkForObject(event);
-
-    if (intersectedObject[typeOfArrow][direction] == 0) {
-        if (rayDirection[direction] > previousRayDirection){
-            intersectedObject[typeOfArrow][direction] = 0.00001;
-        } else {
-            intersectedObject[typeOfArrow][direction] = -0.00001;
-        }
-    } else {
-        intersectedObject[typeOfArrow][direction] = ratio * rayDirection[direction];
-    }
-
-    for (let i = 0; i < differences.length; i++){
-        differences[i].item[typeOfArrow][direction] = intersectedObject[typeOfArrow][direction] - differences[i].difference;
-    }
-}
-
-function rotateObjectToMouseMovement(event){
-    let direction = intersectedObject.userData.direction;
-    if (ratio == null){
-        if (rayDirection[direction] == 0){
-            ratio = intersectedObject.rotation[direction] / (rayDirection[direction] + 0.00001);
-        } else {
-            ratio = intersectedObject.rotation[direction] / rayDirection[direction];
-        }
-        differences.push({
-            item: simulation.boxes[itemSelected].mesh,
-            difference: intersectedObject.rotation[direction] - simulation.boxes[itemSelected].mesh.rotation[direction]
-        });
-        for (let i = 0; i < simulation.shapesForChanges.length; i++){
-            differences.push({
-                item: simulation.shapesForChanges[i],
-                difference: intersectedObject.rotation[direction] - simulation.shapesForChanges
-            })
-        }
-    }
-}
-
-window.addEventListener("mouseup", () => {
-    if (ratio){
-        canvas.removeEventListener("mousemove", moveObjectToMouseMovement);
-        ratio = null;
-        differences = [];
-        intersectedObject = null;
-    }
-})
-
-canvas.addEventListener('mousedown', (event) => {
-    if (document.activeElement !== colorPicker) {
-        let intersectedObjects = simulation.checkForObject(event);
-        if (intersectedObjects.length > 0) {
-            let loopSucceeded = false;
-            intersectedObjects.forEach(element => {
-                if (!loopSucceeded){
-                    if (element.object.userData.type){
-                        intersectedObject = intersectedObjects[0].object;
-                        typeOfArrow = intersectedObject.userData.type;
-                        eventListenerVar = canvas.addEventListener("mousemove", moveObjectToMouseMovement);
-                        loopSucceeded = true;
-                    }
-                }
-                if (!loopSucceeded){
-                    for (let i = 0; i < simulation.boxes.length; i++) {
-                        if (simulation.boxes[i].mesh.uuid == intersectedObjects[0].object.uuid) {
-                            objectNameField.innerText = simulation.boxes[i].name;
-                            itemSelected = i;
-                            setInputObjectParameters();
-                            colorPicker.value = `#${simulation.boxes[i].mesh.material.color.getHexString()}`;
-                            // simulation.removeAllArrows();
-                            if (simulation.shapesForChanges.length > 0){
-                                simulation.removeAllArrows();
-                            }
-                            if (mode != "simulation"){
-                                simulation.makeArrows(i, selectedCursor);
-                            }
-                            loopSucceeded = true;
-                            break;
-                        } else {
-                            // console.log(intersectedObjects[0])
-                            itemSelected = -1;
-                            setInputObjectParameters();
-                            objectNameField.innerText = 'No Item is Selected';
-                            // simulation.removeAllArrows();
-                        }
-                    }
-                }
-            });
-            
-            if (!loopSucceeded){
-                for (index in simulation.shapesForChanges){
-                    if (simulation.shapesForChanges[index].uuid == intersectedObjects[0].object.uuid){
-                        switch (selectedCursor) {
-                            case "position":
-                                //Move
-                                break;
-                            case "rotation":
-                                //rotation
-                                break;
-                            case "scale":
-                                //Scale
-                                break
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-        } else {
-            itemSelected = -1;
-            setInputObjectParameters();
-            objectNameField.innerText = 'No Item is Selected';
-            if (simulation.shapesForChanges.length > 0){
-                simulation.removeAllArrows();
-            }
-            // simulation.removeAllArrows();
-        }
-    }
-}, false);
 
 window.addEventListener('resize', () => {
     camera.aspect = parseInt(window.getComputedStyle(topUI).width) / parseInt(window.getComputedStyle(rightUI).height);
@@ -409,3 +319,6 @@ colorPicker.addEventListener("change", (event) => {
         simulation.boxes[itemSelected].mesh.material.color.set(`${event.target.value}`);
     }
 });
+
+//Temp
+document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation, 10, 1, 1, 2, 2, 2);
