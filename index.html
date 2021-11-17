@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>My first three.js app</title>
+    <title>A very creative title</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,31 +44,31 @@
                         <span class="right-title title-small">Dimensions:</span>
                     </div>
                     <div class="right-ui-grid-item">
-                        <span class="right-title title-small">Position:</span>
+                        <span class="right-title title-small">Colour:</span>
                     </div>
                     <div class="right-ui-grid-item">
                         <span class="right-ui-grid-text">W:</span>
                         <input type="text" class="right-text-editable" id="right-ui-width">
                     </div>
                     <div class="right-ui-grid-item">
-                        <span class="right-ui-grid-text">X:</span>
-                        <input type="text" class="right-text-editable" id="right-ui-x">
+                        <input type="color" value="#ffffff" id="color-picker">
                     </div>
                     <div class="right-ui-grid-item">
                         <span class="right-ui-grid-text">H:</span>
                         <input type="text" class="right-text-editable" id="right-ui-height">
                     </div>
                     <div class="right-ui-grid-item">
-                        <span class="right-ui-grid-text">Y:</span>
-                        <input type="text" class="right-text-editable" id="right-ui-y">
+                        <span class="right-title title-small">Is Wireframe:</span>
                     </div>
                     <div class="right-ui-grid-item">
                         <span class="right-ui-grid-text">D:</span>
                         <input type="text" class="right-text-editable" id="right-ui-depth">
                     </div>
                     <div class="right-ui-grid-item">
-                        <span class="right-ui-grid-text">Z:</span>
-                        <input type="text" class="right-text-editable" id="right-ui-z">
+                        <label class="t-toggle">
+                            <input type="checkbox" id="wireframe-toggle"/>
+                            <span class="t-slider"></span>
+                        </label>
                     </div>
                 </div>
                 <div id="right-ui-rotation">
@@ -86,9 +86,50 @@
                         <input type="text" class="right-text-editable small-text-editable" id="right-rotation-z">
                     </div>
                 </div>
-                <div id="right-color">
-                    <span>Color:</span>
-                    <input type="color" value="#ffffff" id="color-picker">
+                <div id="right-ui-rotation">
+                    <div class="right-title title-small">Anglular Velocity:</div>
+                    <div class="right-rotation-field">
+                        <span>X:</span>
+                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-x">
+                    </div>
+                    <div class="right-rotation-field">
+                        <span>Y:</span>
+                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-y">
+                    </div>
+                    <div class="right-rotation-field">
+                        <span>Z:</span>
+                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-z">
+                    </div>
+                </div>
+                <div id="right-ui-rotation">
+                    <div class="right-title title-small">Position:</div>
+                    <div class="right-rotation-field">
+                        <span>X:</span>
+                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-x">
+                    </div>
+                    <div class="right-rotation-field">
+                        <span>Y:</span>
+                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-y">
+                    </div>
+                    <div class="right-rotation-field">
+                        <span>Z:</span>
+                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-z">
+                    </div>
+                </div>
+                <div id="right-ui-rotation">
+                    <div class="right-title title-small">Velocity:</div>
+                    <div class="right-rotation-field">
+                        <span>X:</span>
+                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-x">
+                    </div>
+                    <div class="right-rotation-field">
+                        <span>Y:</span>
+                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-y">
+                    </div>
+                    <div class="right-rotation-field">
+                        <span>Z:</span>
+                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-z">
+                    </div>
                 </div>
             </div>
             <div id="right-ui-items-list">

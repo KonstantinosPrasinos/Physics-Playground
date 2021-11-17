@@ -1,6 +1,6 @@
 import {simulation, transformControls, orbitControls, camera, copyBoxes} from '/main.js'
 
-let itemSelected = -1, tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark';
+let itemSelected = "none", tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark';
 
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
@@ -39,6 +39,19 @@ if (!localStorage.tutorialCompleted) {
 
 //General Functions
 
+function synchronizePositions(){
+    for (const index in simulation.boxes){
+        // console.log(simulation.boxes[index].body);
+        simulation.boxes[index].body.position.x = simulation.boxes[index].mesh.position.x;
+        simulation.boxes[index].body.position.y = simulation.boxes[index].mesh.position.y;
+        simulation.boxes[index].body.position.z = simulation.boxes[index].mesh.position.z;
+        console.log(simulation.boxes[index].body.position, simulation.boxes[index].mesh.position);
+        // simulation.boxes[index].body.rotation.x = simulation.boxes[index].mesh.rotation.x;
+        // simulation.boxes[index].body.rotation.y = simulation.boxes[index].mesh.rotation.y;
+        // simulation.boxes[index].body.rotation.z = simulation.boxes[index].mesh.rotation.z;
+    }
+}
+
 function pauseSimulation(){
     if (!simulation.isPaused){
         togglePauseButton.classList.remove('top-pause');
@@ -54,14 +67,6 @@ function resumeSimulation(){
         
     }
     simulation.isPaused = false;
-}
-
-function updateRightUiName(){
-    if (itemSelected == "none"){
-        document.getElementById("object-name").innerText = "No item is Selected";
-    } else {
-        document.getElementById("object-name").innerText = itemSelected.userData.name;
-    }
 }
 
 function setTheme(theme) {
@@ -194,8 +199,8 @@ document.getElementById("settings-button").onclick = document.getElementById("cl
 
 document.getElementById("light-theme-button").onclick = setTheme.bind(this, 'light');
 document.getElementById("dark-theme-button").onclick = setTheme.bind(this, 'dark');
-
 document.getElementById("top-play").onclick = function togglePause(){
+    console.log(mode);
     if (mode == "setup"){
         copyBoxes();
         mode = "simulation";
@@ -207,6 +212,7 @@ document.getElementById("top-play").onclick = function togglePause(){
             element.body.position.copy(element.mesh.position);
             element.body.quaternion.copy(element.mesh.quaternion);
         });
+        synchronizePositions();
     }
     if (simulation.isPaused){
         resumeSimulation();
@@ -256,18 +262,26 @@ slider.oninput = function (){
     }
 }
 
+function setSettings(){
+    if (itemSelected != "none"){
+        document.getElementById("wireframe-toggle").checked = itemSelected.material.wireframe ? true : false;
+        document.getElementById("object-name").innerText = itemSelected.userData.name;
+    } else {
+        document.getElementById("object-name").innerText = "No item is Selected";
+    }
+}
+
 canvas.addEventListener("mousedown", (event) => {
     let intersectedObjects = simulation.checkForObject(event);
     if (intersectedObjects.length > 0){
         transformControls.attach(intersectedObjects[0].object);
         itemSelected = intersectedObjects[0].object;
-        updateRightUiName();
+        setSettings();
     } else {
         if (transformControls.object && !transformControls.dragging){
             transformControls.detach();
             itemSelected = "none";
-            updateRightUiName();
-            
+            setSettings();
         }
     }
 });
@@ -305,29 +319,29 @@ depthInput.addEventListener("blur", () => {
     }
 });
 
-xInput.addEventListener("blur", () => {
-    if ((xInput.value.length == 0 || isNaN(widthInput.value)) && itemSelected > -1) {
-        xInput.focus();
-    } else {
-        simulation.items[itemSelected].dimensions.x = xInput.value;
-    }
-});
+// xInput.addEventListener("blur", () => {
+//     if ((xInput.value.length == 0 || isNaN(widthInput.value)) && itemSelected > -1) {
+//         xInput.focus();
+//     } else {
+//         simulation.items[itemSelected].dimensions.x = xInput.value;
+//     }
+// });
 
-yInput.addEventListener("blur", () => {
-    if ((yInput.value.length == 0 || isNaN(widthInput.value)) && itemSelected > -1) {
-        yInput.focus();
-    } else {
-        simulation.items[itemSelected].dimensions.y = yInput.value;
-    }
-});
+// yInput.addEventListener("blur", () => {
+//     if ((yInput.value.length == 0 || isNaN(widthInput.value)) && itemSelected > -1) {
+//         yInput.focus();
+//     } else {
+//         simulation.items[itemSelected].dimensions.y = yInput.value;
+//     }
+// });
 
-zInput.addEventListener("blur", () => {
-    if ((zInput.value.length == 0 || isNaN(widthInput.value)) && itemSelected > -1) {
-        zInput.focus();
-    } else {
-        simulation.items[itemSelected].dimensions.z = zInput.value;
-    }
-});
+// zInput.addEventListener("blur", () => {
+//     if ((zInput.value.length == 0 || isNaN(widthInput.value)) && itemSelected > -1) {
+//         zInput.focus();
+//     } else {
+//         simulation.items[itemSelected].dimensions.z = zInput.value;
+//     }
+// });
 
 colorPicker.addEventListener("change", (event) => {
     if (itemSelected > -1) {
@@ -336,5 +350,21 @@ colorPicker.addEventListener("change", (event) => {
 });
 
 //Temp
-document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation, 5, 1, 1, 2, 2, 2);
-document.getElementById("add-sphere-button").onclick = simulation.createBox.bind(simulation, 0, -10, -10, 2, 2, 2);
+document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation, 0, 0, 0, 2, 2, 2);
+document.getElementById("add-sphere-button").onclick = simulation.createBox.bind(simulation, 5, 5, 5, 2, 2, 2);
+
+function handleWireFrameToggle(){
+    console.log(document.getElementById("wireframe-toggle").checked);
+    // console.log(itemSelected);
+    if (document.getElementById("wireframe-toggle").checked && itemSelected != "none"){
+        itemSelected.material.wireframe = true;
+        // document.getElementById("wireframe-toggle").checked = !document.getElementById("wireframe-toggle").checked;
+        console.log(itemSelected.material.wireframe);
+    } else {
+        if (itemSelected != "none"){
+            itemSelected.material.wireframe = false;
+        }
+    }
+}
+
+document.getElementById("wireframe-toggle").onclick = handleWireFrameToggle;

@@ -21,7 +21,7 @@ function initThree() {
     scene = new THREE.Scene();
 
     camera = new THREE.PerspectiveCamera( 45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
-    camera.position.z = 500;
+    camera.position.z = 50;
     scene.add(camera);
 
     renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true});
@@ -63,13 +63,90 @@ function animate() {
 }
 
 //General Functions
+//To change mass you change the mass and set call the updateMassProperties() method
+
+function addItemToList(index){
+    let node = document.createElement("DIV");
+    let textNode = document.createElement("input");
+    let editButtonNode = document.createElement('input');
+    let deleteButtonNode = document.createElement('input');
+    let lockButtonNode = document.createElement('input');
+
+    node.classList.add("item-list-field");
+    textNode.type = 'text';
+    textNode.value = simulation.boxes[index].name;
+    textNode.setAttribute('required', "");
+    textNode.classList.add("item-list-editable");
+
+    editButtonNode.type = 'button';
+    editButtonNode.classList.add("icon-buttons");
+    editButtonNode.classList.add("item-list-field-edit-button");
+    editButtonNode.classList.add("small-icon-buttons");
+    editButtonNode.addEventListener('click', () => {
+        textNode.focus();
+    });
+
+    deleteButtonNode.type = 'button';
+    deleteButtonNode.classList.add("item-list-field-delete-button");
+    deleteButtonNode.classList.add("icon-buttons");
+    deleteButtonNode.classList.add("small-icon-buttons");
+    deleteButtonNode.addEventListener('click', () => {
+        deleteObjectFromList(index);
+    });
+
+
+    lockButtonNode.type = 'button';
+    lockButtonNode.classList.add("item-list-lock-button");
+    lockButtonNode.classList.add("icon-buttons");
+    lockButtonNode.classList.add("small-icon-buttons");
+    lockButtonNode.addEventListener('click', () => {
+        simulation.boxes[index].mesh.userData.moveable = !simulation.boxes[index].mesh.userData.moveable;
+        if (!simulation.boxes[index].mesh.userData.moveable) {
+            lockButtonNode.style.backgroundColor = 'orange';
+        } else {
+            lockButtonNode.style.backgroundColor = 'var(--secondary-color)';
+        }
+    })
+
+    textNode.addEventListener("blur", () => {
+        if (textNode.value.length == 0) {
+            textNode.focus();
+        } else {
+            simulation.boxes[index].name = textNode.value;
+        }
+    });
+    node.appendChild(textNode);
+    node.appendChild(deleteButtonNode);
+    node.appendChild(editButtonNode);
+    node.appendChild(lockButtonNode);
+    document.getElementById("right-ui-item-container").appendChild(node);
+}
+
+function deleteObjectFromList(index) {
+    scene.remove(simulation.boxes[index].mesh);
+    world.remove(simulation.boxes[index].body);
+    simulation.boxes.splice(index, 1);
+    refreshListOfObjects();
+}
+function refreshListOfObjects(){
+    while(document.getElementById("right-ui-item-container").firstChild){
+        document.getElementById("right-ui-item-container").removeChild(document.getElementById("right-ui-item-container").firstChild);
+    }
+    for (let index in simulation.boxes){
+        addItemToList(index);
+    }
+}
 
 function processArtificialGravity(){
+    simulation.boxes[0].body.mass = 10**12;
+    simulation.boxes[0].body.updateMassProperties();
+    simulation.boxes[1].body.mass = 10**12;
+    simulation.boxes[1].body.updateMassProperties();
     const zero = new CANNON.Vec3(0, 0, 0);
     for (const index in simulation.boxes){
         simulation.boxes[index].body.force = zero;
     }
-    simulation.boxes[1].body.mass = 10**15;
+    
     for (let i = 0; i < simulation.boxes.length - 1; i++){
         for (let j = i + 1; j < simulation.boxes.length; j ++ ){
             calculateGravity(simulation.boxes[0], simulation.boxes[1]);
@@ -83,15 +160,17 @@ function calculateGravity(object1, object2){
 
     const distance = object1.body.position.distanceTo(object2.body.position);
 
-    const angleY = Math.atan2(object2.body.position.y - object1.body.position.y, object2.body.position.x - object1.body.position.x);
-    const angleXZ = Math.atan2(object2.body.position.z - object1.body.position.z, object2.body.position.x - object1.body.position.x);
-
+    //We calculate the total force of gravity between each body is causing to the other
     let Fg = G * (object1.body.mass  * object2.body.mass) / (distance ** 2);
 
-    const Fy = Math.cos(angleY) * Fg;
-    const Fx = Math.sin(angleY) * Math.cos(angleXZ) * Fg;
-    const Fz = Math.sin(angleY) * Math.sin(angleXZ) * Fg;
+    //We calculate the components of the force vector
+    let c = Fg / (Math.sqrt((object2.body.position.x - object1.body.position.x)**2 + (object2.body.position.y - object1.body.position.y)**2) + (object2.body.position.z - object1.body.position.z)**2);
 
+    let Fx = c * (object2.body.position.x - object1.body.position.x);
+    let Fy = c * (object2.body.position.y - object1.body.position.y);
+    let Fz = c * (object2.body.position.z - object1.body.position.z);
+
+    //We add to each body the force calculated for each axis
     if (object1.mesh.userData.affectedByGravity && object2.mesh.userData.createsGravity){
         const F1 = new CANNON.Vec3(object1.body.force.x + Fx, object1.body.force.y + Fy, object1.body.force.z + Fz);
         object1.body.force = F1;
@@ -153,7 +232,7 @@ let simulation = {
     createBox(x, y, z, width, height, depth){
         let shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
         let tempBody = new CANNON.Body({
-            mass: 1
+            mass: 4
         });
         tempBody.addShape(shape);
         tempBody.position.set(x, y, z);
@@ -165,6 +244,7 @@ let simulation = {
         tempMesh.position.set(x, y, z);
         tempMesh.userData.createsGravity = true;
         tempMesh.userData.affectedByGravity = true;
+        tempMesh.userData.moveable = true;
         scene.add(tempMesh);
 
         let i = 0;
@@ -191,6 +271,7 @@ let simulation = {
             name: `Box-${i}`
         }
         this.boxes.push(box);
+        addItemToList(this.boxes.length - 1);
     },
     checkForObject(event){
         let mouseVector = new THREE.Vector2();
@@ -224,7 +305,8 @@ let simulation = {
             scene.add(this.boxes[i].mesh);
             world.addBody(this.boxes[i].body);
         }
-    }
+    },
+    
 }
 
 //Function Call and Export

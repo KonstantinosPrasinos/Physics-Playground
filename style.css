@@ -223,8 +223,8 @@ button {
     border: hidden;
     background-color: rgba(255, 255, 255, 0);
     /* float: right; */
-    top: 4px;
-    margin-left: 5px;
+    top: 0px;
+    margin-left: 15px;
 }
 #right-features-items-separator {
     opacity: inherit;
@@ -417,26 +417,44 @@ button {
 .settings-row input:checked {
     border: 2px solid orange;
 }
-.two-way-toggle input {
-    position: absolute;
-    background-color: white;
-    border-radius: 10px;
-    
-    width: 50%;
+
+/* (A) HIDE DEFAULT CHECKBOX */
+.t-toggle input { display: none; }
+
+/* (B) t-toggle BUTTON WRAPPER */
+.t-toggle {
+  position: relative;
+  display: inline-block;
+  width: 70%;
+  height: 100%;
+  left: 15%;
+  top: 15%;
 }
-.two-way-toggle label {
-    position: absolute;
-    display: inline-block;
-    width: 50%;
-    height: 100%;
-    top: 0px;
-    left: 0px;
+
+/* (C) CUSTOM t-toggle BUTTON "OUTSIDE BOX" */
+.t-slider {
+  /* (C1) FULLY FILL <LABEL> CONTAINER */
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 0; right: 0;
+  /* (C2) COSMETIC STYLES */
+  cursor: pointer;
+  border: 2px solid var(--secondary-color);
+  background-color: var(--primary-color);
+  border-radius: 20px;
 }
-.two-way-toggle {
-    position: relative;
-    width: 50%;
-    height: 100%;
-    top: 0px;
-    left: 0px;
-    z-index: 9;
+
+/* (D) CUSTOM t-toggle BUTTON "INSIDE t-slider BUTTON" */
+.t-slider::before {
+
+  content: "";
+  width: 40%;
+  height: 95%;
+  position: absolute;
+  top: 0; left: 0;
+  background-color: var(--secondary-color);
+  border-radius: 20px;
 }
+
+.t-slider, .t-slider::before { transition: all 0.2s; }
+.t-toggle input:checked + .t-slider::before { left: 60%;}
