@@ -316,5 +316,5 @@ initCannon();
 initControls();
 
 animate();
-
-export {simulation, camera, transformControls, orbitControls, copyBoxes};
+console.log(renderer);
+export {simulation, camera, transformControls, orbitControls, copyBoxes, renderer};

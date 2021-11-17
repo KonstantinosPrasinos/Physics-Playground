@@ -1,4 +1,4 @@
-import {simulation, transformControls, orbitControls, camera, copyBoxes} from '/main.js'
+import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer} from '/main.js'
 
 let itemSelected = "none", tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark';
 
@@ -19,7 +19,7 @@ let zInput = document.getElementById("right-ui-z");
 let rotationXInput = document.getElementById("right-rotation-x");
 let rotationYInput = document.getElementById("right-rotation-y");
 let rotationZInput = document.getElementById("right-rotation-z");
-let colorPicker = document.getElementById("color-picker");
+let colorPicker = document.getElementById("item-color-picker");
 let togglePauseButton = document.getElementById("top-play");
 let topMode = document.getElementById("top-mode");
 let canvas = document.getElementById("viewportCanvas");
@@ -238,7 +238,6 @@ document.getElementById("top-replay").onclick = async function toggleMode(){
 }
 
 document.getElementById("settings-overlay").addEventListener('click', (event) => {
-    console.log("hello");
     if (event.target !== event.currentTarget) {
         event.stopPropagation();
     } else {
@@ -349,22 +348,33 @@ colorPicker.addEventListener("change", (event) => {
     }
 });
 
+document.getElementById("background-color-picker").addEventListener("change", (event) => {
+    renderer.setClearColor(event.target.value);
+})
+
 //Temp
 document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation, 0, 0, 0, 2, 2, 2);
 document.getElementById("add-sphere-button").onclick = simulation.createBox.bind(simulation, 5, 5, 5, 2, 2, 2);
 
 function handleWireFrameToggle(){
     console.log(document.getElementById("wireframe-toggle").checked);
-    // console.log(itemSelected);
     if (document.getElementById("wireframe-toggle").checked && itemSelected != "none"){
         itemSelected.material.wireframe = true;
-        // document.getElementById("wireframe-toggle").checked = !document.getElementById("wireframe-toggle").checked;
-        console.log(itemSelected.material.wireframe);
     } else {
         if (itemSelected != "none"){
             itemSelected.material.wireframe = false;
         }
     }
 }
+
+function handleCameraToggle(){
+    if (document.getElementById("wireframe-toggle").checked){
+        //Orthographic
+    } else {
+        //Perspective
+    }
+}
+
+document.getElementById("camera-toggle").onclick = handleCameraToggle;
 
 document.getElementById("wireframe-toggle").onclick = handleWireFrameToggle;

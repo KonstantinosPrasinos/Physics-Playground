@@ -51,7 +51,7 @@
                         <input type="text" class="right-text-editable" id="right-ui-width">
                     </div>
                     <div class="right-ui-grid-item">
-                        <input type="color" value="#ffffff" id="color-picker">
+                        <input type="color" value="#ffffff" class="color-picker" id="item-color-picker">
                     </div>
                     <div class="right-ui-grid-item">
                         <span class="right-ui-grid-text">H:</span>
@@ -148,16 +148,19 @@
                         class="theme-button-unselected"></button>
                     <button id="dark-theme-button" class="theme-button-selected"></button>
                     <span class="chapter">Background Color:</span>
-                    <input type="color" value="#ffffff" id="background-color-picker">
+                    <input type="color" value="#ffffff" id="background-color-picker" class="color-picker">
                 </div>
                 <div class="settings-row">
                     <span class="chapter">Camera Type:</span>
-                    <div class="two-way-toggle">
-                        <label class="two-way-toggle-label toggle-enabled" name="camera-toggle" for="perspective-toggle">Perspective</label>
-                        <input type="radio" name="camera-toggle" value="perspective" id="perspective-toggle">
-                        <!-- <input type="radio" name="camera-toggle" value="orthographic" id="orthographic-toggle">
-                        <label class="camera-toggle" name="camera-toggle" for="orthographic-toggle">Orthographic</label> -->
+                    <span class="chapter-medium">Perpective</span>
+                    <div class="settings-column-small">
+                        <label class="t-toggle">
+                            <input type="checkbox" id="camera-toggle"/>
+                            <span class="t-slider"></span>
+                        </label>
                     </div>
+                    <span class="chapter-medium">Orthographic</span>
+                    
                     <span class="chapter">Camera Field of View:</span>
                     <input type="range" name="fov-slider" id="fov-slider" min="20" max="110" style="width: 100px;">
                 </div>
@@ -165,7 +168,27 @@
                     <span class="chapter">Time Step:</span>
                     <input type="text" class="small-text-editable" id="time-step-editable">
                     <span class="chapter">Grid:</span>
-                    <input type="checkbox" name="grid-checkbox" id="grid-checkbox" class="medium-checkbox">
+                    <span class="chapter-medium">X:</span>
+                    <div class="settings-column-small">
+                        <label class="t-toggle">
+                            <input type="checkbox" id="grid-x-toggle"/>
+                            <span class="t-slider"></span>
+                        </label>
+                    </div>
+                    <span class="chapter-medium">Y:</span>
+                    <div class="settings-column-small">
+                        <label class="t-toggle">
+                            <input type="checkbox" id="grid-y-toggle"/>
+                            <span class="t-slider"></span>
+                        </label>
+                    </div>
+                    <span class="chapter-medium">Z:</span>
+                    <div class="settings-column-small">
+                        <label class="t-toggle">
+                            <input type="checkbox" id="grid-z-toggle"/>
+                            <span class="t-slider"></span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>

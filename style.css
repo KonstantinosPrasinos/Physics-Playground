@@ -31,9 +31,15 @@ button {
 }
 .settings-row {
     margin-top: 50px;
+    height: 5%;
 }
 .chapter {
     font-size: 20px;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+.chapter-medium{
+    font-size: 16px;
 }
 
 /* Basic UI Elements */
@@ -217,7 +223,7 @@ button {
     height: 50%;
     top: 50%;
 }
-#color-picker {
+.color-picker {
     opacity: inherit;
     position: relative;
     border: hidden;
@@ -431,30 +437,33 @@ button {
   top: 15%;
 }
 
-/* (C) CUSTOM t-toggle BUTTON "OUTSIDE BOX" */
 .t-slider {
-  /* (C1) FULLY FILL <LABEL> CONTAINER */
   position: absolute;
   top: 0; bottom: 0;
   left: 0; right: 0;
-  /* (C2) COSMETIC STYLES */
   cursor: pointer;
   border: 2px solid var(--secondary-color);
   background-color: var(--primary-color);
   border-radius: 20px;
 }
 
-/* (D) CUSTOM t-toggle BUTTON "INSIDE t-slider BUTTON" */
 .t-slider::before {
 
   content: "";
   width: 40%;
   height: 95%;
   position: absolute;
-  top: 0; left: 0;
+  top: 0px; left: 0;
   background-color: var(--secondary-color);
   border-radius: 20px;
 }
 
 .t-slider, .t-slider::before { transition: all 0.2s; }
 .t-toggle input:checked + .t-slider::before { left: 60%;}
+
+.settings-column-small{
+    position: relative;
+    display: inline-block;
+    height: 80%;
+    width: 10%;
+}
