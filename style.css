@@ -417,3 +417,26 @@ button {
 .settings-row input:checked {
     border: 2px solid orange;
 }
+.two-way-toggle input {
+    position: absolute;
+    background-color: white;
+    border-radius: 10px;
+    
+    width: 50%;
+}
+.two-way-toggle label {
+    position: absolute;
+    display: inline-block;
+    width: 50%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+}
+.two-way-toggle {
+    position: relative;
+    width: 50%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    z-index: 9;
+}

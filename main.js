@@ -21,7 +21,7 @@ function initThree() {
     scene = new THREE.Scene();
 
     camera = new THREE.PerspectiveCamera( 45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
-    camera.position.z = 50;
+    camera.position.z = 500;
     scene.add(camera);
 
     renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true});
@@ -40,7 +40,7 @@ function initCannon() {
 
 function updatePhysics() {
     world.step(timeStep);
-
+    processArtificialGravity();
     simulation.boxes.forEach(element => {
         element.mesh.position.copy(element.body.position);
         element.mesh.quaternion.copy(element.body.quaternion);
@@ -64,6 +64,45 @@ function animate() {
 
 //General Functions
 
+function processArtificialGravity(){
+    const zero = new CANNON.Vec3(0, 0, 0);
+    for (const index in simulation.boxes){
+        simulation.boxes[index].body.force = zero;
+    }
+    simulation.boxes[1].body.mass = 10**15;
+    for (let i = 0; i < simulation.boxes.length - 1; i++){
+        for (let j = i + 1; j < simulation.boxes.length; j ++ ){
+            calculateGravity(simulation.boxes[0], simulation.boxes[1]);
+        }
+    }
+    
+}
+
+function calculateGravity(object1, object2){
+    const G = 6.67408 * 10 **(-11);
+
+    const distance = object1.body.position.distanceTo(object2.body.position);
+
+    const angleY = Math.atan2(object2.body.position.y - object1.body.position.y, object2.body.position.x - object1.body.position.x);
+    const angleXZ = Math.atan2(object2.body.position.z - object1.body.position.z, object2.body.position.x - object1.body.position.x);
+
+    let Fg = G * (object1.body.mass  * object2.body.mass) / (distance ** 2);
+
+    const Fy = Math.cos(angleY) * Fg;
+    const Fx = Math.sin(angleY) * Math.cos(angleXZ) * Fg;
+    const Fz = Math.sin(angleY) * Math.sin(angleXZ) * Fg;
+
+    if (object1.mesh.userData.affectedByGravity && object2.mesh.userData.createsGravity){
+        const F1 = new CANNON.Vec3(object1.body.force.x + Fx, object1.body.force.y + Fy, object1.body.force.z + Fz);
+        object1.body.force = F1;
+    }
+
+    if (object2.mesh.userData.affectedByGravity && object1.mesh.userData.createsGravity){
+        const F2 = new CANNON.Vec3(object2.body.force.x - Fx, object2.body.force.y - Fy, object2.body.force.z - Fz);
+        object2.body.force = F2;
+    }
+}
+
 function isObject(item){
     return (typeof item === "object" && !Array.isArray(item) && item !== null);
 }
@@ -72,7 +111,7 @@ async function copyBoxes(){
     for (let i = 0; i < simulation.boxes.length; i++){
         let copyBody = {}, copyMesh, copyName;
         //Deep copy of the cannonjs body
-        for (key in simulation.boxes[i].body){
+        for (const key in simulation.boxes[i].body){
             if (simulation.boxes[i].body){
                 if (isObject(simulation.boxes[i].body[key])){
                     if (key === "world"){
@@ -124,6 +163,8 @@ let simulation = {
         let material = new THREE.MeshBasicMaterial( {color: 0xff0000, wireframe: true} );
         let tempMesh = new THREE.Mesh(geometry, material);
         tempMesh.position.set(x, y, z);
+        tempMesh.userData.createsGravity = true;
+        tempMesh.userData.affectedByGravity = true;
         scene.add(tempMesh);
 
         let i = 0;
@@ -194,4 +235,4 @@ initControls();
 
 animate();
 
-export {simulation, camera, transformControls, orbitControls};
+export {simulation, camera, transformControls, orbitControls, copyBoxes};

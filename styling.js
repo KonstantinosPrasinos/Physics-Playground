@@ -1,4 +1,4 @@
-import {simulation, transformControls, orbitControls} from '/main.js'
+import {simulation, transformControls, orbitControls, camera, copyBoxes} from '/main.js'
 
 let itemSelected = -1, tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark';
 
@@ -64,15 +64,51 @@ function updateRightUiName(){
     }
 }
 
-//Click Events
+function setTheme(theme) {
+    if (theme != storedTheme) {
+        switch (theme) {
+            case 'light':
+                gsap.to("html", { duration: 0.2, "--primary-color": '#f1f2f6' });
+                gsap.to("html", { duration: 0.2, "--secondary-color": '#1C212E' });
+                localStorage.setItem("theme", "light");
+                storedTheme = theme;
+                document.getElementById("dark-theme-button").classList.toggle("theme-button-selected");
+                document.getElementById("light-theme-button").classList.toggle("theme-button-selected");
+                document.getElementById("dark-theme-button").classList.toggle("theme-button-unselected");
+                document.getElementById("light-theme-button").classList.toggle("theme-button-unselected");
+                break;
+            case 'dark':
+                gsap.to("html", { duration: 0.2, "--primary-color": '#1C212E' });
+                gsap.to("html", { duration: 0.2, "--secondary-color": '#f1f2f6' });
+                localStorage.setItem("theme", "dark");
+                storedTheme = theme;
+                document.getElementById("dark-theme-button").classList.toggle("theme-button-selected");
+                document.getElementById("light-theme-button").classList.toggle("theme-button-selected");
+                document.getElementById("dark-theme-button").classList.toggle("theme-button-unselected");
+                document.getElementById("light-theme-button").classList.toggle("theme-button-unselected");
+                break;
+            default:
+                break;
+        }
 
-document.getElementById("settings-overlay").addEventListener('click', (event) => {
-    if (event.target !== event.currentTarget) {
-        event.stopPropagation();
-    } else {
-        toggleSettings();
     }
-});
+}
+
+function toggleSettings() {
+    function toggleVisibility() { settingsOverlay.style.visibility = 'hidden'; }
+    if (window.getComputedStyle(settingsOverlay).visibility == 'hidden') {
+        let timeline = gsap.timeline();
+        settingsOverlay.style.visibility = 'visible';
+        timeline.to(settingsOverlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)', duration: 0.15 })
+            .to(settingsBox, { opacity: 1, duration: 0.15 }, '-=0.16');
+    } else {
+        let timeline = gsap.timeline();
+        timeline.to(settingsOverlay, { backgroundColor: 'rgba(0, 0, 0, 0)', duration: 0.15, onComplete: toggleVisibility })
+            .to(settingsBox, { opacity: 0, duration: 0.15 }, '-=0.15');;
+    }
+}
+
+//Click Events
 
 document.getElementById("top-select").onclick = function selectCursorMove(){
     if (selectedCursor != "translate"){
@@ -154,54 +190,10 @@ document.getElementById("collapse-right-ui-button").onclick = function toggleRig
     }
 }
 
-document.getElementById("settings-button").onclick = document.getElementById("close-settings").onclick = function toggleSettings() {
-    function toggleVisibility() { settingsOverlay.style.visibility = 'hidden'; }
-    if (window.getComputedStyle(settingsOverlay).visibility == 'hidden') {
-        let timeline = gsap.timeline();
-        settingsOverlay.style.visibility = 'visible';
-        timeline.to(settingsOverlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)', duration: 0.15 })
-            .to(settingsBox, { opacity: 1, duration: 0.15 }, '-=0.16');
-    } else {
-        let timeline = gsap.timeline();
-        timeline.to(settingsOverlay, { backgroundColor: 'rgba(0, 0, 0, 0)', duration: 0.15, onComplete: toggleVisibility })
-            .to(settingsBox, { opacity: 0, duration: 0.15 }, '-=0.15');;
-    }
-}
+document.getElementById("settings-button").onclick = document.getElementById("close-settings").onclick = toggleSettings;
 
-
-
-function setTheme(theme) {
-    if (theme != storedTheme) {
-        switch (theme) {
-            case 'light':
-                gsap.to("html", { duration: 0.2, "--primary-color": '#f1f2f6' });
-                gsap.to("html", { duration: 0.2, "--secondary-color": '#1C212E' });
-                localStorage.setItem("theme", "light");
-                storedTheme = theme;
-                document.getElementById("dark-theme-button").classList.toggle("theme-button-selected");
-                document.getElementById("light-theme-button").classList.toggle("theme-button-selected");
-                document.getElementById("dark-theme-button").classList.toggle("theme-button-unselected");
-                document.getElementById("light-theme-button").classList.toggle("theme-button-unselected");
-                break;
-            case 'dark':
-                gsap.to("html", { duration: 0.2, "--primary-color": '#1C212E' });
-                gsap.to("html", { duration: 0.2, "--secondary-color": '#f1f2f6' });
-                localStorage.setItem("theme", "dark");
-                storedTheme = theme;
-                document.getElementById("dark-theme-button").classList.toggle("theme-button-selected");
-                document.getElementById("light-theme-button").classList.toggle("theme-button-selected");
-                document.getElementById("dark-theme-button").classList.toggle("theme-button-unselected");
-                document.getElementById("light-theme-button").classList.toggle("theme-button-unselected");
-                break;
-            default:
-                break;
-        }
-
-    }
-}
-
-document.getElementById("light-theme-button").onclick = setTheme.bind('light');
-document.getElementById("dark-theme-button").onclick = setTheme.bind('dark');
+document.getElementById("light-theme-button").onclick = setTheme.bind(this, 'light');
+document.getElementById("dark-theme-button").onclick = setTheme.bind(this, 'dark');
 
 document.getElementById("top-play").onclick = function togglePause(){
     if (mode == "setup"){
@@ -239,7 +231,30 @@ document.getElementById("top-replay").onclick = async function toggleMode(){
     }
 }
 
+document.getElementById("settings-overlay").addEventListener('click', (event) => {
+    console.log("hello");
+    if (event.target !== event.currentTarget) {
+        event.stopPropagation();
+    } else {
+        toggleSettings();
+    }
+});
+
 //Other Event Listeners
+let slider = document.getElementById("fov-slider");
+
+if (camera.type == "PerspectiveCamera"){
+    slider.value = camera.fov;
+    console.log(camera);
+}
+
+slider.oninput = function (){
+    if (camera.type == "PerspectiveCamera"){
+        camera.fov = parseInt(slider.value);
+        camera.updateProjectionMatrix();
+        console.log(camera);
+    }
+}
 
 canvas.addEventListener("mousedown", (event) => {
     let intersectedObjects = simulation.checkForObject(event);
@@ -321,4 +336,5 @@ colorPicker.addEventListener("change", (event) => {
 });
 
 //Temp
-document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation, 10, 1, 1, 2, 2, 2);
+document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation, 5, 1, 1, 2, 2, 2);
+document.getElementById("add-sphere-button").onclick = simulation.createBox.bind(simulation, 0, -10, -10, 2, 2, 2);
