@@ -46,16 +46,16 @@ function synchronizePositions() {
 }
 
 function synchronizeRotation() {
-    simulation.boxes[itemSelected].body.rotation.x = simulation.boxes[itemSelected].mesh.rotation.x;
-    simulation.boxes[itemSelected].body.rotation.y = simulation.boxes[itemSelected].mesh.rotation.y;
-    simulation.boxes[itemSelected].body.rotation.z = simulation.boxes[itemSelected].mesh.rotation.z;
+    simulation.boxes[itemSelected].body.quaternion.x = simulation.boxes[itemSelected].mesh.quaternion.x;
+    simulation.boxes[itemSelected].body.quaternion.y = simulation.boxes[itemSelected].mesh.quaternion.y;
+    simulation.boxes[itemSelected].body.quaternion.z = simulation.boxes[itemSelected].mesh.quaternion.z;
 }
 
 function synchronizeSize(){
     switch (simulation.boxes[itemSelected].mesh.geometry.type) {
         case "BoxGeometry":
-            let lowerBound = new CANNON.Vec3(simulation.boxes[itemSelected].mesh.geometry.parameters.x * simulation.boxes[itemSelected].mesh.scale.x / -2, simulation.boxes[itemSelected].mesh.geometry.parameters.y * simulation.boxes[itemSelected].mesh.scale.y / -2, simulation.boxes[itemSelected].mesh.geometry.parameters.z * simulation.boxes[itemSelected].mesh.scale.z / -2);
-            let upperBound = new CANNON.Vec3(simulation.boxes[itemSelected].mesh.geometry.parameters.x * simulation.boxes[itemSelected].mesh.scale.x / 2, simulation.boxes[itemSelected].mesh.geometry.parameters.y * simulation.boxes[itemSelected].mesh.scale.y / 2, simulation.boxes[itemSelected].mesh.geometry.parameters.z * simulation.boxes[itemSelected].mesh.scale.z / 2);
+            let lowerBound = new CANNON.Vec3(simulation.boxes[itemSelected].mesh.geometry.parameters.width * simulation.boxes[itemSelected].mesh.scale.x / -2, simulation.boxes[itemSelected].mesh.geometry.parameters.height * simulation.boxes[itemSelected].mesh.scale.y / -2, simulation.boxes[itemSelected].mesh.geometry.parameters.depth * simulation.boxes[itemSelected].mesh.scale.z / -2);
+            let upperBound = new CANNON.Vec3(simulation.boxes[itemSelected].mesh.geometry.parameters.width * simulation.boxes[itemSelected].mesh.scale.x / 2, simulation.boxes[itemSelected].mesh.geometry.parameters.height * simulation.boxes[itemSelected].mesh.scale.y / 2, simulation.boxes[itemSelected].mesh.geometry.parameters.depth * simulation.boxes[itemSelected].mesh.scale.z / 2);
             simulation.boxes[itemSelected].body.aabb.lowerBound = lowerBound;
             simulation.boxes[itemSelected].body.aabb.upperBound = upperBound;
             break;
@@ -212,7 +212,6 @@ document.getElementById("settings-button").onclick = document.getElementById("cl
 document.getElementById("light-theme-button").onclick = setTheme.bind(this, 'light');
 document.getElementById("dark-theme-button").onclick = setTheme.bind(this, 'dark');
 document.getElementById("top-play").onclick = function togglePause(){
-    console.log(mode);
     if (mode == "setup"){
         copyBoxes();
         mode = "simulation";
@@ -258,27 +257,67 @@ document.getElementById("settings-overlay").addEventListener('click', (event) =>
 });
 
 //Other Event Listeners
+
+function blurFocusedElement(event){
+    if (event.key === 'Enter' && ((!isNaN(document.activeElement.value) && document.activeElement.value.length != 0) || itemSelected == -1)){
+        document.activeElement.blur();
+    }
+}
+
+document.getElementById("right-ui-features").addEventListener("keydown", blurFocusedElement);
+
 let slider = document.getElementById("fov-slider");
 
 if (camera.type == "PerspectiveCamera"){
     slider.value = camera.fov;
-    console.log(camera);
 }
 
 slider.oninput = function (){
     if (camera.type == "PerspectiveCamera"){
         camera.fov = parseInt(slider.value);
         camera.updateProjectionMatrix();
-        console.log(camera);
     }
 }
 
 function setSettings(){
     if (itemSelected > -1){
-        document.getElementById("wireframe-toggle").checked = simulation.boxes[itemSelected].mesh.material.wireframe ? true : false;
-        document.getElementById("object-name").innerText = simulation.boxes[itemSelected].mesh.name;
+        transformControls.detach();
+        transformControls.attach(simulation.boxes[itemSelected].mesh)
+        const selected = simulation.boxes[itemSelected];
+        document.getElementById("wireframe-toggle").checked = selected.mesh.material.wireframe ? true : false;
+        document.getElementById("object-name").innerText = selected.mesh.name;
+        width.value = selected.mesh.geometry.parameters.width * selected.mesh.scale.x;
+        height.value = selected.mesh.geometry.parameters.height * selected.mesh.scale.y;
+        depth.value = selected.mesh.geometry.parameters.depth * selected.mesh.scale.z;
+        xPos.value = selected.mesh.position.x;
+        yPos.value = selected.mesh.position.y;
+        zPos.value = selected.mesh.position.z;
+        xVel.value = selected.body.velocity.x;
+        yVel.value = selected.body.velocity.y;
+        zVel.value = selected.body.velocity.z;
+        xRot.value = selected.mesh.rotation.x;
+        yRot.value = selected.mesh.rotation.y;
+        zRot.value = selected.mesh.rotation.z;
+        xAng.value = selected.body.angularVelocity.x;
+        yAng.value = selected.body.angularVelocity.y;
+        zAng.value = selected.body.angularVelocity.z;
     } else {
         document.getElementById("object-name").innerText = "No item is Selected";
+        width.innerText = "";
+        height.innerText = "";
+        depth.innerText = "";
+        xPos.innerText = "";
+        yPos.innerText = "";
+        zPos.innerText = "";
+        xVel.innerText = "";
+        yVel.innerText = "";
+        zVel.innerText = "";
+        xRot.innerText = "";
+        yRot.innerText = "";
+        zRot.innerText = "";
+        xAng.innerText = "";
+        yAng.innerText = "";
+        zAng.innerText = "";
     }
 }
 
@@ -289,6 +328,7 @@ canvas.addEventListener("mousedown", (event) => {
         for (const index in simulation.boxes){
             if (simulation.boxes[index].mesh.uuid == intersectedObjects[0].object.uuid){
                 itemSelected = index;
+                transformControls.attach(simulation.boxes[index].mesh);
                 setSettings();
                 break;
             }
@@ -320,8 +360,8 @@ const depth = document.getElementById("right-depth");
 width.addEventListener("blur", () => {
     if ((width.value.length == 0 || isNaN(width.value)) && itemSelected > -1) {
         width.focus();
-    } else {
-        simulation.items[itemSelected].position.x = width.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].mesh.scale.x = parseInt(width.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.width;
         synchronizeSize();
     }
 });
@@ -329,8 +369,8 @@ width.addEventListener("blur", () => {
 height.addEventListener("blur", () => {
     if ((height.value.length == 0 || isNaN(height.value)) && itemSelected > -1) {
         height.focus();
-    } else {
-        simulation.items[itemSelected].position.y = height.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].mesh.scale.y = parseInt(height.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.height;
         synchronizeSize();
     }
 });
@@ -338,8 +378,8 @@ height.addEventListener("blur", () => {
 depth.addEventListener("blur", () => {
     if ((depth.value.length == 0 || isNaN(depth.value)) && itemSelected > -1) {
         depth.focus();
-    } else {
-        simulation.items[itemSelected].position.z = depth.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].mesh.scale.z = parseInt(depth.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.depth;
         synchronizeSize();
     }
 });
@@ -353,8 +393,8 @@ const zPos = document.getElementById("right-position-z");
 xPos.addEventListener("blur", () => {
     if ((xPos.value.length == 0 || isNaN(xPos.value)) && itemSelected > -1) {
         xPos.focus();
-    } else {
-        simulation.items[itemSelected].position.x = xPos.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].mesh.position.x = parseInt(xPos.value);
         synchronizePositions();
     }
 });
@@ -362,8 +402,8 @@ xPos.addEventListener("blur", () => {
 yPos.addEventListener("blur", () => {
     if ((yPos.value.length == 0 || isNaN(yPos.value)) && itemSelected > -1) {
         yPos.focus();
-    } else {
-        simulation.items[itemSelected].position.y = yPos.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].mesh.position.y = parseInt(yPos.value);
         synchronizePositions();
     }
 });
@@ -371,8 +411,8 @@ yPos.addEventListener("blur", () => {
 zPos.addEventListener("blur", () => {
     if ((zPos.value.length == 0 || isNaN(zPos.value)) && itemSelected > -1) {
         zPos.focus();
-    } else {
-        simulation.items[itemSelected].position.z = zPos.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].mesh.position.z = parseInt(zPos.value);
         synchronizePositions();
     }
 });
@@ -386,24 +426,24 @@ const zVel = document.getElementById("right-velocity-z");
 xVel.addEventListener("blur", () => {
     if ((xVel.value.length == 0 || isNaN(xVel.value)) && itemSelected > -1) {
         xVel.focus();
-    } else {
-        simulation.boxes[itemSelected].body.velocity.x = xVel.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].body.velocity.x = parseInt(xVel.value);
     }
 });
 
 yVel.addEventListener("blur", () => {
     if ((yVel.value.length == 0 || isNaN(yVel.value)) && itemSelected > -1) {
         yVel.focus();
-    } else {
-        simulation.boxes[itemSelected].body.velocity.y = yVel.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].body.velocity.y = parseInt(yVel.value);
     }
 });
 
 zVel.addEventListener("blur", () => {
     if ((zVel.value.length == 0 || isNaN(zVel.value)) && itemSelected > -1) {
         zVel.focus();
-    } else {
-        simulation.boxes[itemSelected].body.velocity.z = zVel.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].body.velocity.z = parseInt(zVel.value);
     }
 });
 
@@ -416,8 +456,8 @@ const zRot = document.getElementById("right-rotation-z");
 xRot.addEventListener("blur", () => {
     if ((xRot.value.length == 0 || isNaN(xRot.value)) && itemSelected > -1) {
         xRot.focus();
-    } else {
-        simulation.boxes[itemSelected].mesh.rotation.x = xRot.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].mesh.rotation.x = parseInt(xRot.value);
         synchronizeRotation();
     }
 });
@@ -425,8 +465,8 @@ xRot.addEventListener("blur", () => {
 yRot.addEventListener("blur", () => {
     if ((yRot.value.length == 0 || isNaN(yRot.value)) && itemSelected > -1) {
         yRot.focus();
-    } else {
-        simulation.boxes[itemSelected].mesh.rotation.y = yRot.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].mesh.rotation.y = parseInt(yRot.value);
         synchronizeRotation();
     }
 });
@@ -434,8 +474,8 @@ yRot.addEventListener("blur", () => {
 zRot.addEventListener("blur", () => {
     if ((zRot.value.length == 0 || isNaN(zRot.value)) && itemSelected > -1) {
         zRot.focus();
-    } else {
-        simulation.boxes[itemSelected].mesh.rotation.z = zRot.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].mesh.rotation.z = parseInt(zRot.value);
         synchronizeRotation();
     }
 });
@@ -449,24 +489,24 @@ const zAng = document.getElementById("right-angular-z");
 xAng.addEventListener("blur", () => {
     if ((xAng.value.length == 0 || isNaN(xAng.value)) && itemSelected > -1) {
         xAng.focus();
-    } else {
-        simulation.boxes[itemSelected].body.angularVelocity.x = xAng.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].body.angularVelocity.x = parseInt(xAng.value);
     }
 });
 
 yAng.addEventListener("blur", () => {
     if ((yAng.value.length == 0 || isNaN(yAng.value)) && itemSelected > -1) {
         yAng.focus();
-    } else {
-        simulation.boxes[itemSelected].body.angularVelocity.y = yAng.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].body.angularVelocity.y = parseInt(yAng.value);
     }
 });
 
 zAng.addEventListener("blur", () => {
     if ((zAng.value.length == 0 || isNaN(zAng.value)) && itemSelected > -1) {
         zAng.focus();
-    } else {
-        simulation.boxes[itemSelected].body.angularVelocity.z = zAng.value;
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].body.angularVelocity.z = parseInt(zAng.value);
     }
 });
 
@@ -485,12 +525,11 @@ document.getElementById("add-cube-button").onclick = simulation.createBox.bind(s
 document.getElementById("add-sphere-button").onclick = simulation.createBox.bind(simulation, 5, 5, 5, 2, 2, 2);
 
 function handleWireFrameToggle(){
-    console.log(document.getElementById("wireframe-toggle").checked);
     if (document.getElementById("wireframe-toggle").checked && itemSelected > -1){
-        itemSelected.material.wireframe = true;
+        simulation.boxes[itemSelected].mesh.material.wireframe = true;
     } else {
         if (itemSelected > -1){
-            simulation.boxes[itemSelected].material.wireframe = false;
+            simulation.boxes[itemSelected].mesh.material.wireframe = false;
         }
     }
 }
@@ -524,3 +563,5 @@ transformControls.addEventListener("change", (event) => {
         }
     }
 });
+
+transformControls.addEventListener("mouseUp", setSettings);

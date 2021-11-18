@@ -65,6 +65,10 @@ function animate() {
 //General Functions
 //To change mass you change the mass and set call the updateMassProperties() method
 
+function updateName(itemSelected){
+
+}
+
 function addItemToList(index){
     let node = document.createElement("DIV");
     let textNode = document.createElement("input");
@@ -113,6 +117,12 @@ function addItemToList(index){
             textNode.focus();
         } else {
             simulation.boxes[index].mesh.name = textNode.value;
+            document.getElementById("object-name").innerText = simulation.boxes[index].mesh.name;
+        }
+    });
+    textNode.addEventListener("keydown", (event) => {
+        if (event.key === 'Enter' && document.activeElement.value.length != 0){
+            document.activeElement.blur();
         }
     });
     node.appendChild(textNode);
@@ -312,5 +322,4 @@ initCannon();
 initControls();
 
 animate();
-console.log(renderer);
 export {simulation, camera, transformControls, orbitControls, copyBoxes, renderer};

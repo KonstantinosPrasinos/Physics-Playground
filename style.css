@@ -327,7 +327,7 @@ button {
     display: block;
     text-align: center;
 }
-#right-ui-rotation {
+.right-text-field {
     padding: 10px;
     font-size: 12px;
 }
@@ -337,7 +337,7 @@ button {
     text-align: center;
     margin-bottom: 5px;
 }
-.right-rotation-field {
+.right-input-field {
     width: 32%;
     display: inline-block;
 }
