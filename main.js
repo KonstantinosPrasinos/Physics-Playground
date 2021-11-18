@@ -74,7 +74,7 @@ function addItemToList(index){
 
     node.classList.add("item-list-field");
     textNode.type = 'text';
-    textNode.value = simulation.boxes[index].name;
+    textNode.value = simulation.boxes[index].mesh.name;
     textNode.setAttribute('required', "");
     textNode.classList.add("item-list-editable");
 
@@ -112,7 +112,7 @@ function addItemToList(index){
         if (textNode.value.length == 0) {
             textNode.focus();
         } else {
-            simulation.boxes[index].name = textNode.value;
+            simulation.boxes[index].mesh.name = textNode.value;
         }
     });
     node.appendChild(textNode);
@@ -209,14 +209,11 @@ async function copyBoxes(){
         }
         //Deep copy of the threejs mesh
         copyMesh = simulation.boxes[i].mesh.clone();
-        //Copy of the name of the object
-        copyName = simulation.boxes[i].name;
 
         //Assigning all of the above to an object ... object and adding it to the copied boxes array
         let box = {
             body: copyBody,
-            mesh: copyMesh,
-            name: copyName
+            mesh: copyMesh
         }
         savedBoxes.push(box);
     }
@@ -251,8 +248,8 @@ let simulation = {
         if (this.boxes.length){
             for (i; i < this.boxes.length; ) {
                 for (const box of this.boxes) {
-                    if (box.name.includes('-')){
-                        let tempString = box.name.split('-');
+                    if (box.mesh.name.includes('-')){
+                        let tempString = box.mesh.name.split('-');
                         if (tempString[0] == 'Box' && (parseInt(tempString[1]).toString().length == tempString[1].length)){
                             let number = parseInt(tempString[1]);
                             if (number == i){
@@ -264,11 +261,10 @@ let simulation = {
                 }
             }
         }
-        tempMesh.userData.name = `Box-${i}`
+        tempMesh.name = `Box-${i}`;
         let box = {
             body: tempBody,
-            mesh: tempMesh,
-            name: `Box-${i}`
+            mesh: tempMesh
         }
         this.boxes.push(box);
         addItemToList(this.boxes.length - 1);
