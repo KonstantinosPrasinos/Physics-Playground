@@ -1,4 +1,4 @@
-import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer} from '/main.js'
+import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer, updateVectors, world} from '/main.js'
 
 let itemSelected = -1, tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark';
 
@@ -38,11 +38,103 @@ if (!localStorage.tutorialCompleted) {
 }
 
 //General Functions
+let savedLog;
+function generateJSON(){
+    let logObj = {};
+    let timeLine = {}
+    simulation.boxes.forEach((item) => {
+        timeLine[item.mesh.uuid] = {name: item.mesh.name, mass: item.body.mass, position: {x: item.body.position.x, y: item.body.position.y, z: item.body.position.z}, velocity: {x: item.body.velocity.x, y: item.body.velocity.y, z: item.body.velocity.z}, rotation: {x: item.mesh.rotation.x, y: item.mesh.rotation.y, z: item.mesh.rotation.z}, angularVelocity: {x: item.body.angularVelocity.x, y: item.body.angularVelocity.y, z: item.body.angularVelocity.z}, force: {x: item.body.force.x, y: item.body.force.y, z: item.body.force.z}}
+    });
+    logObj[parseInt(world.time)] = timeLine;
+    console.log(logObj);
+    return logObj;
+}
+
+function downloadJson(object){
+    let log = "data:text/json;charset=utf-8," + encodeURIComponent(object);
+    let htmlElement = document.getElementById("download-log");
+    htmlElement.setAttribute("href", log);
+    htmlElement.setAttribute("download", "scene.json");
+    htmlElement.click();
+}
+
+function downloadCurrentLogJson(){
+    if (simulation.boxes.length){
+        downloadJson(JSON.stringify(generateJSON()));
+    }
+}
+
+
+function downloadTxt(text){
+    let log = "data:text;charset=utf-8," + encodeURI(text);
+    let htmlElement = document.getElementById("download-log");
+    htmlElement.setAttribute("href", log);
+    htmlElement.setAttribute("download", "scene.txt");
+    htmlElement.click();
+}
+function downloadCurrentLogTxt(){
+    let index = document.getElementById("log").innerText.lastIndexOf("At time");
+    let result = document.getElementById("log").innerText.substr(index);
+    console.log(index,result);
+    downloadTxt(result);
+}
+
+function downloadLongLogJson(){
+    if (savedLog){
+        downloadJson(JSON.stringify(savedLog));
+    }
+}
+
+function downloadLongLogTxt(){
+    downloadTxt(document.getElementById("log").innerText);
+}
+
+function printToLog(){
+    let log = document.getElementById("log");
+    console.log(savedLog);
+    if (!savedLog){
+        savedLog = generateJSON();
+    } else {
+        let line = generateJSON();
+        for (const index in line){
+            savedLog[index] = line[index];
+        }
+    }
+    log.innerHTML += `At time ${parseInt(world.time)}:`;
+    if (simulation.boxes.length){
+        log.innerHTML += "<br>";
+        log.innerHTML += "Name - Mass - Position - Velocity - Rotation - Angular Velocity - Force";
+        log.innerHTML += "<br>";
+        simulation.boxes.forEach((item) => {
+            log.innerHTML += `${item.mesh.name} | ${item.body.mass} | ${item.body.position.x}, ${item.body.position.y}, ${item.body.position.z} | ${item.body.velocity.x}, ${item.body.velocity.y}, ${item.body.velocity.z} | `;
+            log.innerHTML += `${item.mesh.rotation.x}, ${item.mesh.rotation.y}, ${item.mesh.rotation.z} | ${item.body.angularVelocity.x}, ${item.body.angularVelocity.y}, ${item.body.angularVelocity.z} | ${item.body.force.x}, ${item.body.force.y}, ${item.body.force.z}`;
+            log.innerHTML += "<br>";
+        });
+        log.innerHTML += "<br>";
+    } else {
+        log.innerHTML += "<br>";
+        log.innerHTML += "No items in scene";
+        log.innerHTML += "<br>";
+        log.innerHTML += "<br>";
+    }
+
+}
+
+function createLog(){
+    document.getElementById("log").innerHTML = "";
+    printToLog();
+}
+document.getElementById("print-stuff").onclick = printToLog;
+document.getElementById("download-long-json").onclick = downloadLongLogJson;
+document.getElementById("download-current-json").onclick = downloadCurrentLogJson;
+document.getElementById("download-current-txt").onclick = downloadCurrentLogTxt;
+document.getElementById("download-long-txt").onclick = downloadLongLogTxt;
 
 function synchronizePositions() {
     simulation.boxes[itemSelected].body.position.x = simulation.boxes[itemSelected].mesh.position.x;
     simulation.boxes[itemSelected].body.position.y = simulation.boxes[itemSelected].mesh.position.y;
     simulation.boxes[itemSelected].body.position.z = simulation.boxes[itemSelected].mesh.position.z;
+    updateVectors(simulation.boxes[itemSelected]);
 }
 
 function synchronizeRotation() {
@@ -223,7 +315,7 @@ document.getElementById("top-play").onclick = function togglePause(){
             element.body.position.copy(element.mesh.position);
             element.body.quaternion.copy(element.mesh.quaternion);
         });
-        synchronizePositions();
+        // synchronizePositions();
     }
     if (simulation.isPaused){
         resumeSimulation();
@@ -279,7 +371,7 @@ slider.oninput = function (){
     }
 }
 
-function setSettings(){
+function setRightParameters(){
     if (itemSelected > -1){
         transformControls.detach();
         transformControls.attach(simulation.boxes[itemSelected].mesh)
@@ -301,6 +393,9 @@ function setSettings(){
         xAng.value = selected.body.angularVelocity.x;
         yAng.value = selected.body.angularVelocity.y;
         zAng.value = selected.body.angularVelocity.z;
+        xFor.value = selected.body.force.x;
+        yFor.value = selected.body.force.y;
+        zFor.value = selected.body.force.z;
     } else {
         document.getElementById("object-name").innerText = "No item is Selected";
         width.innerText = "";
@@ -318,6 +413,9 @@ function setSettings(){
         xAng.innerText = "";
         yAng.innerText = "";
         zAng.innerText = "";
+        xFor.value = "";
+        yFor.value = "";
+        zFor.value = "";
     }
 }
 
@@ -329,7 +427,7 @@ canvas.addEventListener("mousedown", (event) => {
             if (simulation.boxes[index].mesh.uuid == intersectedObjects[0].object.uuid){
                 itemSelected = index;
                 transformControls.attach(simulation.boxes[index].mesh);
-                setSettings();
+                setRightParameters();
                 break;
             }
         }
@@ -337,7 +435,7 @@ canvas.addEventListener("mousedown", (event) => {
         if (transformControls.object && !transformControls.dragging){
             transformControls.detach();
             itemSelected = -1;
-            setSettings();
+            setRightParameters();
         }
     }
 });
@@ -510,6 +608,34 @@ zAng.addEventListener("blur", () => {
     }
 });
 
+const xFor = document.getElementById("right-force-x");
+const yFor = document.getElementById("right-force-y");
+const zFor = document.getElementById("right-force-z");
+
+xFor.addEventListener("blur", () => {
+    if ((xFor.value.length == 0 || isNaN(xFor.value)) && itemSelected > -1) {
+        xFor.focus();
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].body.force.x = parseInt(xFor.value);
+    }
+});
+
+yFor.addEventListener("blur", () => {
+    if ((yFor.value.length == 0 || isNaN(yFor.value)) && itemSelected > -1) {
+        yFor.focus();
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].body.force.y = parseInt(yFor.value);
+    }
+});
+
+zFor.addEventListener("blur", () => {
+    if ((zFor.value.length == 0 || isNaN(zFor.value)) && itemSelected > -1) {
+        zFor.focus();
+    } else if (itemSelected > -1){
+        simulation.boxes[itemSelected].body.force.z = parseInt(zFor.value);
+    }
+});
+
 colorPicker.addEventListener("change", (event) => {
     if (itemSelected > -1) {
         simulation.boxes[itemSelected].mesh.material.color.set(`${event.target.value}`);
@@ -522,7 +648,7 @@ document.getElementById("background-color-picker").addEventListener("change", (e
 
 //Temp
 document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation, 0, 0, 0, 2, 2, 2);
-document.getElementById("add-sphere-button").onclick = simulation.createBox.bind(simulation, 5, 5, 5, 2, 2, 2);
+document.getElementById("add-sphere-button").onclick = simulation.createBox.bind(simulation, 5, 0, 0, 2, 2, 2);
 
 function handleWireFrameToggle(){
     if (document.getElementById("wireframe-toggle").checked && itemSelected > -1){
@@ -564,4 +690,4 @@ transformControls.addEventListener("change", (event) => {
     }
 });
 
-transformControls.addEventListener("mouseUp", setSettings);
+transformControls.addEventListener("mouseUp", setRightParameters);

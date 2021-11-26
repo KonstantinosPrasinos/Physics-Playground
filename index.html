@@ -131,6 +131,28 @@
                         <input type="text" class="right-text-editable small-text-editable" id="right-velocity-z">
                     </div>
                 </div>
+                <div class="right-text-field">
+                    <div class="right-title title-small">Force:</div>
+                    <div class="right-input-field">
+                        <span>X:</span>
+                        <input type="text" class="right-text-editable small-text-editable" id="right-force-x">
+                    </div>
+                    <div class="right-input-field">
+                        <span>Y:</span>
+                        <input type="text" class="right-text-editable small-text-editable" id="right-force-y">
+                    </div>
+                    <div class="right-input-field">
+                        <span>Z:</span>
+                        <input type="text" class="right-text-editable small-text-editable" id="right-force-z">
+                    </div>
+                </div>
+                <div class="right-text-field">
+                    <div class="right-title title-small">Show Velocity Vectors:</div>
+                    <button id="velocity-off-button"class="radio-selected radio-button radio-small"></button>
+                    <button id="velocity-single-button" class="radio-unselected radio-button radio-small"></button>
+                    <button id="velocity-split-button" class="radio-unselected radio-button radio-small"></button>
+                    <div class="right-title title-small">Off - Single - Multiple</div>
+                </div>
             </div>
             <div id="right-ui-items-list">
                 <div class="right-title title-medium">Items in Scene:</div>
@@ -144,9 +166,8 @@
                 <span class="title">Settings:</span>
                 <div class="settings-row">
                     <span class="chapter">Theme:</span>
-                    <button id="light-theme-button"
-                        class="theme-button-unselected"></button>
-                    <button id="dark-theme-button" class="theme-button-selected"></button>
+                    <button id="light-theme-button"class="theme-button-unselected radio-button radio-big"></button>
+                    <button id="dark-theme-button" class="theme-button-selected radio-button radio-big"></button>
                     <span class="chapter">Background Color:</span>
                     <input type="color" value="#ffffff" id="background-color-picker" class="color-picker">
                 </div>
@@ -189,6 +210,29 @@
                             <span class="t-slider"></span>
                         </label>
                     </div>
+                </div>
+                <div class="settings-row">
+                    <span class="chapter">Grid</span>
+                    <span class="chapter-medium">X:</span>
+                    <input type="checkbox">
+                    <span class="chapter-medium">Y:</span>
+                    <input type="checkbox">
+                    <span class="chapter-medium">Z:</span>
+                    <input type="checkbox">
+                </div>
+                <div class="settings-row">
+                    <span class="chapter">Defaults:</span>
+                    <input type="text" class="small-text-editable" id="default-mass-editable">
+                </div>
+                <div class="settings-row">
+                    <a id="download-log" style="display:none"></a>
+                    <button id="print-stuff">print</button>
+                    <span class="chapter">Log</span>
+                    <div id="log" style="overflow: auto;"></div>
+                    <button id="download-long-json">download long json</button>
+                    <button id="download-current-json">download current json</button>
+                    <button id="download-long-txt">download long txt</button>
+                    <button id="download-current-txt">download current txt</button>
                 </div>
             </div>
         </div>
