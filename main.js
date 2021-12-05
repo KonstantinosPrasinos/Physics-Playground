@@ -2,14 +2,39 @@ import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
+import Stats from 'https://unpkg.com/three@0.126.1/examples/jsm/libs/stats.module.js';
 
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
 
-let rayDirection, savedBoxes = [], scene, renderer, camera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime;
+let rayDirection, savedBoxes = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40;
+let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
 
 function changeTimeStep(temp){
     timeStep = temp;
+}
+
+function setCamera(cameraType){
+    if (camera.type != cameraType){
+        switch (cameraType)  {
+            case "PerspectiveCamera":
+                camera = perspectiveCamera;
+                orbitControls.object = camera;
+                orbitControls.reset();
+                camera.updateMatrixWorld();
+                camera.updateProjectionMatrix();
+                break;
+            case "OrthographicCamera":
+                camera = orthographicCamera;
+                orbitControls.object = camera;
+                orbitControls.reset();
+                camera.updateMatrixWorld();
+                camera.updateProjectionMatrix();
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 //Init Functions
@@ -24,9 +49,13 @@ function initControls(){
 function initThree() {
     scene = new THREE.Scene();
 
-    camera = new THREE.PerspectiveCamera( 45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
-    camera.position.z = 50;
-    scene.add(camera);
+    orthographicCamera = new THREE.OrthographicCamera( frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 1000 );
+    perspectiveCamera = new THREE.PerspectiveCamera( 45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
+    orthographicCamera.position.z = 50;
+    perspectiveCamera.position.z = 50;
+    scene.add(orthographicCamera);
+    scene.add(perspectiveCamera);
+    camera = perspectiveCamera;
 
     renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true});
     renderer.setClearColor( 0xffffff, 1);
@@ -44,10 +73,7 @@ function initCannon() {
 //Timed Functions
 
 function attemptPrintPerStep(){
-    console.log(simulation.logPerSteps != 0, ((world.time / world.dt) % simulation.logPerSteps < world.dt || Math.abs(simulation.logPerSteps - (world.time / world.dt) % simulation.logPerSteps) < world.dt), previousLogedTime != world.time, world.time)
-    // console.log(simulation.logPerSteps != 0, (world.time / world.dt) % simulation.logPerSteps, previousLogedTime != world.time);
     if (simulation.logPerSteps != 0 && ((world.time / world.dt) % simulation.logPerSteps < world.dt || Math.abs(simulation.logPerSteps - (world.time / world.dt) % simulation.logPerSteps) < world.dt) && previousLogedTime != world.time){
-        console.log("succeeeded");
         printToLog();
         previousLogedTime = world.time;
     }
@@ -63,7 +89,7 @@ function updatePhysics() {
 }
 
 function render() {
-    topTime.innerText = parseInt(world.time);
+    topTime.innerText = parseFloat(world.time).toFixed(3);
     renderer.render(scene, camera);
 }
 
@@ -73,10 +99,19 @@ function animate() {
         updatePhysics();
     }
     render();
+
+    stats.update();
 }
 
 //General Functions
 //To change mass you change the mass and set call the updateMassProperties() method
+
+function rewindBoxes(){
+    simulation.removeAllObjects();
+    simulation.boxes = savedBoxes;
+    savedBoxes = [];
+    simulation.addAllObjects();
+}
 
 function generateJSON(){
     let logObj = {};
@@ -115,10 +150,6 @@ function printToLog(){
         log.innerHTML += "<br>";
         log.innerHTML += "<br>";
     }
-}
-
-function updateName(itemSelected){
-
 }
 
 function addItemToList(index){
@@ -562,5 +593,8 @@ initThree();
 initCannon();
 initControls();
 
+let stats = Stats();
+document.body.appendChild(stats.dom);
+
 animate();
-export {simulation, camera, transformControls, orbitControls, copyBoxes, renderer, updateVectors, world, changeTimeStep, printToLog, generateJSON};
+export {simulation, camera, transformControls, orbitControls, copyBoxes, renderer, updateVectors, world, changeTimeStep, printToLog, generateJSON, setCamera, rewindBoxes};

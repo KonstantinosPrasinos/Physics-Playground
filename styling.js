@@ -1,4 +1,4 @@
-import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer, updateVectors, world, printToLog, generateJSON} from '/main.js'
+import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer, updateVectors, world, printToLog, generateJSON, setCamera, rewindBoxes} from '/main.js'
 
 let itemSelected = -1, tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark', printPerSteps = 0;
 
@@ -40,6 +40,8 @@ if (!localStorage.theme) {
         case "midnight":
             document.getElementById("midnight-theme-button").checked = true;
             break;
+        case "custom":
+            document.getElementById("custom-theme-button").checked = true;
         default:
             break;
     }
@@ -161,8 +163,8 @@ function resumeSimulation(){
 function setTheme(theme) {
     let customGridContainer = document.getElementById("custom-grid-container");
     if (theme != storedTheme) {
-        if (theme != "custom" && window.getComputedStyle(customGridContainer).getPropertyValue('display') == "inline-grid"){
-            gsap.to(customGridContainer, { duration: 0.2, opacity: 0, onComplete: function () { customGridContainer.style.display = 'none'; }});
+        if (theme != "custom" && window.getComputedStyle(customGridContainer).opacity == 1){
+            gsap.to(customGridContainer, { duration: 0.2, opacity: 0});
         }
         switch (theme) {
             case 'light':
@@ -191,14 +193,22 @@ function setTheme(theme) {
                 if (!localStorage.customTheme){
                     primaryColor = document.getElementById("custom-primary-color-picker").value;
                     secondaryColor = document.getElementById("custom-secondary-color-picker").value;
-                    localStorage.setItem("customTheme", {primary: primaryColor, secndary: secondaryColor});
+                    localStorage.setItem("customThemePrimary", primaryColor);
+                    localStorage.setItem("customThemeSecondary", secondaryColor);
                 } else {
-                    primaryColor = localStorage.customTheme.primary;
-                    secondaryColor = localStorage.customTheme.secondary;
+                    primaryColor = localStorage.customThemePrimary;
+                    secondaryColor = localStorage.customThemeSecondary;
                 }
                 localStorage.setItem("theme", "custom");
+                storedTheme = theme;
                 gsap.to("html", { duration: 0.2, "--primary-color": primaryColor});
                 gsap.to("html", { duration: 0.2, "--secondary-color": secondaryColor});
+                document.getElementById("custom-primary-color-picker").value = localStorage.customThemePrimary;
+                document.getElementById("custom-secondary-color-picker").value = localStorage.customThemeSecondary;
+                document.getElementById("custom-theme-button").click;
+                if (window.getComputedStyle(document.getElementById("custom-grid-container")).opacity == 0){
+                    gsap.to(customGridContainer, {duration: 0.2, opacity: 1});
+                }
             default:
                 break;
         }
@@ -221,6 +231,24 @@ function toggleSettings() {
 }
 
 //Click Events
+
+function handleCameraButton(type){
+    let fovGrid = document.getElementById("fov-grid-container");
+    if (type == "PerspectiveCamera"){
+        setCamera("PerspectiveCamera");
+        if (window.getComputedStyle(fovGrid).opacity == 0){
+            gsap.to(fovGrid, { duration: 0.2, opacity: 1});
+        }
+    } else if (type == "OrthographicCamera"){
+        setCamera("OrthographicCamera");
+        if (window.getComputedStyle(fovGrid).opacity == 1){
+            gsap.to(fovGrid, { duration: 0.2, opacity: 0});
+        }
+    }
+}
+
+document.getElementById("perspective-button").onclick = handleCameraButton.bind(this, "PerspectiveCamera");
+document.getElementById("orthographic-button").onclick = handleCameraButton.bind(this, "OrthographicCamera");
 
 document.getElementById("top-select").onclick = function selectCursorMove(){
     if (selectedCursor != "translate"){
@@ -306,7 +334,6 @@ document.getElementById("settings-button").onclick = document.getElementById("cl
 
 function toggleCustomTheme(){
     let customGridContainer = document.getElementById("custom-grid-container");
-    customGridContainer.style.display = "inline-grid";
     gsap.to(customGridContainer, {duration: 0.2, opacity: 1});
     setTheme('custom');
 }
@@ -342,14 +369,7 @@ document.getElementById("top-replay").onclick = async function toggleMode(){
         clearLog();
         pauseSimulation();
         mode = "setup";
-
-        simulation.removeAllObjects();
-        
-        // simulation.addAllObjects();
-        
-        simulation.boxes = savedBoxes;
-        savedBoxes = [];
-        simulation.addAllObjects();
+        rewindBoxes();
         topMode.innerHTML = "<b>Mode:</b> Setup";
     }
 }
@@ -372,18 +392,40 @@ function blurFocusedElement(event){
 
 document.getElementById("right-ui-features").addEventListener("keydown", blurFocusedElement);
 
-let slider = document.getElementById("fov-slider");
+let fovSlider = document.getElementById("fov-slider");
+let fovText = document.getElementById("fov-text");
 
-if (camera.type == "PerspectiveCamera"){
-    slider.value = camera.fov;
-}
 
-slider.oninput = function (){
+fovSlider.oninput = function (){
     if (camera.type == "PerspectiveCamera"){
-        camera.fov = parseInt(slider.value);
+        camera.fov = parseInt(fovSlider.value);
+        fovText.placeholder = camera.fov;
         camera.updateProjectionMatrix();
     }
 }
+
+fovText.addEventListener("blur", () => {
+    if ((fovText.value.length == 0 || isNaN(fovText.value)) && camera.type == "PerspectiveCamera") {
+        fovText.value = "";
+    } else if (camera.type == "PerspectiveCamera"){
+        if (fovText.value > 110){
+            fovText.placeholder = 110;
+            camera.fov = 110;
+        } else if (fovText.value < 20){
+            fovText.placeholder = 20
+            camera.fov = 20;
+        } else {
+            fovText.placeholder = fovText.value;
+            camera.fov = parseInt(fovText.value);
+        }
+        fovText.value = "";
+        fovSlider.value = camera.fov;
+    }
+});
+
+const width = document.getElementById("right-width");
+const height = document.getElementById("right-height");
+const depth = document.getElementById("right-depth");
 
 function setRightParameters(){
     if (itemSelected > -1){
@@ -392,6 +434,32 @@ function setRightParameters(){
         const selected = simulation.boxes[itemSelected];
         document.getElementById("wireframe-toggle").checked = selected.mesh.material.wireframe ? true : false;
         document.getElementById("object-name").innerText = selected.mesh.name;
+
+        width.disabled = false;
+        height.disabled = false;
+        depth.disabled = false;
+        xPos.disabled = false;
+        yPos.disabled = false;
+        zPos.disabled = false;
+        xVel.disabled = false;
+        yVel.disabled = false;
+        zVel.disabled = false;
+        xRot.disabled = false;
+        yRot.disabled = false;
+        zRot.disabled = false;
+        xAng.disabled = false;
+        yAng.disabled = false;
+        zAng.disabled = false;
+        xFor.disabled = false;
+        yFor.disabled = false;
+        zFor.disabled = false;
+
+        document.getElementById("wireframe-toggle").disabled = false;
+        document.getElementsByName("velocity-radio").forEach(element => {element.disabled = false});
+        document.getElementsByName("force-radio").forEach(element => {element.disabled = false});
+        document.getElementById("collidable-toggle").disabled = false;
+        document.getElementById("item-color-picker").disabled = false;
+
         width.value = selected.mesh.geometry.parameters.width * selected.mesh.scale.x;
         height.value = selected.mesh.geometry.parameters.height * selected.mesh.scale.y;
         depth.value = selected.mesh.geometry.parameters.depth * selected.mesh.scale.z;
@@ -412,21 +480,46 @@ function setRightParameters(){
         zFor.value = selected.body.force.z;
     } else {
         document.getElementById("object-name").innerText = "No item is Selected";
-        width.innerText = "";
-        height.innerText = "";
-        depth.innerText = "";
-        xPos.innerText = "";
-        yPos.innerText = "";
-        zPos.innerText = "";
-        xVel.innerText = "";
-        yVel.innerText = "";
-        zVel.innerText = "";
-        xRot.innerText = "";
-        yRot.innerText = "";
-        zRot.innerText = "";
-        xAng.innerText = "";
-        yAng.innerText = "";
-        zAng.innerText = "";
+        width.disabled = true;
+        height.disabled = true;
+        depth.disabled = true;
+        xPos.disabled = true;
+        yPos.disabled = true;
+        zPos.disabled = true;
+        xVel.disabled = true;
+        yVel.disabled = true;
+        zVel.disabled = true;
+        xRot.disabled = true;
+        yRot.disabled = true;
+        zRot.disabled = true;
+        xAng.disabled = true;
+        yAng.disabled = true;
+        zAng.disabled = true;
+        xFor.disabled = true;
+        yFor.disabled = true;
+        zFor.disabled = true;
+
+        document.getElementById("wireframe-toggle").disabled = true;
+        document.getElementsByName("velocity-radio").forEach(element => {element.disabled = true});
+        document.getElementsByName("force-radio").forEach(element => {element.disabled = true});
+        document.getElementById("collidable-toggle").disabled = true;
+        document.getElementById("item-color-picker").disabled = true;
+        
+        width.value = "";
+        height.value = "";
+        depth.value = "";
+        xPos.value = "";
+        yPos.value = "";
+        zPos.value = "";
+        xVel.value = "";
+        yVel.value = "";
+        zVel.value = "";
+        xRot.value = "";
+        yRot.value = "";
+        zRot.value = "";
+        xAng.value = "";
+        yAng.value = "";
+        zAng.value = "";
         xFor.value = "";
         yFor.value = "";
         zFor.value = "";
@@ -464,10 +557,6 @@ window.addEventListener('resize', () => {
 });
 
 //Size Setting
-
-const width = document.getElementById("right-width");
-const height = document.getElementById("right-height");
-const depth = document.getElementById("right-depth");
 
 width.addEventListener("blur", () => {
     if ((width.value.length == 0 || isNaN(width.value)) && itemSelected > -1) {
@@ -657,6 +746,20 @@ colorPicker.addEventListener("change", (event) => {
     }
 });
 
+document.getElementById("custom-primary-color-picker").addEventListener("change", (event) => {
+    if (storedTheme == 'custom'){
+        gsap.to("html", { duration: 0.2, "--primary-color": event.target.value });
+        localStorage.setItem("customThemePrimary", event.target.value);
+    }
+})
+
+document.getElementById("custom-secondary-color-picker").addEventListener("change", (event) => {
+    if (storedTheme == 'custom'){
+        gsap.to("html", { duration: 0.2, "--secondary-color": event.target.value });
+        localStorage.setItem("customThemeSecondary", event.target.value);
+    }
+})
+
 document.getElementById("background-color-picker").addEventListener("change", (event) => {
     renderer.setClearColor(event.target.value);
 })
@@ -675,15 +778,12 @@ function handleWireFrameToggle(){
     }
 }
 
-function handleCameraToggle(){
-    if (document.getElementById("wireframe-toggle").checked){
-        //Orthographic
-    } else {
-        //Perspective
+function handleStatsToggle(){
+    if (document.getElementById("stats-toggle").checked){
+        const stats = Stats();
+        document.body.appendChild(stats.dom);
     }
 }
-
-document.getElementById("camera-toggle").onclick = handleCameraToggle;
 
 document.getElementById("wireframe-toggle").onclick = handleWireFrameToggle;
 
