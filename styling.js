@@ -1,6 +1,6 @@
-import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer, updateVectors, world} from '/main.js'
+import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer, updateVectors, world, printToLog, generateJSON} from '/main.js'
 
-let itemSelected = -1, tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark';
+let itemSelected = -1, tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark', printPerSteps = 0;
 
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
@@ -29,7 +29,21 @@ let canvas = document.getElementById("viewportCanvas");
 if (!localStorage.theme) {
     localStorage.setItem("theme", "dark");
 } else {
-    setTheme(localStorage.getItem("theme"));
+    let theme = localStorage.getItem("theme");
+    switch (theme) {
+        case "dark":
+            document.getElementById("dark-theme-button").checked = true;
+            break;
+        case "light":
+            document.getElementById("light-theme-button").checked = true;
+            break;
+        case "midnight":
+            document.getElementById("midnight-theme-button").checked = true;
+            break;
+        default:
+            break;
+    }
+    setTheme(theme);
 }
 
 if (!localStorage.tutorialCompleted) {
@@ -38,17 +52,13 @@ if (!localStorage.tutorialCompleted) {
 }
 
 //General Functions
-let savedLog;
-function generateJSON(){
-    let logObj = {};
-    let timeLine = {}
-    simulation.boxes.forEach((item) => {
-        timeLine[item.mesh.uuid] = {name: item.mesh.name, mass: item.body.mass, position: {x: item.body.position.x, y: item.body.position.y, z: item.body.position.z}, velocity: {x: item.body.velocity.x, y: item.body.velocity.y, z: item.body.velocity.z}, rotation: {x: item.mesh.rotation.x, y: item.mesh.rotation.y, z: item.mesh.rotation.z}, angularVelocity: {x: item.body.angularVelocity.x, y: item.body.angularVelocity.y, z: item.body.angularVelocity.z}, force: {x: item.body.force.x, y: item.body.force.y, z: item.body.force.z}}
-    });
-    logObj[parseInt(world.time)] = timeLine;
-    console.log(logObj);
-    return logObj;
-}
+document.getElementById("print-timestep").addEventListener("blur", () => {
+    if (document.getElementById("print-timestep").value){
+        simulation.logPerSteps = parseInt(document.getElementById("print-timestep").value);
+    } else {
+        simulation.logPerSteps = 0;
+    }
+})
 
 function downloadJson(object){
     let log = "data:text/json;charset=utf-8," + encodeURIComponent(object);
@@ -75,13 +85,11 @@ function downloadTxt(text){
 function downloadCurrentLogTxt(){
     let index = document.getElementById("log").innerText.lastIndexOf("At time");
     let result = document.getElementById("log").innerText.substr(index);
-    console.log(index,result);
     downloadTxt(result);
 }
-
 function downloadLongLogJson(){
-    if (savedLog){
-        downloadJson(JSON.stringify(savedLog));
+    if (simulation.savedLog){
+        downloadJson(JSON.stringify(simulation.savedLog));
     }
 }
 
@@ -89,42 +97,19 @@ function downloadLongLogTxt(){
     downloadTxt(document.getElementById("log").innerText);
 }
 
-function printToLog(){
-    let log = document.getElementById("log");
-    console.log(savedLog);
-    if (!savedLog){
-        savedLog = generateJSON();
-    } else {
-        let line = generateJSON();
-        for (const index in line){
-            savedLog[index] = line[index];
-        }
+function clearLog(){
+    if (simulation.savedLog){
+        simulation.savedLog = null;
+        document.getElementById("log").innerHTML = "";
     }
-    log.innerHTML += `At time ${parseInt(world.time)}:`;
-    if (simulation.boxes.length){
-        log.innerHTML += "<br>";
-        log.innerHTML += "Name - Mass - Position - Velocity - Rotation - Angular Velocity - Force";
-        log.innerHTML += "<br>";
-        simulation.boxes.forEach((item) => {
-            log.innerHTML += `${item.mesh.name} | ${item.body.mass} | ${item.body.position.x}, ${item.body.position.y}, ${item.body.position.z} | ${item.body.velocity.x}, ${item.body.velocity.y}, ${item.body.velocity.z} | `;
-            log.innerHTML += `${item.mesh.rotation.x}, ${item.mesh.rotation.y}, ${item.mesh.rotation.z} | ${item.body.angularVelocity.x}, ${item.body.angularVelocity.y}, ${item.body.angularVelocity.z} | ${item.body.force.x}, ${item.body.force.y}, ${item.body.force.z}`;
-            log.innerHTML += "<br>";
-        });
-        log.innerHTML += "<br>";
-    } else {
-        log.innerHTML += "<br>";
-        log.innerHTML += "No items in scene";
-        log.innerHTML += "<br>";
-        log.innerHTML += "<br>";
-    }
-
 }
 
 function createLog(){
     document.getElementById("log").innerHTML = "";
     printToLog();
 }
-document.getElementById("print-stuff").onclick = printToLog;
+document.getElementById("print-log").onclick = printToLog;
+document.getElementById("clear-log").onclick = clearLog;
 document.getElementById("download-long-json").onclick = downloadLongLogJson;
 document.getElementById("download-current-json").onclick = downloadCurrentLogJson;
 document.getElementById("download-current-txt").onclick = downloadCurrentLogTxt;
@@ -174,28 +159,46 @@ function resumeSimulation(){
 }
 
 function setTheme(theme) {
+    let customGridContainer = document.getElementById("custom-grid-container");
     if (theme != storedTheme) {
+        if (theme != "custom" && window.getComputedStyle(customGridContainer).getPropertyValue('display') == "inline-grid"){
+            gsap.to(customGridContainer, { duration: 0.2, opacity: 0, onComplete: function () { customGridContainer.style.display = 'none'; }});
+        }
         switch (theme) {
             case 'light':
-                gsap.to("html", { duration: 0.2, "--primary-color": '#f1f2f6' });
-                gsap.to("html", { duration: 0.2, "--secondary-color": '#1C212E' });
+                gsap.to("html", { duration: 0.2, "--primary-color": '#EEEEEE' });
+                gsap.to("html", { duration: 0.2, "--secondary-color": '#222831' });
                 localStorage.setItem("theme", "light");
                 storedTheme = theme;
-                document.getElementById("dark-theme-button").classList.toggle("theme-button-selected");
-                document.getElementById("light-theme-button").classList.toggle("theme-button-selected");
-                document.getElementById("dark-theme-button").classList.toggle("theme-button-unselected");
-                document.getElementById("light-theme-button").classList.toggle("theme-button-unselected");
+                document.getElementById("light-theme-button").checked = true;
                 break;
             case 'dark':
-                gsap.to("html", { duration: 0.2, "--primary-color": '#1C212E' });
-                gsap.to("html", { duration: 0.2, "--secondary-color": '#f1f2f6' });
+                gsap.to("html", { duration: 0.2, "--primary-color":  '#222831'});
+                gsap.to("html", { duration: 0.2, "--secondary-color": '#EEEEEE' });
                 localStorage.setItem("theme", "dark");
                 storedTheme = theme;
-                document.getElementById("dark-theme-button").classList.toggle("theme-button-selected");
-                document.getElementById("light-theme-button").classList.toggle("theme-button-selected");
-                document.getElementById("dark-theme-button").classList.toggle("theme-button-unselected");
-                document.getElementById("light-theme-button").classList.toggle("theme-button-unselected");
+                document.getElementById("dark-theme-button").checked = true;
                 break;
+            case 'midnight':
+                gsap.to("html", { duration: 0.2, "--primary-color": '#000000' });
+                gsap.to("html", { duration: 0.2, "--secondary-color": '#EEEEEE' });
+                localStorage.setItem("theme", "midnight");
+                storedTheme = theme;
+                document.getElementById("midnight-theme-button").checked = true;
+                break;
+            case 'custom':
+                let primaryColor, secondaryColor;
+                if (!localStorage.customTheme){
+                    primaryColor = document.getElementById("custom-primary-color-picker").value;
+                    secondaryColor = document.getElementById("custom-secondary-color-picker").value;
+                    localStorage.setItem("customTheme", {primary: primaryColor, secndary: secondaryColor});
+                } else {
+                    primaryColor = localStorage.customTheme.primary;
+                    secondaryColor = localStorage.customTheme.secondary;
+                }
+                localStorage.setItem("theme", "custom");
+                gsap.to("html", { duration: 0.2, "--primary-color": primaryColor});
+                gsap.to("html", { duration: 0.2, "--secondary-color": secondaryColor});
             default:
                 break;
         }
@@ -301,8 +304,18 @@ document.getElementById("collapse-right-ui-button").onclick = function toggleRig
 
 document.getElementById("settings-button").onclick = document.getElementById("close-settings").onclick = toggleSettings;
 
+function toggleCustomTheme(){
+    let customGridContainer = document.getElementById("custom-grid-container");
+    customGridContainer.style.display = "inline-grid";
+    gsap.to(customGridContainer, {duration: 0.2, opacity: 1});
+    setTheme('custom');
+}
+
 document.getElementById("light-theme-button").onclick = setTheme.bind(this, 'light');
 document.getElementById("dark-theme-button").onclick = setTheme.bind(this, 'dark');
+document.getElementById("midnight-theme-button").onclick = setTheme.bind(this, 'midnight');
+document.getElementById("custom-theme-button").onclick = toggleCustomTheme;
+
 document.getElementById("top-play").onclick = function togglePause(){
     if (mode == "setup"){
         copyBoxes();
@@ -326,6 +339,7 @@ document.getElementById("top-play").onclick = function togglePause(){
 
 document.getElementById("top-replay").onclick = async function toggleMode(){
     if (mode == "simulation"){
+        clearLog();
         pauseSimulation();
         mode = "setup";
 
@@ -459,7 +473,7 @@ width.addEventListener("blur", () => {
     if ((width.value.length == 0 || isNaN(width.value)) && itemSelected > -1) {
         width.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.scale.x = parseInt(width.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.width;
+        simulation.boxes[itemSelected].mesh.scale.x = parseFloat(width.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.width;
         synchronizeSize();
     }
 });
@@ -468,7 +482,7 @@ height.addEventListener("blur", () => {
     if ((height.value.length == 0 || isNaN(height.value)) && itemSelected > -1) {
         height.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.scale.y = parseInt(height.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.height;
+        simulation.boxes[itemSelected].mesh.scale.y = parseFloat(height.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.height;
         synchronizeSize();
     }
 });
@@ -477,10 +491,11 @@ depth.addEventListener("blur", () => {
     if ((depth.value.length == 0 || isNaN(depth.value)) && itemSelected > -1) {
         depth.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.scale.z = parseInt(depth.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.depth;
+        simulation.boxes[itemSelected].mesh.scale.z = parseFloat(depth.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.depth;
         synchronizeSize();
     }
 });
+
 
 //Position Setting
 
@@ -492,7 +507,7 @@ xPos.addEventListener("blur", () => {
     if ((xPos.value.length == 0 || isNaN(xPos.value)) && itemSelected > -1) {
         xPos.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.position.x = parseInt(xPos.value);
+        simulation.boxes[itemSelected].mesh.position.x = parseFloat(xPos.value);
         synchronizePositions();
     }
 });
@@ -501,7 +516,7 @@ yPos.addEventListener("blur", () => {
     if ((yPos.value.length == 0 || isNaN(yPos.value)) && itemSelected > -1) {
         yPos.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.position.y = parseInt(yPos.value);
+        simulation.boxes[itemSelected].mesh.position.y = parseFloat(yPos.value);
         synchronizePositions();
     }
 });
@@ -510,7 +525,7 @@ zPos.addEventListener("blur", () => {
     if ((zPos.value.length == 0 || isNaN(zPos.value)) && itemSelected > -1) {
         zPos.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.position.z = parseInt(zPos.value);
+        simulation.boxes[itemSelected].mesh.position.z = parseFloat(zPos.value);
         synchronizePositions();
     }
 });
@@ -525,7 +540,7 @@ xVel.addEventListener("blur", () => {
     if ((xVel.value.length == 0 || isNaN(xVel.value)) && itemSelected > -1) {
         xVel.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.velocity.x = parseInt(xVel.value);
+        simulation.boxes[itemSelected].body.velocity.x = parseFloat(xVel.value);
     }
 });
 
@@ -533,7 +548,7 @@ yVel.addEventListener("blur", () => {
     if ((yVel.value.length == 0 || isNaN(yVel.value)) && itemSelected > -1) {
         yVel.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.velocity.y = parseInt(yVel.value);
+        simulation.boxes[itemSelected].body.velocity.y = parseFloat(yVel.value);
     }
 });
 
@@ -541,7 +556,7 @@ zVel.addEventListener("blur", () => {
     if ((zVel.value.length == 0 || isNaN(zVel.value)) && itemSelected > -1) {
         zVel.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.velocity.z = parseInt(zVel.value);
+        simulation.boxes[itemSelected].body.velocity.z = parseFloat(zVel.value);
     }
 });
 
@@ -555,7 +570,7 @@ xRot.addEventListener("blur", () => {
     if ((xRot.value.length == 0 || isNaN(xRot.value)) && itemSelected > -1) {
         xRot.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.rotation.x = parseInt(xRot.value);
+        simulation.boxes[itemSelected].mesh.rotation.x = parseFloat(xRot.value);
         synchronizeRotation();
     }
 });
@@ -564,7 +579,7 @@ yRot.addEventListener("blur", () => {
     if ((yRot.value.length == 0 || isNaN(yRot.value)) && itemSelected > -1) {
         yRot.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.rotation.y = parseInt(yRot.value);
+        simulation.boxes[itemSelected].mesh.rotation.y = parseFloat(yRot.value);
         synchronizeRotation();
     }
 });
@@ -573,7 +588,7 @@ zRot.addEventListener("blur", () => {
     if ((zRot.value.length == 0 || isNaN(zRot.value)) && itemSelected > -1) {
         zRot.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.rotation.z = parseInt(zRot.value);
+        simulation.boxes[itemSelected].mesh.rotation.z = parseFloat(zRot.value);
         synchronizeRotation();
     }
 });
@@ -588,7 +603,7 @@ xAng.addEventListener("blur", () => {
     if ((xAng.value.length == 0 || isNaN(xAng.value)) && itemSelected > -1) {
         xAng.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.angularVelocity.x = parseInt(xAng.value);
+        simulation.boxes[itemSelected].body.angularVelocity.x = parseFloat(xAng.value);
     }
 });
 
@@ -596,7 +611,7 @@ yAng.addEventListener("blur", () => {
     if ((yAng.value.length == 0 || isNaN(yAng.value)) && itemSelected > -1) {
         yAng.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.angularVelocity.y = parseInt(yAng.value);
+        simulation.boxes[itemSelected].body.angularVelocity.y = parseFloat(yAng.value);
     }
 });
 
@@ -604,7 +619,7 @@ zAng.addEventListener("blur", () => {
     if ((zAng.value.length == 0 || isNaN(zAng.value)) && itemSelected > -1) {
         zAng.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.angularVelocity.z = parseInt(zAng.value);
+        simulation.boxes[itemSelected].body.angularVelocity.z = parseFloat(zAng.value);
     }
 });
 
@@ -616,7 +631,7 @@ xFor.addEventListener("blur", () => {
     if ((xFor.value.length == 0 || isNaN(xFor.value)) && itemSelected > -1) {
         xFor.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.force.x = parseInt(xFor.value);
+        simulation.boxes[itemSelected].body.force.x = parseFloat(xFor.value);
     }
 });
 
@@ -624,7 +639,7 @@ yFor.addEventListener("blur", () => {
     if ((yFor.value.length == 0 || isNaN(yFor.value)) && itemSelected > -1) {
         yFor.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.force.y = parseInt(yFor.value);
+        simulation.boxes[itemSelected].body.force.y = parseFloat(yFor.value);
     }
 });
 
@@ -632,7 +647,7 @@ zFor.addEventListener("blur", () => {
     if ((zFor.value.length == 0 || isNaN(zFor.value)) && itemSelected > -1) {
         zFor.focus();
     } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.force.z = parseInt(zFor.value);
+        simulation.boxes[itemSelected].body.force.z = parseFloat(zFor.value);
     }
 });
 

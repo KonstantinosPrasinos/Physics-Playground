@@ -6,7 +6,11 @@ import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
 
-let rayDirection, savedBoxes = [], scene, renderer, camera, world, timeStep = 1 / 60, orbitControls, transformControls;
+let rayDirection, savedBoxes = [], scene, renderer, camera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime;
+
+function changeTimeStep(temp){
+    timeStep = temp;
+}
 
 //Init Functions
 
@@ -34,24 +38,33 @@ function initCannon() {
     world.gravity.set(0, 0, 0);
     world.broadphase = new CANNON.NaiveBroadphase();
     world.solver.iterations = 10;
+    world.dt = timeStep;
 }
 
 //Timed Functions
 
+function attemptPrintPerStep(){
+    console.log(simulation.logPerSteps != 0, ((world.time / world.dt) % simulation.logPerSteps < world.dt || Math.abs(simulation.logPerSteps - (world.time / world.dt) % simulation.logPerSteps) < world.dt), previousLogedTime != world.time, world.time)
+    // console.log(simulation.logPerSteps != 0, (world.time / world.dt) % simulation.logPerSteps, previousLogedTime != world.time);
+    if (simulation.logPerSteps != 0 && ((world.time / world.dt) % simulation.logPerSteps < world.dt || Math.abs(simulation.logPerSteps - (world.time / world.dt) % simulation.logPerSteps) < world.dt) && previousLogedTime != world.time){
+        console.log("succeeeded");
+        printToLog();
+        previousLogedTime = world.time;
+    }
+}
+
 function updatePhysics() {
-    world.step(timeStep);
-    // processArtificialGravity();
+    world.step(world.dt);
+    attemptPrintPerStep();
     simulation.boxes.forEach(element => {
         element.mesh.position.copy(element.body.position);
         element.mesh.quaternion.copy(element.body.quaternion);
     });
-
 }
 
 function render() {
     topTime.innerText = parseInt(world.time);
     renderer.render(scene, camera);
-    
 }
 
 function animate() {
@@ -64,6 +77,45 @@ function animate() {
 
 //General Functions
 //To change mass you change the mass and set call the updateMassProperties() method
+
+function generateJSON(){
+    let logObj = {};
+    let timeLine = {}
+    simulation.boxes.forEach((item) => {
+        timeLine[item.mesh.uuid] = {name: item.mesh.name, mass: item.body.mass, position: {x: item.body.position.x, y: item.body.position.y, z: item.body.position.z}, velocity: {x: item.body.velocity.x, y: item.body.velocity.y, z: item.body.velocity.z}, rotation: {x: item.mesh.rotation.x, y: item.mesh.rotation.y, z: item.mesh.rotation.z}, angularVelocity: {x: item.body.angularVelocity.x, y: item.body.angularVelocity.y, z: item.body.angularVelocity.z}, force: {x: item.body.force.x, y: item.body.force.y, z: item.body.force.z}}
+    });
+    logObj[parseInt(world.time)] = timeLine;
+    return logObj;
+}
+
+function printToLog(){
+    let log = document.getElementById("log");
+    if (!simulation.savedLog){
+        simulation.savedLog = generateJSON();
+    } else {
+        let line = generateJSON();
+        for (const index in line){
+            simulation.savedLog[index] = line[index];
+        }
+    }
+    log.innerHTML += `At time ${parseFloat(world.time).toFixed(3)}:`;
+    if (simulation.boxes.length){
+        log.innerHTML += "<br>";
+        log.innerHTML += "Name - Mass - Position - Velocity - Rotation - Angular Velocity - Force";
+        log.innerHTML += "<br>";
+        simulation.boxes.forEach((item) => {
+            log.innerHTML += `${item.mesh.name} | ${item.body.mass} | ${item.body.position.x}, ${item.body.position.y}, ${item.body.position.z} | ${item.body.velocity.x}, ${item.body.velocity.y}, ${item.body.velocity.z} | `;
+            log.innerHTML += `${item.mesh.rotation.x}, ${item.mesh.rotation.y}, ${item.mesh.rotation.z} | ${item.body.angularVelocity.x}, ${item.body.angularVelocity.y}, ${item.body.angularVelocity.z} | ${item.body.force.x}, ${item.body.force.y}, ${item.body.force.z}`;
+            log.innerHTML += "<br>";
+        });
+        log.innerHTML += "<br>";
+    } else {
+        log.innerHTML += "<br>";
+        log.innerHTML += "No items in scene";
+        log.innerHTML += "<br>";
+        log.innerHTML += "<br>";
+    }
+}
 
 function updateName(itemSelected){
 
@@ -242,7 +294,6 @@ function toggleResultantForceVector(object){
         const arrowHelper = new THREE.ArrowHelper(direction, origin, length, hex);
         arrowHelper.name = "resultantForceVector";
         object.mesh.add(arrowHelper);
-        console.log(arrowHelper);
     }
 }
 
@@ -305,7 +356,6 @@ function toggleResultantVelocityVector(object){
         const arrowHelper = new THREE.ArrowHelper(direction, origin, length, hex);
         arrowHelper.name = "resultantVelocityVector";
         object.mesh.add(arrowHelper);
-        console.log(arrowHelper);
     }
 }
 
@@ -425,6 +475,8 @@ let simulation = {
     boxes: [],
     shapesForChanges: [],
     isPaused: true,
+    logPerSteps: 0,
+    savedLog: null,
     createBox(x, y, z, width, height, depth){
         let shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
         let tempBody = new CANNON.Body({
@@ -511,4 +563,4 @@ initCannon();
 initControls();
 
 animate();
-export {simulation, camera, transformControls, orbitControls, copyBoxes, renderer, updateVectors, world};
+export {simulation, camera, transformControls, orbitControls, copyBoxes, renderer, updateVectors, world, changeTimeStep, printToLog, generateJSON};
