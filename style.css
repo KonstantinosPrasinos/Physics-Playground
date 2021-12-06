@@ -222,6 +222,12 @@ input[type=color]{
 input:hover{
     cursor: pointer;
 }
+input[type=text]:hover{
+    cursor: text;
+}
+input[type=text]:hover:disabled{
+    cursor: not-allowed;
+}
 input:disabled{
     cursor: not-allowed;
 }

@@ -427,102 +427,56 @@ const width = document.getElementById("right-width");
 const height = document.getElementById("right-height");
 const depth = document.getElementById("right-depth");
 
+
+function setChildrenAttribute(element, attribute, bool){
+    for (let i in element.childNodes){
+        if (element.childNodes[i].nodeName == 'DIV'){
+            setChildrenAttribute(element.childNodes[i], attribute, bool);
+        } else if (element.childNodes[i].nodeName == 'INPUT') {
+            if (element.childNodes[i].type == "text") {
+                if (!bool) {
+                    let type = element.childNodes[i].id.substring(0, element.childNodes[i].id.indexOf('-'));
+                    if (type.includes('.')) {
+                        switch (type.substring(0, type.indexOf('.'))) {
+                            case 'position':
+                            case 'rotation':
+                                element.childNodes[i].value = simulation.boxes[itemSelected].mesh[type.substring(0, type.indexOf('.'))][type.substring(type.indexOf('.') + 1, type.length)];
+                                break;
+                            default:
+                                element.childNodes[i].value = simulation.boxes[itemSelected].body[type.substring(0, type.indexOf('.'))][type.substring(type.indexOf('.') + 1, type.length)];
+                                break;
+                        }
+                    } else if (type == 'mass') {
+                        element.childNodes[i].value = simulation.boxes[itemSelected].body[type];
+                    } else {
+                        element.childNodes[i].value = simulation.boxes[itemSelected].mesh.geometry.parameters[type];
+                    }
+                } else {
+                    element.childNodes[i].value = "";
+                }
+            } else if(element.childNodes[i].type == "color" && itemSelected > -1){
+                element.childNodes[i].value = `#${simulation.boxes[itemSelected].mesh.material.color.getHexString()}`;
+            } else {
+                if (bool){
+                    element.childNodes[i].checked = false;
+                }
+            }
+            element.childNodes[i][attribute] = bool;
+        }
+    }
+}
 function setRightParameters(){
     if (itemSelected > -1){
         transformControls.detach();
         transformControls.attach(simulation.boxes[itemSelected].mesh)
-        const selected = simulation.boxes[itemSelected];
-        document.getElementById("wireframe-toggle").checked = selected.mesh.material.wireframe ? true : false;
-        document.getElementById("object-name").innerText = selected.mesh.name;
+        document.getElementById("wireframe-toggle").checked = simulation.boxes[itemSelected].mesh.material.wireframe ? true : false;
+        document.getElementById("object-name").innerText = simulation.boxes[itemSelected].mesh.name;
 
-        width.disabled = false;
-        height.disabled = false;
-        depth.disabled = false;
-        xPos.disabled = false;
-        yPos.disabled = false;
-        zPos.disabled = false;
-        xVel.disabled = false;
-        yVel.disabled = false;
-        zVel.disabled = false;
-        xRot.disabled = false;
-        yRot.disabled = false;
-        zRot.disabled = false;
-        xAng.disabled = false;
-        yAng.disabled = false;
-        zAng.disabled = false;
-        xFor.disabled = false;
-        yFor.disabled = false;
-        zFor.disabled = false;
-
-        document.getElementById("wireframe-toggle").disabled = false;
-        document.getElementsByName("velocity-radio").forEach(element => {element.disabled = false});
-        document.getElementsByName("force-radio").forEach(element => {element.disabled = false});
-        document.getElementById("collidable-toggle").disabled = false;
-        document.getElementById("item-color-picker").disabled = false;
-
-        width.value = selected.mesh.geometry.parameters.width * selected.mesh.scale.x;
-        height.value = selected.mesh.geometry.parameters.height * selected.mesh.scale.y;
-        depth.value = selected.mesh.geometry.parameters.depth * selected.mesh.scale.z;
-        xPos.value = selected.mesh.position.x;
-        yPos.value = selected.mesh.position.y;
-        zPos.value = selected.mesh.position.z;
-        xVel.value = selected.body.velocity.x;
-        yVel.value = selected.body.velocity.y;
-        zVel.value = selected.body.velocity.z;
-        xRot.value = selected.mesh.rotation.x;
-        yRot.value = selected.mesh.rotation.y;
-        zRot.value = selected.mesh.rotation.z;
-        xAng.value = selected.body.angularVelocity.x;
-        yAng.value = selected.body.angularVelocity.y;
-        zAng.value = selected.body.angularVelocity.z;
-        xFor.value = selected.body.force.x;
-        yFor.value = selected.body.force.y;
-        zFor.value = selected.body.force.z;
+        setChildrenAttribute(document.getElementById("right-ui-features"), 'disabled', false);
     } else {
         document.getElementById("object-name").innerText = "No item is Selected";
-        width.disabled = true;
-        height.disabled = true;
-        depth.disabled = true;
-        xPos.disabled = true;
-        yPos.disabled = true;
-        zPos.disabled = true;
-        xVel.disabled = true;
-        yVel.disabled = true;
-        zVel.disabled = true;
-        xRot.disabled = true;
-        yRot.disabled = true;
-        zRot.disabled = true;
-        xAng.disabled = true;
-        yAng.disabled = true;
-        zAng.disabled = true;
-        xFor.disabled = true;
-        yFor.disabled = true;
-        zFor.disabled = true;
-
-        document.getElementById("wireframe-toggle").disabled = true;
-        document.getElementsByName("velocity-radio").forEach(element => {element.disabled = true});
-        document.getElementsByName("force-radio").forEach(element => {element.disabled = true});
-        document.getElementById("collidable-toggle").disabled = true;
-        document.getElementById("item-color-picker").disabled = true;
         
-        width.value = "";
-        height.value = "";
-        depth.value = "";
-        xPos.value = "";
-        yPos.value = "";
-        zPos.value = "";
-        xVel.value = "";
-        yVel.value = "";
-        zVel.value = "";
-        xRot.value = "";
-        yRot.value = "";
-        zRot.value = "";
-        xAng.value = "";
-        yAng.value = "";
-        zAng.value = "";
-        xFor.value = "";
-        yFor.value = "";
-        zFor.value = "";
+        setChildrenAttribute(document.getElementById("right-ui-features"), 'disabled', true);
     }
 }
 
@@ -558,187 +512,187 @@ window.addEventListener('resize', () => {
 
 //Size Setting
 
-width.addEventListener("blur", () => {
-    if ((width.value.length == 0 || isNaN(width.value)) && itemSelected > -1) {
-        width.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.scale.x = parseFloat(width.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.width;
-        synchronizeSize();
-    }
-});
+// width.addEventListener("blur", () => {
+//     if ((width.value.length == 0 || isNaN(width.value)) && itemSelected > -1) {
+//         width.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].mesh.scale.x = parseFloat(width.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.width;
+//         synchronizeSize();
+//     }
+// });
 
-height.addEventListener("blur", () => {
-    if ((height.value.length == 0 || isNaN(height.value)) && itemSelected > -1) {
-        height.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.scale.y = parseFloat(height.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.height;
-        synchronizeSize();
-    }
-});
+// height.addEventListener("blur", () => {
+//     if ((height.value.length == 0 || isNaN(height.value)) && itemSelected > -1) {
+//         height.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].mesh.scale.y = parseFloat(height.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.height;
+//         synchronizeSize();
+//     }
+// });
 
-depth.addEventListener("blur", () => {
-    if ((depth.value.length == 0 || isNaN(depth.value)) && itemSelected > -1) {
-        depth.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.scale.z = parseFloat(depth.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.depth;
-        synchronizeSize();
-    }
-});
+// depth.addEventListener("blur", () => {
+//     if ((depth.value.length == 0 || isNaN(depth.value)) && itemSelected > -1) {
+//         depth.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].mesh.scale.z = parseFloat(depth.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.depth;
+//         synchronizeSize();
+//     }
+// });
 
 
 //Position Setting
 
-const xPos = document.getElementById("right-position-x");
-const yPos = document.getElementById("right-position-y");
-const zPos = document.getElementById("right-position-z");
+// const xPos = document.getElementById("right-position-x");
+// const yPos = document.getElementById("right-position-y");
+// const zPos = document.getElementById("right-position-z");
 
-xPos.addEventListener("blur", () => {
-    if ((xPos.value.length == 0 || isNaN(xPos.value)) && itemSelected > -1) {
-        xPos.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.position.x = parseFloat(xPos.value);
-        synchronizePositions();
-    }
-});
+// xPos.addEventListener("blur", () => {
+//     if ((xPos.value.length == 0 || isNaN(xPos.value)) && itemSelected > -1) {
+//         xPos.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].mesh.position.x = parseFloat(xPos.value);
+//         synchronizePositions();
+//     }
+// });
 
-yPos.addEventListener("blur", () => {
-    if ((yPos.value.length == 0 || isNaN(yPos.value)) && itemSelected > -1) {
-        yPos.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.position.y = parseFloat(yPos.value);
-        synchronizePositions();
-    }
-});
+// yPos.addEventListener("blur", () => {
+//     if ((yPos.value.length == 0 || isNaN(yPos.value)) && itemSelected > -1) {
+//         yPos.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].mesh.position.y = parseFloat(yPos.value);
+//         synchronizePositions();
+//     }
+// });
 
-zPos.addEventListener("blur", () => {
-    if ((zPos.value.length == 0 || isNaN(zPos.value)) && itemSelected > -1) {
-        zPos.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.position.z = parseFloat(zPos.value);
-        synchronizePositions();
-    }
-});
+// zPos.addEventListener("blur", () => {
+//     if ((zPos.value.length == 0 || isNaN(zPos.value)) && itemSelected > -1) {
+//         zPos.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].mesh.position.z = parseFloat(zPos.value);
+//         synchronizePositions();
+//     }
+// });
 
-//Velocity Setting
+// //Velocity Setting
 
-const xVel = document.getElementById("right-velocity-x");
-const yVel = document.getElementById("right-velocity-y");
-const zVel = document.getElementById("right-velocity-z");
+// const xVel = document.getElementById("right-velocity-x");
+// const yVel = document.getElementById("right-velocity-y");
+// const zVel = document.getElementById("right-velocity-z");
 
-xVel.addEventListener("blur", () => {
-    if ((xVel.value.length == 0 || isNaN(xVel.value)) && itemSelected > -1) {
-        xVel.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.velocity.x = parseFloat(xVel.value);
-    }
-});
+// xVel.addEventListener("blur", () => {
+//     if ((xVel.value.length == 0 || isNaN(xVel.value)) && itemSelected > -1) {
+//         xVel.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].body.velocity.x = parseFloat(xVel.value);
+//     }
+// });
 
-yVel.addEventListener("blur", () => {
-    if ((yVel.value.length == 0 || isNaN(yVel.value)) && itemSelected > -1) {
-        yVel.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.velocity.y = parseFloat(yVel.value);
-    }
-});
+// yVel.addEventListener("blur", () => {
+//     if ((yVel.value.length == 0 || isNaN(yVel.value)) && itemSelected > -1) {
+//         yVel.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].body.velocity.y = parseFloat(yVel.value);
+//     }
+// });
 
-zVel.addEventListener("blur", () => {
-    if ((zVel.value.length == 0 || isNaN(zVel.value)) && itemSelected > -1) {
-        zVel.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.velocity.z = parseFloat(zVel.value);
-    }
-});
+// zVel.addEventListener("blur", () => {
+//     if ((zVel.value.length == 0 || isNaN(zVel.value)) && itemSelected > -1) {
+//         zVel.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].body.velocity.z = parseFloat(zVel.value);
+//     }
+// });
 
-//Rotation Setting
+// //Rotation Setting
 
-const xRot = document.getElementById("right-rotation-x");
-const yRot = document.getElementById("right-rotation-y");
-const zRot = document.getElementById("right-rotation-z");
+// const xRot = document.getElementById("right-rotation-x");
+// const yRot = document.getElementById("right-rotation-y");
+// const zRot = document.getElementById("right-rotation-z");
 
-xRot.addEventListener("blur", () => {
-    if ((xRot.value.length == 0 || isNaN(xRot.value)) && itemSelected > -1) {
-        xRot.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.rotation.x = parseFloat(xRot.value);
-        synchronizeRotation();
-    }
-});
+// xRot.addEventListener("blur", () => {
+//     if ((xRot.value.length == 0 || isNaN(xRot.value)) && itemSelected > -1) {
+//         xRot.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].mesh.rotation.x = parseFloat(xRot.value);
+//         synchronizeRotation();
+//     }
+// });
 
-yRot.addEventListener("blur", () => {
-    if ((yRot.value.length == 0 || isNaN(yRot.value)) && itemSelected > -1) {
-        yRot.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.rotation.y = parseFloat(yRot.value);
-        synchronizeRotation();
-    }
-});
+// yRot.addEventListener("blur", () => {
+//     if ((yRot.value.length == 0 || isNaN(yRot.value)) && itemSelected > -1) {
+//         yRot.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].mesh.rotation.y = parseFloat(yRot.value);
+//         synchronizeRotation();
+//     }
+// });
 
-zRot.addEventListener("blur", () => {
-    if ((zRot.value.length == 0 || isNaN(zRot.value)) && itemSelected > -1) {
-        zRot.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.rotation.z = parseFloat(zRot.value);
-        synchronizeRotation();
-    }
-});
+// zRot.addEventListener("blur", () => {
+//     if ((zRot.value.length == 0 || isNaN(zRot.value)) && itemSelected > -1) {
+//         zRot.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].mesh.rotation.z = parseFloat(zRot.value);
+//         synchronizeRotation();
+//     }
+// });
 
-//Angular Velocity Setting
+// //Angular Velocity Setting
 
-const xAng = document.getElementById("right-angular-x");
-const yAng = document.getElementById("right-angular-y");
-const zAng = document.getElementById("right-angular-z");
+// const xAng = document.getElementById("right-angular-x");
+// const yAng = document.getElementById("right-angular-y");
+// const zAng = document.getElementById("right-angular-z");
 
-xAng.addEventListener("blur", () => {
-    if ((xAng.value.length == 0 || isNaN(xAng.value)) && itemSelected > -1) {
-        xAng.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.angularVelocity.x = parseFloat(xAng.value);
-    }
-});
+// xAng.addEventListener("blur", () => {
+//     if ((xAng.value.length == 0 || isNaN(xAng.value)) && itemSelected > -1) {
+//         xAng.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].body.angularVelocity.x = parseFloat(xAng.value);
+//     }
+// });
 
-yAng.addEventListener("blur", () => {
-    if ((yAng.value.length == 0 || isNaN(yAng.value)) && itemSelected > -1) {
-        yAng.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.angularVelocity.y = parseFloat(yAng.value);
-    }
-});
+// yAng.addEventListener("blur", () => {
+//     if ((yAng.value.length == 0 || isNaN(yAng.value)) && itemSelected > -1) {
+//         yAng.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].body.angularVelocity.y = parseFloat(yAng.value);
+//     }
+// });
 
-zAng.addEventListener("blur", () => {
-    if ((zAng.value.length == 0 || isNaN(zAng.value)) && itemSelected > -1) {
-        zAng.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.angularVelocity.z = parseFloat(zAng.value);
-    }
-});
+// zAng.addEventListener("blur", () => {
+//     if ((zAng.value.length == 0 || isNaN(zAng.value)) && itemSelected > -1) {
+//         zAng.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].body.angularVelocity.z = parseFloat(zAng.value);
+//     }
+// });
 
-const xFor = document.getElementById("right-force-x");
-const yFor = document.getElementById("right-force-y");
-const zFor = document.getElementById("right-force-z");
+// const xFor = document.getElementById("right-force-x");
+// const yFor = document.getElementById("right-force-y");
+// const zFor = document.getElementById("right-force-z");
 
-xFor.addEventListener("blur", () => {
-    if ((xFor.value.length == 0 || isNaN(xFor.value)) && itemSelected > -1) {
-        xFor.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.force.x = parseFloat(xFor.value);
-    }
-});
+// xFor.addEventListener("blur", () => {
+//     if ((xFor.value.length == 0 || isNaN(xFor.value)) && itemSelected > -1) {
+//         xFor.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].body.force.x = parseFloat(xFor.value);
+//     }
+// });
 
-yFor.addEventListener("blur", () => {
-    if ((yFor.value.length == 0 || isNaN(yFor.value)) && itemSelected > -1) {
-        yFor.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.force.y = parseFloat(yFor.value);
-    }
-});
+// yFor.addEventListener("blur", () => {
+//     if ((yFor.value.length == 0 || isNaN(yFor.value)) && itemSelected > -1) {
+//         yFor.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].body.force.y = parseFloat(yFor.value);
+//     }
+// });
 
-zFor.addEventListener("blur", () => {
-    if ((zFor.value.length == 0 || isNaN(zFor.value)) && itemSelected > -1) {
-        zFor.focus();
-    } else if (itemSelected > -1){
-        simulation.boxes[itemSelected].body.force.z = parseFloat(zFor.value);
-    }
-});
+// zFor.addEventListener("blur", () => {
+//     if ((zFor.value.length == 0 || isNaN(zFor.value)) && itemSelected > -1) {
+//         zFor.focus();
+//     } else if (itemSelected > -1){
+//         simulation.boxes[itemSelected].body.force.z = parseFloat(zFor.value);
+//     }
+// });
 
 colorPicker.addEventListener("change", (event) => {
     if (itemSelected > -1) {

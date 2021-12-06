@@ -67,7 +67,7 @@ function initCannon() {
     world.gravity.set(0, 0, 0);
     world.broadphase = new CANNON.NaiveBroadphase();
     world.solver.iterations = 10;
-    world.dt = timeStep;
+    world.dt = timeStep / 2;
 }
 
 //Timed Functions
@@ -86,6 +86,7 @@ function updatePhysics() {
         element.mesh.position.copy(element.body.position);
         element.mesh.quaternion.copy(element.body.quaternion);
     });
+    
 }
 
 function render() {
