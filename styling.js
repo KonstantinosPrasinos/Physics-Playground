@@ -1,6 +1,6 @@
-import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer, updateVectors, world, printToLog, generateJSON, setCamera, rewindBoxes} from '/main.js'
+import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer, updateVectors, world, printToLog, generateJSON, setCamera, rewindBoxes, toggleStats} from '/main.js'
 
-let itemSelected = -1, tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark', printPerSteps = 0;
+let tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark', printPerSteps = 0;
 
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
@@ -118,25 +118,25 @@ document.getElementById("download-current-txt").onclick = downloadCurrentLogTxt;
 document.getElementById("download-long-txt").onclick = downloadLongLogTxt;
 
 function synchronizePositions() {
-    simulation.boxes[itemSelected].body.position.x = simulation.boxes[itemSelected].mesh.position.x;
-    simulation.boxes[itemSelected].body.position.y = simulation.boxes[itemSelected].mesh.position.y;
-    simulation.boxes[itemSelected].body.position.z = simulation.boxes[itemSelected].mesh.position.z;
-    updateVectors(simulation.boxes[itemSelected]);
+    simulation.boxes[simulation.itemSelected].body.position.x = simulation.boxes[simulation.itemSelected].mesh.position.x;
+    simulation.boxes[simulation.itemSelected].body.position.y = simulation.boxes[simulation.itemSelected].mesh.position.y;
+    simulation.boxes[simulation.itemSelected].body.position.z = simulation.boxes[simulation.itemSelected].mesh.position.z;
+    updateVectors(simulation.boxes[simulation.itemSelected]);
 }
 
 function synchronizeRotation() {
-    simulation.boxes[itemSelected].body.quaternion.x = simulation.boxes[itemSelected].mesh.quaternion.x;
-    simulation.boxes[itemSelected].body.quaternion.y = simulation.boxes[itemSelected].mesh.quaternion.y;
-    simulation.boxes[itemSelected].body.quaternion.z = simulation.boxes[itemSelected].mesh.quaternion.z;
+    simulation.boxes[simulation.itemSelected].body.quaternion.x = simulation.boxes[simulation.itemSelected].mesh.quaternion.x;
+    simulation.boxes[simulation.itemSelected].body.quaternion.y = simulation.boxes[simulation.itemSelected].mesh.quaternion.y;
+    simulation.boxes[simulation.itemSelected].body.quaternion.z = simulation.boxes[simulation.itemSelected].mesh.quaternion.z;
 }
 
 function synchronizeSize(){
-    switch (simulation.boxes[itemSelected].mesh.geometry.type) {
+    switch (simulation.boxes[simulation.itemSelected].mesh.geometry.type) {
         case "BoxGeometry":
-            let lowerBound = new CANNON.Vec3(simulation.boxes[itemSelected].mesh.geometry.parameters.width * simulation.boxes[itemSelected].mesh.scale.x / -2, simulation.boxes[itemSelected].mesh.geometry.parameters.height * simulation.boxes[itemSelected].mesh.scale.y / -2, simulation.boxes[itemSelected].mesh.geometry.parameters.depth * simulation.boxes[itemSelected].mesh.scale.z / -2);
-            let upperBound = new CANNON.Vec3(simulation.boxes[itemSelected].mesh.geometry.parameters.width * simulation.boxes[itemSelected].mesh.scale.x / 2, simulation.boxes[itemSelected].mesh.geometry.parameters.height * simulation.boxes[itemSelected].mesh.scale.y / 2, simulation.boxes[itemSelected].mesh.geometry.parameters.depth * simulation.boxes[itemSelected].mesh.scale.z / 2);
-            simulation.boxes[itemSelected].body.aabb.lowerBound = lowerBound;
-            simulation.boxes[itemSelected].body.aabb.upperBound = upperBound;
+            let lowerBound = new CANNON.Vec3(simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.width * simulation.boxes[simulation.itemSelected].mesh.scale.x / -2, simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.height * simulation.boxes[simulation.itemSelected].mesh.scale.y / -2, simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.depth * simulation.boxes[simulation.itemSelected].mesh.scale.z / -2);
+            let upperBound = new CANNON.Vec3(simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.width * simulation.boxes[simulation.itemSelected].mesh.scale.x / 2, simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.height * simulation.boxes[simulation.itemSelected].mesh.scale.y / 2, simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.depth * simulation.boxes[simulation.itemSelected].mesh.scale.z / 2);
+            simulation.boxes[simulation.itemSelected].body.aabb.lowerBound = lowerBound;
+            simulation.boxes[simulation.itemSelected].body.aabb.upperBound = upperBound;
             break;
         default:
             break;
@@ -251,7 +251,7 @@ document.getElementById("perspective-button").onclick = handleCameraButton.bind(
 document.getElementById("orthographic-button").onclick = handleCameraButton.bind(this, "OrthographicCamera");
 
 document.getElementById("top-select").onclick = function selectCursorMove(){
-    if (selectedCursor != "translate"){
+    if (selectedCursor != "translate") {
         document.getElementById("top-select").style.backgroundColor = "orange";
         document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
         document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
@@ -270,7 +270,7 @@ document.getElementById("top-select").onclick = function selectCursorMove(){
 }
 
 document.getElementById("top-resize").onclick = function selectCursorScale(){
-    if (selectedCursor != "scale"){
+    if (selectedCursor != "scale") {
         document.getElementById("top-resize").style.backgroundColor = "orange";
         document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
         document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
@@ -289,7 +289,7 @@ document.getElementById("top-resize").onclick = function selectCursorScale(){
 }
 
 document.getElementById("top-rotate").onclick = function selectCursorRotate(){
-    if (selectedCursor != "rotate"){
+    if (selectedCursor != "rotate") {
         document.getElementById("top-rotate").style.backgroundColor = "orange";
         document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
         document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
@@ -345,6 +345,7 @@ document.getElementById("custom-theme-button").onclick = toggleCustomTheme;
 
 document.getElementById("top-play").onclick = function togglePause(){
     if (mode == "setup"){
+        transformControls.detach();
         copyBoxes();
         mode = "simulation";
         topMode.innerHTML = "<b>Mode:</b> Simulation";
@@ -371,6 +372,9 @@ document.getElementById("top-replay").onclick = async function toggleMode(){
         mode = "setup";
         rewindBoxes();
         topMode.innerHTML = "<b>Mode:</b> Setup";
+        if (simulation.itemSelected > -1){
+            transformControls.attach(simulation.boxes[simulation.itemSelected].mesh);
+        }
     }
 }
 
@@ -385,7 +389,7 @@ document.getElementById("settings-overlay").addEventListener('click', (event) =>
 //Other Event Listeners
 
 function blurFocusedElement(event){
-    if (event.key === 'Enter' && ((!isNaN(document.activeElement.value) && document.activeElement.value.length != 0) || itemSelected == -1)){
+    if (event.key === 'Enter' && ((!isNaN(document.activeElement.value) && document.activeElement.value.length != 0) || simulation.itemSelected == -1)){
         document.activeElement.blur();
     }
 }
@@ -423,11 +427,6 @@ fovText.addEventListener("blur", () => {
     }
 });
 
-const width = document.getElementById("right-width");
-const height = document.getElementById("right-height");
-const depth = document.getElementById("right-depth");
-
-
 function setChildrenAttribute(element, attribute, bool){
     for (let i in element.childNodes){
         if (element.childNodes[i].nodeName == 'DIV'){
@@ -440,22 +439,34 @@ function setChildrenAttribute(element, attribute, bool){
                         switch (type.substring(0, type.indexOf('.'))) {
                             case 'position':
                             case 'rotation':
-                                element.childNodes[i].value = simulation.boxes[itemSelected].mesh[type.substring(0, type.indexOf('.'))][type.substring(type.indexOf('.') + 1, type.length)];
+                                element.childNodes[i].value = simulation.boxes[simulation.itemSelected].mesh[type.substring(0, type.indexOf('.'))][type.substring(type.indexOf('.') + 1, type.length)];
                                 break;
                             default:
-                                element.childNodes[i].value = simulation.boxes[itemSelected].body[type.substring(0, type.indexOf('.'))][type.substring(type.indexOf('.') + 1, type.length)];
+                                element.childNodes[i].value = simulation.boxes[simulation.itemSelected].body[type.substring(0, type.indexOf('.'))][type.substring(type.indexOf('.') + 1, type.length)];
                                 break;
                         }
                     } else if (type == 'mass') {
-                        element.childNodes[i].value = simulation.boxes[itemSelected].body[type];
+                        element.childNodes[i].value = simulation.boxes[simulation.itemSelected].body[type];
                     } else {
-                        element.childNodes[i].value = simulation.boxes[itemSelected].mesh.geometry.parameters[type];
+                        switch (type) {
+                            case "width":
+                                element.childNodes[i].value = simulation.boxes[simulation.itemSelected].mesh.geometry.parameters[type] * simulation.boxes[simulation.itemSelected].mesh.scale.x;
+                                break;
+                            case "height":
+                                element.childNodes[i].value = simulation.boxes[simulation.itemSelected].mesh.geometry.parameters[type] * simulation.boxes[simulation.itemSelected].mesh.scale.y;
+                                break;
+                            case "depth":
+                                element.childNodes[i].value = simulation.boxes[simulation.itemSelected].mesh.geometry.parameters[type] * simulation.boxes[simulation.itemSelected].mesh.scale.z;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 } else {
                     element.childNodes[i].value = "";
                 }
-            } else if(element.childNodes[i].type == "color" && itemSelected > -1){
-                element.childNodes[i].value = `#${simulation.boxes[itemSelected].mesh.material.color.getHexString()}`;
+            } else if(element.childNodes[i].type == "color" && simulation.itemSelected > -1){
+                element.childNodes[i].value = `#${simulation.boxes[simulation.itemSelected].mesh.material.color.getHexString()}`;
             } else {
                 if (bool){
                     element.childNodes[i].checked = false;
@@ -465,12 +476,14 @@ function setChildrenAttribute(element, attribute, bool){
         }
     }
 }
+
 function setRightParameters(){
-    if (itemSelected > -1){
+    if (simulation.itemSelected > -1){
         transformControls.detach();
-        transformControls.attach(simulation.boxes[itemSelected].mesh)
-        document.getElementById("wireframe-toggle").checked = simulation.boxes[itemSelected].mesh.material.wireframe ? true : false;
-        document.getElementById("object-name").innerText = simulation.boxes[itemSelected].mesh.name;
+        transformControls.attach(simulation.boxes[simulation.itemSelected].mesh)
+        document.getElementById("wireframe-toggle").checked = simulation.boxes[simulation.itemSelected].mesh.material.wireframe ? true : false;
+        document.getElementById("collisionResponse-toggle").checked = simulation.boxes[simulation.itemSelected].body.collisionResponse ? true : false;
+        document.getElementById("object-name").innerText = simulation.boxes[simulation.itemSelected].mesh.name;
 
         setChildrenAttribute(document.getElementById("right-ui-features"), 'disabled', false);
     } else {
@@ -481,22 +494,24 @@ function setRightParameters(){
 }
 
 canvas.addEventListener("mousedown", (event) => {
-    let intersectedObjects = simulation.checkForObject(event);
-    if (intersectedObjects.length > 0){
-        transformControls.attach(intersectedObjects[0].object);
-        for (const index in simulation.boxes){
-            if (simulation.boxes[index].mesh.uuid == intersectedObjects[0].object.uuid){
-                itemSelected = index;
-                transformControls.attach(simulation.boxes[index].mesh);
-                setRightParameters();
-                break;
+    if (mode == "setup"){
+        let intersectedObjects = simulation.checkForObject(event);
+        if (intersectedObjects.length > 0) {
+            transformControls.attach(intersectedObjects[0].object);
+            for (const index in simulation.boxes) {
+                if (simulation.boxes[index].mesh.uuid == intersectedObjects[0].object.uuid) {
+                    simulation.itemSelected = index;
+                    transformControls.attach(simulation.boxes[index].mesh);
+                    setRightParameters();
+                    break;
+                }
             }
-        }
-    } else {
-        if (transformControls.object && !transformControls.dragging){
-            transformControls.detach();
-            itemSelected = -1;
-            setRightParameters();
+        } else {
+            if (transformControls.object && !transformControls.dragging) {
+                transformControls.detach();
+                simulation.itemSelected = -1;
+                setRightParameters();
+            }
         }
     }
 });
@@ -512,191 +527,222 @@ window.addEventListener('resize', () => {
 
 //Size Setting
 
-// width.addEventListener("blur", () => {
-//     if ((width.value.length == 0 || isNaN(width.value)) && itemSelected > -1) {
-//         width.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].mesh.scale.x = parseFloat(width.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.width;
-//         synchronizeSize();
-//     }
-// });
+const width = document.getElementById("width-input");
+const height = document.getElementById("height-input");
+const depth = document.getElementById("depth-input");
 
-// height.addEventListener("blur", () => {
-//     if ((height.value.length == 0 || isNaN(height.value)) && itemSelected > -1) {
-//         height.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].mesh.scale.y = parseFloat(height.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.height;
-//         synchronizeSize();
-//     }
-// });
+width.addEventListener("blur", () => {
+    if ((width.value.length == 0 || isNaN(width.value)) && simulation.itemSelected > -1) {
+        width.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].mesh.scale.x = parseFloat(width.value) / simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.width;
+        synchronizeSize();
+    }
+});
 
-// depth.addEventListener("blur", () => {
-//     if ((depth.value.length == 0 || isNaN(depth.value)) && itemSelected > -1) {
-//         depth.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].mesh.scale.z = parseFloat(depth.value) / simulation.boxes[itemSelected].mesh.geometry.parameters.depth;
-//         synchronizeSize();
-//     }
-// });
+height.addEventListener("blur", () => {
+    if ((height.value.length == 0 || isNaN(height.value)) && simulation.itemSelected > -1) {
+        height.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].mesh.scale.y = parseFloat(height.value) / simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.height;
+        synchronizeSize();
+    }
+});
+
+depth.addEventListener("blur", () => {
+    if ((depth.value.length == 0 || isNaN(depth.value)) && simulation.itemSelected > -1) {
+        depth.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].mesh.scale.z = parseFloat(depth.value) / simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.depth;
+        synchronizeSize();
+    }
+});
 
 
 //Position Setting
 
-// const xPos = document.getElementById("right-position-x");
-// const yPos = document.getElementById("right-position-y");
-// const zPos = document.getElementById("right-position-z");
+const xPos = document.getElementById("position.x-input");
+const yPos = document.getElementById("position.y-input");
+const zPos = document.getElementById("position.z-input");
 
-// xPos.addEventListener("blur", () => {
-//     if ((xPos.value.length == 0 || isNaN(xPos.value)) && itemSelected > -1) {
-//         xPos.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].mesh.position.x = parseFloat(xPos.value);
-//         synchronizePositions();
-//     }
-// });
+xPos.addEventListener("blur", () => {
+    if ((xPos.value.length == 0 || isNaN(xPos.value)) && simulation.itemSelected > -1) {
+        xPos.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].mesh.position.x = parseFloat(xPos.value);
+        synchronizePositions();
+    }
+});
 
-// yPos.addEventListener("blur", () => {
-//     if ((yPos.value.length == 0 || isNaN(yPos.value)) && itemSelected > -1) {
-//         yPos.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].mesh.position.y = parseFloat(yPos.value);
-//         synchronizePositions();
-//     }
-// });
+yPos.addEventListener("blur", () => {
+    if ((yPos.value.length == 0 || isNaN(yPos.value)) && simulation.itemSelected > -1) {
+        yPos.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].mesh.position.y = parseFloat(yPos.value);
+        synchronizePositions();
+    }
+});
 
-// zPos.addEventListener("blur", () => {
-//     if ((zPos.value.length == 0 || isNaN(zPos.value)) && itemSelected > -1) {
-//         zPos.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].mesh.position.z = parseFloat(zPos.value);
-//         synchronizePositions();
-//     }
-// });
+zPos.addEventListener("blur", () => {
+    if ((zPos.value.length == 0 || isNaN(zPos.value)) && simulation.itemSelected > -1) {
+        zPos.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].mesh.position.z = parseFloat(zPos.value);
+        synchronizePositions();
+    }
+});
 
 // //Velocity Setting
 
-// const xVel = document.getElementById("right-velocity-x");
-// const yVel = document.getElementById("right-velocity-y");
-// const zVel = document.getElementById("right-velocity-z");
+const xVel = document.getElementById("velocity.x-input");
+const yVel = document.getElementById("velocity.y-input");
+const zVel = document.getElementById("velocity.z-input");
 
-// xVel.addEventListener("blur", () => {
-//     if ((xVel.value.length == 0 || isNaN(xVel.value)) && itemSelected > -1) {
-//         xVel.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].body.velocity.x = parseFloat(xVel.value);
-//     }
-// });
+xVel.addEventListener("blur", () => {
+    if ((xVel.value.length == 0 || isNaN(xVel.value)) && simulation.itemSelected > -1) {
+        xVel.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].body.velocity.x = parseFloat(xVel.value);
+    }
+});
 
-// yVel.addEventListener("blur", () => {
-//     if ((yVel.value.length == 0 || isNaN(yVel.value)) && itemSelected > -1) {
-//         yVel.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].body.velocity.y = parseFloat(yVel.value);
-//     }
-// });
+yVel.addEventListener("blur", () => {
+    if ((yVel.value.length == 0 || isNaN(yVel.value)) && simulation.itemSelected > -1) {
+        yVel.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].body.velocity.y = parseFloat(yVel.value);
+    }
+});
 
-// zVel.addEventListener("blur", () => {
-//     if ((zVel.value.length == 0 || isNaN(zVel.value)) && itemSelected > -1) {
-//         zVel.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].body.velocity.z = parseFloat(zVel.value);
-//     }
-// });
+zVel.addEventListener("blur", () => {
+    if ((zVel.value.length == 0 || isNaN(zVel.value)) && simulation.itemSelected > -1) {
+        zVel.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].body.velocity.z = parseFloat(zVel.value);
+    }
+});
 
 // //Rotation Setting
 
-// const xRot = document.getElementById("right-rotation-x");
-// const yRot = document.getElementById("right-rotation-y");
-// const zRot = document.getElementById("right-rotation-z");
+const xRot = document.getElementById("rotation.x-input");
+const yRot = document.getElementById("rotation.y-input");
+const zRot = document.getElementById("rotation.z-input");
 
-// xRot.addEventListener("blur", () => {
-//     if ((xRot.value.length == 0 || isNaN(xRot.value)) && itemSelected > -1) {
-//         xRot.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].mesh.rotation.x = parseFloat(xRot.value);
-//         synchronizeRotation();
-//     }
-// });
+xRot.addEventListener("blur", () => {
+    if ((xRot.value.length == 0 || isNaN(xRot.value)) && simulation.itemSelected > -1) {
+        xRot.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].mesh.rotation.x = parseFloat(xRot.value);
+        synchronizeRotation();
+    }
+});
 
-// yRot.addEventListener("blur", () => {
-//     if ((yRot.value.length == 0 || isNaN(yRot.value)) && itemSelected > -1) {
-//         yRot.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].mesh.rotation.y = parseFloat(yRot.value);
-//         synchronizeRotation();
-//     }
-// });
+yRot.addEventListener("blur", () => {
+    if ((yRot.value.length == 0 || isNaN(yRot.value)) && simulation.itemSelected > -1) {
+        yRot.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].mesh.rotation.y = parseFloat(yRot.value);
+        synchronizeRotation();
+    }
+});
 
-// zRot.addEventListener("blur", () => {
-//     if ((zRot.value.length == 0 || isNaN(zRot.value)) && itemSelected > -1) {
-//         zRot.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].mesh.rotation.z = parseFloat(zRot.value);
-//         synchronizeRotation();
-//     }
-// });
+zRot.addEventListener("blur", () => {
+    if ((zRot.value.length == 0 || isNaN(zRot.value)) && simulation.itemSelected > -1) {
+        zRot.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].mesh.rotation.z = parseFloat(zRot.value);
+        synchronizeRotation();
+    }
+});
 
 // //Angular Velocity Setting
 
-// const xAng = document.getElementById("right-angular-x");
-// const yAng = document.getElementById("right-angular-y");
-// const zAng = document.getElementById("right-angular-z");
+const xAng = document.getElementById("angularVelocity.x-input");
+const yAng = document.getElementById("angularVelocity.y-input");
+const zAng = document.getElementById("angularVelocity.y-input");
 
-// xAng.addEventListener("blur", () => {
-//     if ((xAng.value.length == 0 || isNaN(xAng.value)) && itemSelected > -1) {
-//         xAng.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].body.angularVelocity.x = parseFloat(xAng.value);
-//     }
-// });
+xAng.addEventListener("blur", () => {
+    if ((xAng.value.length == 0 || isNaN(xAng.value)) && simulation.itemSelected > -1) {
+        xAng.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].body.angularVelocity.x = parseFloat(xAng.value);
+    }
+});
 
-// yAng.addEventListener("blur", () => {
-//     if ((yAng.value.length == 0 || isNaN(yAng.value)) && itemSelected > -1) {
-//         yAng.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].body.angularVelocity.y = parseFloat(yAng.value);
-//     }
-// });
+yAng.addEventListener("blur", () => {
+    if ((yAng.value.length == 0 || isNaN(yAng.value)) && simulation.itemSelected > -1) {
+        yAng.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].body.angularVelocity.y = parseFloat(yAng.value);
+    }
+});
 
-// zAng.addEventListener("blur", () => {
-//     if ((zAng.value.length == 0 || isNaN(zAng.value)) && itemSelected > -1) {
-//         zAng.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].body.angularVelocity.z = parseFloat(zAng.value);
-//     }
-// });
+zAng.addEventListener("blur", () => {
+    if ((zAng.value.length == 0 || isNaN(zAng.value)) && simulation.itemSelected > -1) {
+        zAng.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].body.angularVelocity.z = parseFloat(zAng.value);
+    }
+});
 
-// const xFor = document.getElementById("right-force-x");
-// const yFor = document.getElementById("right-force-y");
-// const zFor = document.getElementById("right-force-z");
+//Force
 
-// xFor.addEventListener("blur", () => {
-//     if ((xFor.value.length == 0 || isNaN(xFor.value)) && itemSelected > -1) {
-//         xFor.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].body.force.x = parseFloat(xFor.value);
-//     }
-// });
+const xFor = document.getElementById("force.x-input");
+const yFor = document.getElementById("force.y-input");
+const zFor = document.getElementById("force.z-input");
 
-// yFor.addEventListener("blur", () => {
-//     if ((yFor.value.length == 0 || isNaN(yFor.value)) && itemSelected > -1) {
-//         yFor.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].body.force.y = parseFloat(yFor.value);
-//     }
-// });
+xFor.addEventListener("blur", () => {
+    if ((xFor.value.length == 0 || isNaN(xFor.value)) && simulation.itemSelected > -1) {
+        xFor.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].body.force.x = parseFloat(xFor.value);
+    }
+});
 
-// zFor.addEventListener("blur", () => {
-//     if ((zFor.value.length == 0 || isNaN(zFor.value)) && itemSelected > -1) {
-//         zFor.focus();
-//     } else if (itemSelected > -1){
-//         simulation.boxes[itemSelected].body.force.z = parseFloat(zFor.value);
-//     }
-// });
+yFor.addEventListener("blur", () => {
+    if ((yFor.value.length == 0 || isNaN(yFor.value)) && simulation.itemSelected > -1) {
+        yFor.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].body.force.y = parseFloat(yFor.value);
+    }
+});
+
+zFor.addEventListener("blur", () => {
+    if ((zFor.value.length == 0 || isNaN(zFor.value)) && simulation.itemSelected > -1) {
+        zFor.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].body.force.z = parseFloat(zFor.value);
+    }
+});
+
+//Mass
+const massInput = document.getElementById("mass-input");
+massInput.addEventListener("blur", () => {
+    if ((massInput.value.length == 0 || isNaN(massInput.value)) && simulation.itemSelected > -1) {
+        massInput.focus();
+    } else if (simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].body.mass = parseFloat(massInput.value);
+        simulation.boxes[simulation.itemSelected].body.updateMassProperties();
+    }
+});
+
+document.getElementById("collisionResponse-toggle").addEventListener("click", (event) => {
+    if (simulation.itemSelected > -1){
+        if (event.target.checked){
+            simulation.boxes[simulation.itemSelected].body.collisionResponse = true;
+        } else {
+            simulation.boxes[simulation.itemSelected].body.collisionResponse = false;
+        }
+    }
+});
+
+document.getElementById("fps-toggle").addEventListener("click", (event) => {
+    toggleStats(event.target.checked);
+});
 
 colorPicker.addEventListener("change", (event) => {
-    if (itemSelected > -1) {
-        simulation.boxes[itemSelected].mesh.material.color.set(`${event.target.value}`);
+    if (simulation.itemSelected > -1) {
+        simulation.boxes[simulation.itemSelected].mesh.material.color.set(`${event.target.value}`);
     }
 });
 
@@ -723,11 +769,11 @@ document.getElementById("add-cube-button").onclick = simulation.createBox.bind(s
 document.getElementById("add-sphere-button").onclick = simulation.createBox.bind(simulation, 5, 0, 0, 2, 2, 2);
 
 function handleWireFrameToggle(){
-    if (document.getElementById("wireframe-toggle").checked && itemSelected > -1){
-        simulation.boxes[itemSelected].mesh.material.wireframe = true;
+    if (document.getElementById("wireframe-toggle").checked && simulation.itemSelected > -1){
+        simulation.boxes[simulation.itemSelected].mesh.material.wireframe = true;
     } else {
-        if (itemSelected > -1){
-            simulation.boxes[itemSelected].mesh.material.wireframe = false;
+        if (simulation.itemSelected > -1){
+            simulation.boxes[simulation.itemSelected].mesh.material.wireframe = false;
         }
     }
 }
@@ -742,7 +788,7 @@ function handleStatsToggle(){
 document.getElementById("wireframe-toggle").onclick = handleWireFrameToggle;
 
 transformControls.addEventListener("change", (event) => {
-    if (itemSelected > -1){
+    if (simulation.itemSelected > -1){
         switch (event.target.getMode()) {
             case "translate":
                 synchronizePositions();

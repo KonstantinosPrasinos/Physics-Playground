@@ -7,7 +7,7 @@ import Stats from 'https://unpkg.com/three@0.126.1/examples/jsm/libs/stats.modul
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
 
-let rayDirection, savedBoxes = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40;
+let rayDirection, savedBoxes = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats;
 let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
 
 function changeTimeStep(temp){
@@ -60,6 +60,7 @@ function initThree() {
     renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true});
     renderer.setClearColor( 0xffffff, 1);
     renderer.setSize(parseInt(window.getComputedStyle(canvas).width), parseInt(window.getComputedStyle(canvas).height));
+    stats = Stats();
 }
 
 function initCannon() {
@@ -86,7 +87,7 @@ function updatePhysics() {
         element.mesh.position.copy(element.body.position);
         element.mesh.quaternion.copy(element.body.quaternion);
     });
-    
+    updateValues();
 }
 
 function render() {
@@ -101,11 +102,47 @@ function animate() {
     }
     render();
 
-    stats.update();
+    if (statsOn){
+        stats.update();
+    }
 }
 
 //General Functions
-//To change mass you change the mass and set call the updateMassProperties() method
+
+function toggleStats(bool){
+    console.log(bool);
+    statsOn = bool
+    if (bool){
+        console.log("sup");
+        document.body.appendChild(stats.dom);
+    } else {
+        document.body.removeChild(stats.dom);
+    }
+}
+
+function updateValues(){
+    if (simulation.itemSelected > -1){
+        document.getElementById("width-input").value = simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.width * simulation.boxes[simulation.itemSelected].mesh.scale.x;
+        document.getElementById("height-input").value = simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.height * simulation.boxes[simulation.itemSelected].mesh.scale.y;
+        document.getElementById("depth-input").value = simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.depth * simulation.boxes[simulation.itemSelected].mesh.scale.z;
+        document.getElementById("position.x-input").value = simulation.boxes[simulation.itemSelected].mesh.position.x;
+        document.getElementById("position.y-input").value = simulation.boxes[simulation.itemSelected].mesh.position.y;
+        document.getElementById("position.z-input").value = simulation.boxes[simulation.itemSelected].mesh.position.z;
+        document.getElementById("rotation.x-input").value = simulation.boxes[simulation.itemSelected].mesh.rotation.x;
+        document.getElementById("rotation.y-input").value = simulation.boxes[simulation.itemSelected].mesh.rotation.y;
+        document.getElementById("rotation.z-input").value = simulation.boxes[simulation.itemSelected].mesh.rotation.z;
+        document.getElementById("velocity.x-input").value = simulation.boxes[simulation.itemSelected].body.velocity.x;
+        document.getElementById("velocity.y-input").value = simulation.boxes[simulation.itemSelected].body.velocity.y;
+        document.getElementById("velocity.z-input").value = simulation.boxes[simulation.itemSelected].body.velocity.z;
+        document.getElementById("angularVelocity.x-input").value = simulation.boxes[simulation.itemSelected].body.angularVelocity.x;
+        document.getElementById("angularVelocity.y-input").value = simulation.boxes[simulation.itemSelected].body.angularVelocity.y;
+        document.getElementById("angularVelocity.z-input").value = simulation.boxes[simulation.itemSelected].body.angularVelocity.z;
+        document.getElementById("force.x-input").value = simulation.boxes[simulation.itemSelected].body.force.x;
+        document.getElementById("force.y-input").value = simulation.boxes[simulation.itemSelected].body.force.y;
+        document.getElementById("force.z-input").value = simulation.boxes[simulation.itemSelected].body.force.z;
+    }
+}
+
 
 function rewindBoxes(){
     simulation.removeAllObjects();
@@ -509,6 +546,7 @@ let simulation = {
     isPaused: true,
     logPerSteps: 0,
     savedLog: null,
+    itemSelected: -1,
     createBox(x, y, z, width, height, depth){
         let shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
         let tempBody = new CANNON.Body({
@@ -594,8 +632,5 @@ initThree();
 initCannon();
 initControls();
 
-let stats = Stats();
-document.body.appendChild(stats.dom);
-
 animate();
-export {simulation, camera, transformControls, orbitControls, copyBoxes, renderer, updateVectors, world, changeTimeStep, printToLog, generateJSON, setCamera, rewindBoxes};
+export {simulation, camera, transformControls, orbitControls, copyBoxes, renderer, updateVectors, world, changeTimeStep, printToLog, generateJSON, setCamera, rewindBoxes, toggleStats};
