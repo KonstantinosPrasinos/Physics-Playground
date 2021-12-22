@@ -2,11 +2,40 @@ import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
+import Stats from 'https://unpkg.com/three@0.126.1/examples/jsm/libs/stats.module.js';
 
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
 
-let rayDirection, savedBoxes = [], scene, renderer, camera, world, timeStep = 1 / 60, orbitControls, transformControls;
+let rayDirection, savedBoxes = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats;
+let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
+
+function changeTimeStep(temp){
+    timeStep = temp;
+}
+
+function setCamera(cameraType){
+    if (camera.type != cameraType){
+        switch (cameraType)  {
+            case "PerspectiveCamera":
+                camera = perspectiveCamera;
+                orbitControls.object = camera;
+                orbitControls.reset();
+                camera.updateMatrixWorld();
+                camera.updateProjectionMatrix();
+                break;
+            case "OrthographicCamera":
+                camera = orthographicCamera;
+                orbitControls.object = camera;
+                orbitControls.reset();
+                camera.updateMatrixWorld();
+                camera.updateProjectionMatrix();
+                break;
+            default:
+                break;
+        }
+    }
+}
 
 //Init Functions
 
@@ -20,13 +49,18 @@ function initControls(){
 function initThree() {
     scene = new THREE.Scene();
 
-    camera = new THREE.PerspectiveCamera( 45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
-    camera.position.z = 50;
-    scene.add(camera);
+    orthographicCamera = new THREE.OrthographicCamera( frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 1000 );
+    perspectiveCamera = new THREE.PerspectiveCamera( 45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
+    orthographicCamera.position.z = 50;
+    perspectiveCamera.position.z = 50;
+    scene.add(orthographicCamera);
+    scene.add(perspectiveCamera);
+    camera = perspectiveCamera;
 
     renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true});
     renderer.setClearColor( 0xffffff, 1);
     renderer.setSize(parseInt(window.getComputedStyle(canvas).width), parseInt(window.getComputedStyle(canvas).height));
+    stats = Stats();
 }
 
 function initCannon() {
@@ -34,24 +68,31 @@ function initCannon() {
     world.gravity.set(0, 0, 0);
     world.broadphase = new CANNON.NaiveBroadphase();
     world.solver.iterations = 10;
+    world.dt = timeStep / 2;
 }
 
 //Timed Functions
 
+function attemptPrintPerStep(){
+    if (simulation.logPerSteps != 0 && ((world.time / world.dt) % simulation.logPerSteps < world.dt || Math.abs(simulation.logPerSteps - (world.time / world.dt) % simulation.logPerSteps) < world.dt) && previousLogedTime != world.time){
+        printToLog();
+        previousLogedTime = world.time;
+    }
+}
+
 function updatePhysics() {
-    world.step(timeStep);
-    processArtificialGravity();
+    world.step(world.dt);
+    attemptPrintPerStep();
     simulation.boxes.forEach(element => {
         element.mesh.position.copy(element.body.position);
         element.mesh.quaternion.copy(element.body.quaternion);
     });
-
+    updateValues();
 }
 
 function render() {
-    topTime.innerText = parseInt(world.time);
+    topTime.innerText = parseFloat(world.time).toFixed(3);
     renderer.render(scene, camera);
-    
 }
 
 function animate() {
@@ -60,10 +101,94 @@ function animate() {
         updatePhysics();
     }
     render();
+
+    if (statsOn){
+        stats.update();
+    }
 }
 
 //General Functions
-//To change mass you change the mass and set call the updateMassProperties() method
+
+function toggleStats(bool){
+    console.log(bool);
+    statsOn = bool
+    if (bool){
+        console.log("sup");
+        document.body.appendChild(stats.dom);
+    } else {
+        document.body.removeChild(stats.dom);
+    }
+}
+
+function updateValues(){
+    if (simulation.itemSelected > -1){
+        document.getElementById("width-input").value = simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.width * simulation.boxes[simulation.itemSelected].mesh.scale.x;
+        document.getElementById("height-input").value = simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.height * simulation.boxes[simulation.itemSelected].mesh.scale.y;
+        document.getElementById("depth-input").value = simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.depth * simulation.boxes[simulation.itemSelected].mesh.scale.z;
+        document.getElementById("position.x-input").value = simulation.boxes[simulation.itemSelected].mesh.position.x;
+        document.getElementById("position.y-input").value = simulation.boxes[simulation.itemSelected].mesh.position.y;
+        document.getElementById("position.z-input").value = simulation.boxes[simulation.itemSelected].mesh.position.z;
+        document.getElementById("rotation.x-input").value = simulation.boxes[simulation.itemSelected].mesh.rotation.x;
+        document.getElementById("rotation.y-input").value = simulation.boxes[simulation.itemSelected].mesh.rotation.y;
+        document.getElementById("rotation.z-input").value = simulation.boxes[simulation.itemSelected].mesh.rotation.z;
+        document.getElementById("velocity.x-input").value = simulation.boxes[simulation.itemSelected].body.velocity.x;
+        document.getElementById("velocity.y-input").value = simulation.boxes[simulation.itemSelected].body.velocity.y;
+        document.getElementById("velocity.z-input").value = simulation.boxes[simulation.itemSelected].body.velocity.z;
+        document.getElementById("angularVelocity.x-input").value = simulation.boxes[simulation.itemSelected].body.angularVelocity.x;
+        document.getElementById("angularVelocity.y-input").value = simulation.boxes[simulation.itemSelected].body.angularVelocity.y;
+        document.getElementById("angularVelocity.z-input").value = simulation.boxes[simulation.itemSelected].body.angularVelocity.z;
+        document.getElementById("force.x-input").value = simulation.boxes[simulation.itemSelected].body.force.x;
+        document.getElementById("force.y-input").value = simulation.boxes[simulation.itemSelected].body.force.y;
+        document.getElementById("force.z-input").value = simulation.boxes[simulation.itemSelected].body.force.z;
+    }
+}
+
+
+function rewindBoxes(){
+    simulation.removeAllObjects();
+    simulation.boxes = savedBoxes;
+    savedBoxes = [];
+    simulation.addAllObjects();
+}
+
+function generateJSON(){
+    let logObj = {};
+    let timeLine = {}
+    simulation.boxes.forEach((item) => {
+        timeLine[item.mesh.uuid] = {name: item.mesh.name, mass: item.body.mass, position: {x: item.body.position.x, y: item.body.position.y, z: item.body.position.z}, velocity: {x: item.body.velocity.x, y: item.body.velocity.y, z: item.body.velocity.z}, rotation: {x: item.mesh.rotation.x, y: item.mesh.rotation.y, z: item.mesh.rotation.z}, angularVelocity: {x: item.body.angularVelocity.x, y: item.body.angularVelocity.y, z: item.body.angularVelocity.z}, force: {x: item.body.force.x, y: item.body.force.y, z: item.body.force.z}}
+    });
+    logObj[parseInt(world.time)] = timeLine;
+    return logObj;
+}
+
+function printToLog(){
+    let log = document.getElementById("log");
+    if (!simulation.savedLog){
+        simulation.savedLog = generateJSON();
+    } else {
+        let line = generateJSON();
+        for (const index in line){
+            simulation.savedLog[index] = line[index];
+        }
+    }
+    log.innerHTML += `At time ${parseFloat(world.time).toFixed(3)}:`;
+    if (simulation.boxes.length){
+        log.innerHTML += "<br>";
+        log.innerHTML += "Name - Mass - Position - Velocity - Rotation - Angular Velocity - Force";
+        log.innerHTML += "<br>";
+        simulation.boxes.forEach((item) => {
+            log.innerHTML += `${item.mesh.name} | ${item.body.mass} | ${item.body.position.x}, ${item.body.position.y}, ${item.body.position.z} | ${item.body.velocity.x}, ${item.body.velocity.y}, ${item.body.velocity.z} | `;
+            log.innerHTML += `${item.mesh.rotation.x}, ${item.mesh.rotation.y}, ${item.mesh.rotation.z} | ${item.body.angularVelocity.x}, ${item.body.angularVelocity.y}, ${item.body.angularVelocity.z} | ${item.body.force.x}, ${item.body.force.y}, ${item.body.force.z}`;
+            log.innerHTML += "<br>";
+        });
+        log.innerHTML += "<br>";
+    } else {
+        log.innerHTML += "<br>";
+        log.innerHTML += "No items in scene";
+        log.innerHTML += "<br>";
+        log.innerHTML += "<br>";
+    }
+}
 
 function addItemToList(index){
     let node = document.createElement("DIV");
@@ -74,7 +199,7 @@ function addItemToList(index){
 
     node.classList.add("item-list-field");
     textNode.type = 'text';
-    textNode.value = simulation.boxes[index].name;
+    textNode.value = simulation.boxes[index].mesh.name;
     textNode.setAttribute('required', "");
     textNode.classList.add("item-list-editable");
 
@@ -112,7 +237,13 @@ function addItemToList(index){
         if (textNode.value.length == 0) {
             textNode.focus();
         } else {
-            simulation.boxes[index].name = textNode.value;
+            simulation.boxes[index].mesh.name = textNode.value;
+            document.getElementById("object-name").innerText = simulation.boxes[index].mesh.name;
+        }
+    });
+    textNode.addEventListener("keydown", (event) => {
+        if (event.key === 'Enter' && document.activeElement.value.length != 0){
+            document.activeElement.blur();
         }
     });
     node.appendChild(textNode);
@@ -128,6 +259,7 @@ function deleteObjectFromList(index) {
     simulation.boxes.splice(index, 1);
     refreshListOfObjects();
 }
+
 function refreshListOfObjects(){
     while(document.getElementById("right-ui-item-container").firstChild){
         document.getElementById("right-ui-item-container").removeChild(document.getElementById("right-ui-item-container").firstChild);
@@ -138,10 +270,10 @@ function refreshListOfObjects(){
 }
 
 function processArtificialGravity(){
-    simulation.boxes[0].body.mass = 10**12;
-    simulation.boxes[0].body.updateMassProperties();
-    simulation.boxes[1].body.mass = 10**12;
-    simulation.boxes[1].body.updateMassProperties();
+    // simulation.boxes[0].body.mass = 10**12;
+    // simulation.boxes[0].body.updateMassProperties();
+    // simulation.boxes[1].body.mass = 10**12;
+    // simulation.boxes[1].body.updateMassProperties();
     const zero = new CANNON.Vec3(0, 0, 0);
     for (const index in simulation.boxes){
         simulation.boxes[index].body.force = zero;
@@ -154,6 +286,192 @@ function processArtificialGravity(){
     }
     
 }
+
+function updateVectors(object) {
+    let F, V, direction, length, origin = object.mesh.position;;
+    for (const index in object.mesh.children) {
+        switch (object.mesh.children[index].name) {
+            case "resultantForceVector":
+                F = Math.sqrt(object.body.force.x ** 2 + object.body.force.y ** 2 + object.body.force.z ** 2);
+                direction = ((new THREE.Vector3(object.body.force.x, object.body.force.y, object.body.force.z)).add(origin)).normalize();
+                length = F / 10;
+                object.mesh.children[index].setDirection(direction);
+                object.mesh.children[index].setLength(length);
+                break;
+            case "forceVectorX":
+                direction = ((new THREE.Vector3(object.body.force.x, origin.y, origin.z)).add(origin)).normalize();
+                length = object.body.force.x / 10;
+                object.mesh.children[index].setDirection(direction);
+                object.mesh.children[index].setLength(length);
+                break;
+            case "forceVectorY":
+                direction = ((new THREE.Vector3(origin.x, object.body.force.y, origin.z)).add(origin)).normalize();
+                length = object.body.force.y / 10;
+                object.mesh.children[index].setDirection(direction);
+                object.mesh.children[index].setLength(length);
+                break;
+            case "forceVectorZ":
+                direction = ((new THREE.Vector3(origin.x, origin.y, object.body.force.z)).add(origin)).normalize();
+                length = object.body.force.z / 10;
+                object.mesh.children[index].setDirection(direction);
+                object.mesh.children[index].setLength(length);
+                break;
+            case "resultantVelocityVector":
+                V = Math.sqrt(object.body.velocity.x ** 2 + object.body.velocity.y ** 2 + object.body.velocity.z ** 2);
+                direction = ((new THREE.Vector3(object.body.velocity.x, object.body.velocity.y, object.body.velocity.z)).add(origin)).normalize();
+                length = V / 10;
+                object.mesh.children[index].setDirection(direction);
+                object.mesh.children[index].setLength(length);
+                break;
+            case "velocityVectorX":
+                direction = ((new THREE.Vector3(object.body.velocity.x, origin.y, origin.z)).add(origin)).normalize();
+                length = object.body.velocity.x / 10;
+                object.mesh.children[index].setDirection(direction);
+                object.mesh.children[index].setLength(length);
+                break;
+            case "velocityVectorY":
+                direction = ((new THREE.Vector3(origin.x, object.body.velocity.y, origin.z)).add(origin)).normalize();
+                length = object.body.velocity.y / 10;
+                object.mesh.children[index].setDirection(direction);
+                object.mesh.children[index].setLength(length);
+                break;
+            case "velocityVectorZ":
+                direction = ((new THREE.Vector3(origin.x, origin.y, object.body.velocity.z)).add(origin)).normalize();
+                length = object.body.velocity.z / 10;
+                object.mesh.children[index].setDirection(direction);
+                object.mesh.children[index].setLength(length);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+function toggleResultantForceVector(object){
+    for (const index in object.mesh.children){
+        if (object.mesh.children[index].name == "resultantForceVector"){
+            object.mesh.remove(object.mesh.children[index]);
+            return true;
+        }
+    }
+    const F = Math.sqrt(object.body.force.x ** 2 + object.body.force.y ** 2 + object.body.force.z ** 2);
+    if (F != 0){
+        const origin = object.mesh.position;
+        const direction = ((new THREE.Vector3(object.body.force.x, object.body.force.y, object.body.force.z)).add(origin)).normalize();
+        const length = F / 10;
+        const hex = 0xffff00;
+        const arrowHelper = new THREE.ArrowHelper(direction, origin, length, hex);
+        arrowHelper.name = "resultantForceVector";
+        object.mesh.add(arrowHelper);
+    }
+}
+
+function toggleComponentForcesVectors(object){
+    let vectorsFound = false;
+    for (const index in object.mesh.children){
+        switch (object.mesh.children[index].name) {
+            case "forceVectorX":
+            case "forceVectorY":
+            case "forceVectorZ":
+                vectorsFound = true;
+                object.mesh.remove(object.mesh.children[index]);
+                break;
+            default:
+                break;
+        }
+    }
+    if (vectorsFound == false){
+        const origin = object.mesh.position;
+        if (object.body.force.x != 0){
+            const directionX = ((new THREE.Vector3(object.body.force.x, origin.y, origin.z)).add(origin)).normalize();
+            const lengthX = object.body.force.x / 10;
+            const hexX = 0x00cdcd;
+            const arrowHelperX = new THREE.ArrowHelper(directionX, origin, lengthX, hexX);
+            arrowHelperX.name = "forceVectorX";
+            object.mesh.add(arrowHelperX);
+        }
+        if (object.body.force.y != 0){
+            const directionY = ((new THREE.Vector3(origin.x, object.body.force.y, origin.z)).add(origin)).normalize();
+            const lengthY = object.body.force.y / 10;
+            const hexY = 0xcd00cd;
+            const arrowHelperY = new THREE.ArrowHelper(directionY, origin, lengthY, hexY);
+            arrowHelperY.name = "forceVectorY";
+            object.mesh.add(arrowHelperY);
+        }
+        if (object.body.force.z != 0){
+            const directionZ = ((new THREE.Vector3(origin.x, origin.y, object.body.force.y)).add(origin)).normalize();
+            const lengthZ = object.body.force.z / 10;
+            const hexZ = 0xcd00cd;
+            const arrowHelperZ = new THREE.ArrowHelper(directionZ, origin, lengthZ, hexZ);
+            arrowHelperZ.name = "forceVectorZ";
+            object.mesh.add(arrowHelperZ);
+        }
+    }
+}
+
+function toggleResultantVelocityVector(object){
+    for (const index in object.mesh.children){
+        if (object.mesh.children[index].name == "resultantVelocityVector"){
+            object.mesh.remove(object.mesh.children[index]);
+            return true;
+        }
+    }
+    const V = Math.sqrt(object.body.velocity.x ** 2 + object.body.velocity.y ** 2 + object.body.velocity.z ** 2);
+    if (V != 0){
+        const origin = object.mesh.position;
+        const direction = ((new THREE.Vector3(object.body.velocity.x, object.body.velocity.y, object.body.velocity.z)).add(origin)).normalize();
+        const length = V / 10;
+        const hex = 0x00ffff;
+        const arrowHelper = new THREE.ArrowHelper(direction, origin, length, hex);
+        arrowHelper.name = "resultantVelocityVector";
+        object.mesh.add(arrowHelper);
+    }
+}
+
+function toggleComponentVelocityVectors(object){
+    let vectorsFound = false;
+    for (const index in object.mesh.children){
+        switch (object.mesh.children[index].name) {
+            case "velocityVectorX":
+            case "velocityVectorY":
+            case "velocityVectorZ":
+                vectorsFound = true;
+                object.mesh.remove(object.mesh.children[index]);
+                break;
+            default:
+                break;
+        }
+    }
+    if (vectorsFound == false){
+        const origin = object.mesh.position;
+        if (object.body.velocity.x != 0){
+            const directionX = ((new THREE.Vector3(object.body.velocity.x, origin.y, origin.z)).add(origin)).normalize();
+            const lengthX = object.body.velocity.x / 10;
+            const hexX = 0x007878;
+            const arrowHelperX = new THREE.ArrowHelper(directionX, origin, lengthX, hexX);
+            arrowHelperX.name = "velocityVectorX";
+            object.mesh.add(arrowHelperX);
+        }
+        if (object.body.velocity.y != 0){
+            const directionY = ((new THREE.Vector3(origin.x, object.body.velocity.y, origin.z)).add(origin)).normalize();
+            const lengthY = object.body.velocity.y / 10;
+            const hexY = 0x780078;
+            const arrowHelperY = new THREE.ArrowHelper(directionY, origin, lengthY, hexY);
+            arrowHelperY.name = "velocityVectorY";
+            object.mesh.add(arrowHelperY);
+        }
+        if (object.body.velocity.z != 0){
+            const directionZ = ((new THREE.Vector3(origin.x, origin.y, object.body.velocity.y)).add(origin)).normalize();
+            const lengthZ = object.body.velocity.z / 10;
+            const hexZ = 0x787800;
+            const arrowHelperZ = new THREE.ArrowHelper(directionZ, origin, lengthZ, hexZ);
+            arrowHelperZ.name = "velocityVectorZ";
+            object.mesh.add(arrowHelperZ);
+        }
+    }
+}
+
+
 
 function calculateGravity(object1, object2){
     const G = 6.67408 * 10 **(-11);
@@ -209,14 +527,11 @@ async function copyBoxes(){
         }
         //Deep copy of the threejs mesh
         copyMesh = simulation.boxes[i].mesh.clone();
-        //Copy of the name of the object
-        copyName = simulation.boxes[i].name;
 
         //Assigning all of the above to an object ... object and adding it to the copied boxes array
         let box = {
             body: copyBody,
-            mesh: copyMesh,
-            name: copyName
+            mesh: copyMesh
         }
         savedBoxes.push(box);
     }
@@ -229,6 +544,9 @@ let simulation = {
     boxes: [],
     shapesForChanges: [],
     isPaused: true,
+    logPerSteps: 0,
+    savedLog: null,
+    itemSelected: -1,
     createBox(x, y, z, width, height, depth){
         let shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
         let tempBody = new CANNON.Body({
@@ -251,8 +569,8 @@ let simulation = {
         if (this.boxes.length){
             for (i; i < this.boxes.length; ) {
                 for (const box of this.boxes) {
-                    if (box.name.includes('-')){
-                        let tempString = box.name.split('-');
+                    if (box.mesh.name.includes('-')){
+                        let tempString = box.mesh.name.split('-');
                         if (tempString[0] == 'Box' && (parseInt(tempString[1]).toString().length == tempString[1].length)){
                             let number = parseInt(tempString[1]);
                             if (number == i){
@@ -264,11 +582,10 @@ let simulation = {
                 }
             }
         }
-        tempMesh.userData.name = `Box-${i}`
+        tempMesh.name = `Box-${i}`;
         let box = {
             body: tempBody,
-            mesh: tempMesh,
-            name: `Box-${i}`
+            mesh: tempMesh
         }
         this.boxes.push(box);
         addItemToList(this.boxes.length - 1);
@@ -316,5 +633,4 @@ initCannon();
 initControls();
 
 animate();
-console.log(renderer);
-export {simulation, camera, transformControls, orbitControls, copyBoxes, renderer};
+export {simulation, camera, transformControls, orbitControls, copyBoxes, renderer, updateVectors, world, changeTimeStep, printToLog, generateJSON, setCamera, rewindBoxes, toggleStats};

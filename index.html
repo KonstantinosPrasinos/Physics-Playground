@@ -32,9 +32,10 @@
                 <button id="top-play" class="icon-buttons big-icon-buttons top-play"></button>
                 <button id="top-replay" class="icon-buttons big-icon-buttons"></button>
             </div>
-            <div id="top-mode" class="top-field"><b>Mode:</b> Setup</div>
+            <div id="top-mode" class="top-field top-field-text"><b>Mode:</b> Setup</div>
             <button id="collapse-right-ui-button" class="icon-buttons big-icon-buttons"></button>
-            <div>Time: <p id="time">0</p></div>
+            <div class="top-field top-field-text"><b>Time:</b></div>
+            <div class="top-field top-field-text" id="time">0</div>
         </div>
         <div id="right-ui">
             <div id="right-ui-features">
@@ -48,87 +49,133 @@
                     </div>
                     <div class="right-ui-grid-item">
                         <span class="right-ui-grid-text">W:</span>
-                        <input type="text" class="right-text-editable" id="right-ui-width">
+                        <input type="text" class="text-editable block-editable" id="width-input" placeholder="-" disabled>
                     </div>
                     <div class="right-ui-grid-item">
-                        <input type="color" value="#ffffff" class="color-picker" id="item-color-picker">
+                        <input type="color" value="#ffffff" class="color-picker" id="item-color-picker" disabled>
                     </div>
                     <div class="right-ui-grid-item">
                         <span class="right-ui-grid-text">H:</span>
-                        <input type="text" class="right-text-editable" id="right-ui-height">
+                        <input type="text" class="text-editable block-editable" id="height-input" placeholder="-" disabled>
                     </div>
                     <div class="right-ui-grid-item">
                         <span class="right-title title-small">Is Wireframe:</span>
                     </div>
                     <div class="right-ui-grid-item">
                         <span class="right-ui-grid-text">D:</span>
-                        <input type="text" class="right-text-editable" id="right-ui-depth">
+                        <input type="text" class="text-editable block-editable" id="depth-input" placeholder="-" disabled>
                     </div>
                     <div class="right-ui-grid-item">
-                        <label class="t-toggle">
-                            <input type="checkbox" id="wireframe-toggle"/>
-                            <span class="t-slider"></span>
-                        </label>
+                        <div class="checklist">
+                            <input type="checkbox" class="simple-checkmark" id="wireframe-toggle" disabled>
+                        </div>
                     </div>
                 </div>
-                <div id="right-ui-rotation">
+                <div class="right-text-field">
                     <div class="right-title title-small">Rotation:</div>
-                    <div class="right-rotation-field">
+                    <div class="right-input-field">
                         <span>X:</span>
-                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-x">
+                        <input type="text" class="text-editable block-editable" id="rotation.x-input" placeholder="-" disabled>
                     </div>
-                    <div class="right-rotation-field">
+                    <div class="right-input-field">
                         <span>Y:</span>
-                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-y">
+                        <input type="text" class="text-editable block-editable" id="rotation.y-input" placeholder="-" disabled>
                     </div>
-                    <div class="right-rotation-field">
+                    <div class="right-input-field">
                         <span>Z:</span>
-                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-z">
+                        <input type="text" class="text-editable block-editable" id="rotation.z-input" placeholder="-" disabled>
                     </div>
                 </div>
-                <div id="right-ui-rotation">
-                    <div class="right-title title-small">Anglular Velocity:</div>
-                    <div class="right-rotation-field">
+                <div class="right-text-field">
+                    <div class="right-title title-small">Angular Velocity:</div>
+                    <div class="right-input-field">
                         <span>X:</span>
-                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-x">
+                        <input type="text" class="text-editable block-editable" id="angularVelocity.x-input" placeholder="-" disabled>
                     </div>
-                    <div class="right-rotation-field">
+                    <div class="right-input-field">
                         <span>Y:</span>
-                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-y">
+                        <input type="text" class="text-editable block-editable" id="angularVelocity.y-input" placeholder="-" disabled>
                     </div>
-                    <div class="right-rotation-field">
+                    <div class="right-input-field">
                         <span>Z:</span>
-                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-z">
+                        <input type="text" class="text-editable block-editable" id="angularVelocity.z-input" placeholder="-" disabled>
                     </div>
                 </div>
-                <div id="right-ui-rotation">
+                <div class="right-text-field">
                     <div class="right-title title-small">Position:</div>
-                    <div class="right-rotation-field">
+                    <div class="right-input-field">
                         <span>X:</span>
-                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-x">
+                        <input type="text" class="text-editable block-editable" id="position.x-input" placeholder="-" disabled>
                     </div>
-                    <div class="right-rotation-field">
+                    <div class="right-input-field">
                         <span>Y:</span>
-                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-y">
+                        <input type="text" class="text-editable block-editable" id="position.y-input" placeholder="-" disabled>
                     </div>
-                    <div class="right-rotation-field">
+                    <div class="right-input-field">
                         <span>Z:</span>
-                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-z">
+                        <input type="text" class="text-editable block-editable" id="position.z-input" placeholder="-" disabled>
                     </div>
                 </div>
-                <div id="right-ui-rotation">
+                <div class="right-text-field">
                     <div class="right-title title-small">Velocity:</div>
-                    <div class="right-rotation-field">
+                    <div class="right-input-field">
                         <span>X:</span>
-                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-x">
+                        <input type="text" class="text-editable block-editable" id="velocity.x-input" placeholder="-" disabled>
                     </div>
-                    <div class="right-rotation-field">
+                    <div class="right-input-field">
                         <span>Y:</span>
-                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-y">
+                        <input type="text" class="text-editable block-editable" id="velocity.y-input" placeholder="-" disabled>
                     </div>
-                    <div class="right-rotation-field">
+                    <div class="right-input-field">
                         <span>Z:</span>
-                        <input type="text" class="right-text-editable small-text-editable" id="right-rotation-z">
+                        <input type="text" class="text-editable block-editable" id="velocity.z-input" placeholder="-" disabled>
+                    </div>
+                </div>
+                <div class="right-text-field">
+                    <div class="right-title title-small">Force:</div>
+                    <div class="right-input-field">
+                        <span>X:</span>
+                        <input type="text" class="text-editable block-editable" id="force.x-input" placeholder="-" disabled>
+                    </div>
+                    <div class="right-input-field">
+                        <span>Y:</span>
+                        <input type="text" class="text-editable block-editable" id="force.y-input" placeholder="-" disabled>
+                    </div>
+                    <div class="right-input-field">
+                        <span>Z:</span>
+                        <input type="text" class="text-editable block-editable" id="force.z-input" placeholder="-" disabled>
+                    </div>
+                </div>
+                <div class="right-text-field">
+                    <span>Mass:</span>
+                    <input type="text" class="text-editable block-editable" id="mass-input" placeholder="-" disabled>
+                </div>
+                <div class="right-text-field">
+                    <span>Collidable:</span>
+                    <div class="checklist">
+                        <input type="checkbox" class="simple-checkmark inline-checkbox" id="collisionResponse-toggle" disabled>
+                    </div>
+                </div>
+                <div class="right-text-field">
+                    <div class="right-title title-small">Velocity Vectors:</div>
+                    <div id="velocity-vectors-container">
+                        <input type="radio" id="velocity-vectors-off" class="simple-radio block-editable radio-filled" value="off" name="velocity-radio" disabled>
+                        <input type="radio" id="velocity-vectors-single" class="simple-radio block-editable radio-filled" value="single" name="velocity-radio" disabled>
+                        <input type="radio" id="velocity-vectors-all" class="simple-radio block-editable radio-filled" value="all" name="velocity-radio" disabled>
+                        <span>Off</span>
+                        <span>Single</span>
+                        <span>All</span>
+                    </div>
+                </div>
+                <div class="right-text-field">
+                    <div class="right-title title-small">Force Vectors:</div>
+                    <div id="force-vectors-container">
+                        <input type="radio" id="force-vectors-off" class="simple-radio block-editable radio-filled" value="off" name="force-radio" disabled>
+                        <input type="radio" id="force-vectors-single" class="simple-radio block-editable radio-filled" value="single" name="force-radio" disabled>
+                        <input type="radio" id="force-vectors-all" class="simple-radio block-editable radio-filled" value="all" name="force-radio" disabled>
+                        <span>Off</span>
+                        <span>Single</span>
+                        <span>All</span>
                     </div>
                 </div>
             </div>
@@ -140,55 +187,81 @@
         <canvas id="viewportCanvas"></canvas>
         <div id="settings-overlay">
             <div id="settings-box">
-                <button class="close-button icon-buttons big-icon-buttons" style="visibility: inherit;" id="close-settings"></button>
-                <span class="title">Settings:</span>
                 <div class="settings-row">
-                    <span class="chapter">Theme:</span>
-                    <button id="light-theme-button"
-                        class="theme-button-unselected"></button>
-                    <button id="dark-theme-button" class="theme-button-selected"></button>
+                    <span class="title">Settings:</span>
+                    <button class="close-button icon-buttons big-icon-buttons" style="visibility: inherit;" id="close-settings"></button>
+                </div>
+                <div class="settings-row">
                     <span class="chapter">Background Color:</span>
-                    <input type="color" value="#ffffff" id="background-color-picker" class="color-picker">
+                    <input type="color" value="#00ffff" id="background-color-picker" class="color-picker">
+                    <span class="chapter">Theme:</span>
+                    <div id="theme-container">
+                        <input type="radio" id="light-theme-button" class="simple-radio block-editable radio-surround" value="light" name="theme-radio">
+                        <input type="radio" id="dark-theme-button" class="simple-radio block-editable radio-surround" value="dark" name="theme-radio">
+                        <input type="radio" id="midnight-theme-button" class="simple-radio block-editable radio-surround" value="midnight" name="theme-radio">
+                        <input type="radio" id="custom-theme-button" class="simple-radio block-editable radio-surround" value="custom" name="theme-radio">
+                        <span>Light</span>
+                        <span>Dark</span>
+                        <span>Midnight</span>
+                        <span>Custom</span>
+                    </div>
+                    <div id="custom-grid-container">
+                        <input type="color" id="custom-primary-color-picker" class="color-picker" value="#ff0000">
+                        <input type="color" id="custom-secondary-color-picker" class="color-picker" value="#00ff00">
+                        <span>Primary</span>
+                        <span>Secondary</span>
+                    </div>
                 </div>
                 <div class="settings-row">
                     <span class="chapter">Camera Type:</span>
-                    <span class="chapter-medium">Perpective</span>
-                    <div class="settings-column-small">
-                        <label class="t-toggle">
-                            <input type="checkbox" id="camera-toggle"/>
-                            <span class="t-slider"></span>
-                        </label>
+                    <div id="camera-grid-container">
+                        <input type="radio" id="orthographic-button" class="simple-radio block-editable radio-filled" value="orthographic" name="camera-radio">
+                        <input type="radio" id="perspective-button" class="simple-radio block-editable radio-filled" value="perspective" name="camera-radio" checked>
+                        <span>Orthographic</span>
+                        <span>Perpective</span>
                     </div>
-                    <span class="chapter-medium">Orthographic</span>
-                    
-                    <span class="chapter">Camera Field of View:</span>
-                    <input type="range" name="fov-slider" id="fov-slider" min="20" max="110" style="width: 100px;">
+                    <div id="fov-grid-container">
+                        <span class="chapter" id="fov-chapter">Camera Field of View:</span>
+                        <input type="range" name="fov-slider" id="fov-slider" min="20" max="110" style="width: 100px;" value="45">
+                        <span>Field of View</span>
+                        <input type="text" placeholder="45" class="text-editable" id="fov-text">
+                    </div>
                 </div>
                 <div class="settings-row">
                     <span class="chapter">Time Step:</span>
-                    <input type="text" class="small-text-editable" id="time-step-editable">
+                    <input type="text" class="text-editable" id="time-step-editable">
                     <span class="chapter">Grid:</span>
-                    <span class="chapter-medium">X:</span>
-                    <div class="settings-column-small">
-                        <label class="t-toggle">
-                            <input type="checkbox" id="grid-x-toggle"/>
-                            <span class="t-slider"></span>
-                        </label>
+                    <div class="checklist">
+                        <span class="chapter-medium">X:</span>
+                        <input type="checkbox" class="simple-checkmark">
                     </div>
-                    <span class="chapter-medium">Y:</span>
-                    <div class="settings-column-small">
-                        <label class="t-toggle">
-                            <input type="checkbox" id="grid-y-toggle"/>
-                            <span class="t-slider"></span>
-                        </label>
+                    <div class="checklist">
+                        <span class="chapter-medium">Y:</span>
+                        <input type="checkbox" class="simple-checkmark">
                     </div>
-                    <span class="chapter-medium">Z:</span>
-                    <div class="settings-column-small">
-                        <label class="t-toggle">
-                            <input type="checkbox" id="grid-z-toggle"/>
-                            <span class="t-slider"></span>
-                        </label>
+                    <div class="checklist">
+                        <span class="chapter-medium">Z:</span>
+                        <input type="checkbox" class="simple-checkmark">
                     </div>
+                    <div class="checklist">
+                        <span class="chapter">Show Framerate:</span>
+                        <input type="checkbox" class="simple-checkmark" id="fps-toggle">
+                    </div>
+                </div>
+                <div class="settings-row">
+                    
+                </div>
+                <div class="settings-row">
+                    <a id="download-log" style="display:none"></a>
+                    <span class="chapter">Log</span>
+                    <button id="print-log" class="simple-button">Print</button>
+                    <button id="clear-log" class="simple-button">Clear</button>
+                    <span id="timesteps-span">Print every <input type="text" placeholder="0" class="text-editable" id="print-timestep"> timesteps</span>
+                    <div id="log" style="overflow: auto;"></div>
+                    <button id="download-long-json" class="simple-button">Download long json</button>
+                    <button id="download-current-json" class="simple-button">Download current json</button>
+                    <button id="download-long-txt" class="simple-button">Download long txt</button>
+                    <button id="download-current-txt" class="simple-button">Download current txt</button>
                 </div>
             </div>
         </div>

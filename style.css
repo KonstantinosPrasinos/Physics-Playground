@@ -1,6 +1,6 @@
 :root {
-    --primary-color: #1C212E;
-    --secondary-color: #f1f2f6;
+    --primary-color: #222831;
+    --secondary-color: #EEEEEE;
     --theme: 'dark';
 }
 body {
@@ -26,21 +26,6 @@ button {
     cursor: pointer;
 }
 /* Random Universal */
-.title {
-    font-size: 30px;
-}
-.settings-row {
-    margin-top: 50px;
-    height: 5%;
-}
-.chapter {
-    font-size: 20px;
-    margin-right: 10px;
-    margin-left: 10px;
-}
-.chapter-medium{
-    font-size: 16px;
-}
 
 /* Basic UI Elements */
 #left-ui {
@@ -202,10 +187,11 @@ button {
     /* right: 190px;
     top: 4px */
 }
-#top-mode {
+.top-field-text {
     position: relative;
-    top: -5px;
+    vertical-align: middle;
 }
+
 
 /* Right UI */
 
@@ -214,23 +200,36 @@ button {
     padding-top: 10px;
     position: absolute;
     width: 100%;
-    height: 50%;
+    height: 72%;
 }
 #right-ui-items-list {
     opacity: 0;
     position: absolute;
     width: 100%;
-    height: 50%;
-    top: 50%;
+    height: 28%;
+    top: 72%;
 }
-.color-picker {
+input[type=color]{
     opacity: inherit;
     position: relative;
     border: hidden;
     background-color: rgba(255, 255, 255, 0);
-    /* float: right; */
     top: 0px;
     margin-left: 15px;
+    border: 1px solid var(--secondary-color);
+    border-radius: 0.5em;
+}
+input:hover{
+    cursor: pointer;
+}
+input[type=text]:hover{
+    cursor: text;
+}
+input[type=text]:hover:disabled{
+    cursor: not-allowed;
+}
+input:disabled{
+    cursor: not-allowed;
 }
 #right-features-items-separator {
     opacity: inherit;
@@ -245,6 +244,7 @@ button {
     width: calc(100% - 10px);
     height: 88%;
     border-radius: 8px;
+    overflow: auto;
 }
 .right-ui-hr {
     opacity: inherit;
@@ -327,7 +327,7 @@ button {
     display: block;
     text-align: center;
 }
-#right-ui-rotation {
+.right-text-field {
     padding: 10px;
     font-size: 12px;
 }
@@ -337,7 +337,7 @@ button {
     text-align: center;
     margin-bottom: 5px;
 }
-.right-rotation-field {
+.right-input-field {
     width: 32%;
     display: inline-block;
 }
@@ -372,33 +372,28 @@ button {
     background-color: var(--primary-color);
     border-radius: 8px;
     padding: 20px;
+    display: grid;
+    grid-template-rows: 5% 5% 5% 5% 5% calc(75% - 160px);
+    row-gap: 30px;
 }
-#dark-theme-button {
-    background-color: #1C212E;
-    top: 0;
+.radio-button{
     left: 0;
+    border-radius: 10px;
+    position: relative;
+}
+.radio-big {
+    top: 6px;
     height: 32px;
     width: 32px;
-    border-radius: 50%;
     margin-left: 10px;
-    position: relative;
-    top: 6px;
 }
-#light-theme-button {
-    background-color: #f1f2f6;
-    top: 0;
-    left: 0;
+
+.radio-small {
+    top: 0px;
     height: 32px;
     width: 32px;
-    border-radius: 50%;
     margin-left: 10px;
-    position: relative;
-    top: 6px;
-}
-.theme-button-selected {
-    border-color: orange;
-    border-width: 2px;
-    border-style: solid;
+    margin-right: 9px;
 }
 .theme-button-unselected {
     border-color: #999;
@@ -412,17 +407,11 @@ button {
     border-radius: 50%;
     border: 2px solid #999;
 }
-.settings-row input {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    height: 30px;
-    width: 30px;
-    margin: 0px;
-}
-.settings-row input:checked {
-    border: 2px solid orange;
-}
+
+/* .simple-checkmark:after{
+    content: "";
+    display: none;
+} */
 
 /* (A) HIDE DEFAULT CHECKBOX */
 .t-toggle input { display: none; }
@@ -466,4 +455,239 @@ button {
     display: inline-block;
     height: 80%;
     width: 10%;
+}
+
+/* Final Product */
+
+input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+.text-editable{
+    height: 1em;
+    width: 2em;
+    text-align: center;
+    border-width: 0 0 2px 0;
+    background-color: var(--primary-color);
+    border-bottom-color: var(--secondary-color);
+    color: var(--secondary-color);
+}
+.checklist{
+    display: inline-block;
+    margin-right: 1em;
+}
+.simple-checkmark {
+    height: 2em;
+    width: 2em;
+    margin: 0;
+    border: 0.125em solid var(--secondary-color);
+    border-radius: 0.4em;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.simple-checkmark:checked{
+    background-color: #fd7014;
+    box-shadow: 0 0 0 0.25em inset var(--primary-color);
+}
+.simple-checkmark:hover{
+    filter: brightness(0.95);
+}
+.simple-radio{
+    height: 2em;
+    width: 2em;
+    margin: 0;
+    border: 0.125em solid var(--secondary-color);
+    border-radius: 0.4em;
+    vertical-align: middle;
+    cursor: pointer;
+}
+.radio-surround:checked{
+    border-color: #fd7014;
+}
+.radio-filled:checked{
+    background-color: #fd7014;
+    box-shadow: 0 0 0 0.25em inset;
+}
+
+
+.title {
+    font-size: 30px;
+}
+
+#log {
+    height: 80%;
+    border: 1px solid var(--secondary-color);
+    border-radius: 10px;
+    margin: 10px 0 10px 0;
+    padding: 5px;
+    backdrop-filter: brightness(0.85);
+}
+::-webkit-scrollbar{
+    width: 7px;
+}
+::-webkit-scrollbar-thumb{
+    background-color: var(--secondary-color);
+    border-radius: 10px;
+}
+#timesteps-span{
+    float: right;
+}
+.simple-button{
+    border-radius: 5px;
+    background-color: var(--primary-color);
+    border: 1px solid var(--secondary-color);
+    color: var(--secondary-color);
+    float: right;
+    margin-left: 10px;
+    cursor: pointer;
+}
+::-webkit-scrollbar-thumb:hover{
+    filter: brightness(0.85);
+}
+.chapter {
+    font-size: 20px;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+.chapter-medium{
+    margin-right: 0.5em;
+    font-size: 16px;
+}
+.block-editable{
+    margin-left: 0.3em;
+}
+#theme-container{
+    display: inline-grid;
+    grid-template-columns: auto auto auto auto;
+    column-gap: 1em;
+    text-align: center;
+}
+#theme-container *{
+    margin: auto;
+}
+#dark-theme-button {
+    background-color: #222831;
+}
+#light-theme-button {
+    background-color: #EEEEEE;
+}
+#midnight-theme-button {
+    background-color: #000000;
+}
+#custom-theme-button {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 1) 0%,
+        rgba(255, 154, 0, 1) 10%,
+        rgba(208, 222, 33, 1) 20%,
+        rgba(79, 220, 74, 1) 30%,
+        rgba(63, 218, 216, 1) 40%,
+        rgba(47, 201, 226, 1) 50%,
+        rgba(28, 127, 238, 1) 60%,
+        rgba(95, 21, 242, 1) 70%,
+        rgba(186, 12, 248, 1) 80%,
+        rgba(251, 7, 217, 1) 90%,
+        rgba(255, 0, 0, 1) 100%
+    );
+}
+#custom-grid-container {
+    font-size: 12px;
+    display: inline-grid;
+    grid-template-columns: auto auto;
+    column-gap: 1em;
+    text-align: center;
+    margin-left: 10px;
+    border: 1px solid var(--secondary-color);
+    border-radius: 5px;
+    padding: 5px;
+    opacity: 0;
+}
+#custom-grid-container * {
+    margin: auto;
+}
+
+#camera-grid-container{
+    display: inline-grid;
+    grid-template-columns: auto auto;
+    column-gap: 1em;
+    text-align: center;
+}
+#camera-grid-container *{
+    margin: auto;
+}
+
+#fov-grid-container {
+    display: inline-grid;
+    grid-template-columns: auto auto auto;
+    column-gap: 1em;
+    text-align: center;
+    border: 1px solid var(--secondary-color);
+    border-radius: 5px;
+    padding: 5px;
+    margin-left: 10px;
+}
+
+#velocity-vectors-container{
+    display: inline-grid;
+    grid-template-columns: auto auto auto;
+    column-gap: 3em;
+    text-align: center;
+}
+#velocity-vectors-container *{
+    margin: auto;
+}
+
+#force-vectors-container{
+    display: inline-grid;
+    grid-template-columns: auto auto auto;
+    column-gap: 3em;
+    text-align: center;
+}
+#force-vectors-container *{
+    margin: auto;
+}
+#fov-text{
+    grid-row-start: 1;
+    grid-row-end: 3;
+    grid-column-start: 3;
+}
+#fov-grid-container *{
+    margin: auto;
+}
+#fov-chapter{
+    grid-row-start: 1;
+    grid-row-end: 3;
+}
+#fov-slider{
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: var(--primary-color);
+    border: 1px solid var(--secondary-color);
+    border-radius: 1em;
+}
+#fov-slider::-webkit-slider-thumb{
+    -webkit-appearance: none;
+    appearance: none;
+    height: 1em;
+    width: 1em;
+    background: var(--secondary-color);
+    border-radius: 1em
+}
+#fov-slider::-moz-range-thumb{
+    height: 1em;
+    width: 1em;
+    background: var(--secondary-color);
+    border-radius: 1em
+}
+
+#wireframe-toggle {
+    margin-left: 2em;
+}
+
+.inline-checkbox{
+    margin-left: 0.5em;
 }
