@@ -806,3 +806,5 @@ transformControls.addEventListener("change", (event) => {
 });
 
 transformControls.addEventListener("mouseUp", setRightParameters);
+
+document.getElementById("background-color-picker").value = `#${renderer.getClearColor().getHexString()}`;
