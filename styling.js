@@ -1,6 +1,6 @@
-import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer, updateVectors, world, printToLog, generateJSON, setCamera, rewindBoxes, toggleStats} from '/main.js'
+import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer, updateVectors, world, printToLog, generateJSON, setCamera, rewindBoxes, toggleStats, changeTimeStep} from '/main.js'
 
-let tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark', printPerSteps = 0;
+let tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark', printPerSteps = 0, timeStepStr = '1/60';
 
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
@@ -808,3 +808,71 @@ transformControls.addEventListener("change", (event) => {
 transformControls.addEventListener("mouseUp", setRightParameters);
 
 document.getElementById("background-color-picker").value = `#${renderer.getClearColor().getHexString()}`;
+
+document.getElementById("time-step-editable").addEventListener("keypress", (event) => {
+    if (['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '/', '*', '%', '+', '-'].indexOf(event.key) === -1) {
+        event.preventDefault();
+    }
+})
+
+document.getElementById("time-step-editable").addEventListener("blur", (event) => {
+    if (event.target.value.length != 0){
+        timeStepStr = event.target.value;
+        changeTimeStep(eval(timeStepStr));
+    }
+})
+
+class Error {
+    constructor(type, msg) {
+        this.type = type;
+        this.msg = msg;
+    }
+}
+
+let errors = [];
+
+function initStyling(){
+    document.getElementById("time-step-editable").placeholder = timeStepStr;
+}
+
+function closeError(){
+    console.log("counter");
+    let errorPopup = document.getElementById("error-popup");
+    clearTimeout(temp);
+    function hideError(){
+        errorPopup.style.visibility = "hidden";
+        errors.shift();
+        console.log(errors.length);
+        if (errors.length > 0) {
+            console.log(errors[0].msg);
+            createError(errors[0], false);
+        }
+    }
+    gsap.to(errorPopup, {duration: 0.2, opacity: 0, onComplete: hideError});
+}
+
+let temp;
+function createError(error, bool){
+    if (bool){
+        errors.push(error);
+    }
+    let errorPopup = document.getElementById("error-popup");
+    if (window.getComputedStyle(errorPopup).visibility == "hidden"){        
+        if (errors[0].type == "Error") {
+            errorPopup.style.borderColor = "#ff0000";
+        } else {
+            errorPopup.style.borderColor = "#fd7014";
+        }
+        document.getElementById("error-popup-text").innerHTML = errors[0].type.concat(": ", errors[0].msg);
+        errorPopup.style.visibility = "visible";
+        gsap.to(errorPopup, { duration: 0.2, opacity: 1 });
+        temp = setTimeout(closeError, 2000);
+    }
+}
+document.getElementById("close-error-popup").onclick = closeError;
+
+initStyling();
+createError(new Error("Warning", "hello this is a warning"), true);
+createError(new Error("Error", "hello this is an error"), true);
+createError(new Error("Error", "hello this is an error 2: electric boogaloo"), true);
+createError(new Error("Warning", "hello this is a warning 2: you thought it was going to be another electric boogaloo but it was I, DIO"), true);

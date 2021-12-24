@@ -110,10 +110,8 @@ function animate() {
 //General Functions
 
 function toggleStats(bool){
-    console.log(bool);
     statsOn = bool
     if (bool){
-        console.log("sup");
         document.body.appendChild(stats.dom);
     } else {
         document.body.removeChild(stats.dom);
