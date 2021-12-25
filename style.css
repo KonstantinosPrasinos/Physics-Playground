@@ -692,7 +692,7 @@ input {
     margin-left: 0.5em;
 }
 
-#error-popup{
+#notification-popup{
     position: fixed;
     display: inline-block;
     z-index: 5;
@@ -709,11 +709,11 @@ input {
     opacity: 0;
     visibility: hidden;
 }
-#error-popup-text{
+#notification-popup-text{
     width: 90%;
     margin: 0;
 }
-#close-error-popup {
+#close-notification-popup {
     position: fixed;
     top: 15px;
     right: calc(50% - 260px);
