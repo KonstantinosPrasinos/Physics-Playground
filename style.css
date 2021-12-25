@@ -475,7 +475,8 @@ input {
     color: var(--secondary-color);
 }
 .checklist{
-    display: inline-block;
+    display: flex;
+    align-items: center;
     margin-right: 1em;
 }
 .simple-checkmark {
@@ -717,4 +718,11 @@ input {
     position: fixed;
     top: 15px;
     right: calc(50% - 260px);
+}
+.settings-row {
+    display: flex;
+    align-items: center;
+}
+#log-container {
+    display: block;
 }

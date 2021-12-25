@@ -1,6 +1,6 @@
 import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer, updateVectors, world, printToLog, generateJSON, setCamera, rewindBoxes, toggleStats, changeTimeStep} from '/main.js'
 
-let tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark', printPerSteps = 0, timeStepStr = '1/60';
+let tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark', printPerSteps = 0, timeStepStr = '1/60', showNotifications = true;
 
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
@@ -26,32 +26,42 @@ let canvas = document.getElementById("viewportCanvas");
 
 //Local Storage Stuff
 
-if (!localStorage.theme) {
-    localStorage.setItem("theme", "dark");
-} else {
-    let theme = localStorage.getItem("theme");
-    switch (theme) {
-        case "dark":
-            document.getElementById("dark-theme-button").checked = true;
-            break;
-        case "light":
-            document.getElementById("light-theme-button").checked = true;
-            break;
-        case "midnight":
-            document.getElementById("midnight-theme-button").checked = true;
-            break;
-        case "custom":
-            document.getElementById("custom-theme-button").checked = true;
-        default:
-            break;
+function initStyling(){
+    document.getElementById("time-step-editable").placeholder = timeStepStr;
+    if (!localStorage.theme) {
+        localStorage.setItem("theme", "dark");
+    } else {
+        let theme = localStorage.getItem("theme");
+        switch (theme) {
+            case "dark":
+                document.getElementById("dark-theme-button").checked = true;
+                break;
+            case "light":
+                document.getElementById("light-theme-button").checked = true;
+                break;
+            case "midnight":
+                document.getElementById("midnight-theme-button").checked = true;
+                break;
+            case "custom":
+                document.getElementById("custom-theme-button").checked = true;
+            default:
+                break;
+        }
+        setTheme(theme);
     }
-    setTheme(theme);
+    
+    if (!localStorage.tutorialCompleted) {
+        //Start tutorial
+        localStorage.setItem("tutorialCompleted", "true");
+    }
+    
+    if (!localStorage.showNotifications){
+        localStorage.setItem("showNotifications", showNotifications);
+    } else {
+        showNotifications = localStorage.getItem("showNotifications");
+    }
 }
 
-if (!localStorage.tutorialCompleted) {
-    //Start tutorial
-    localStorage.setItem("tutorialCompleted", "true");
-}
 
 //General Functions
 document.getElementById("print-timestep").addEventListener("blur", () => {
@@ -106,10 +116,6 @@ function clearLog(){
     }
 }
 
-function createLog(){
-    document.getElementById("log").innerHTML = "";
-    printToLog();
-}
 document.getElementById("print-log").onclick = printToLog;
 document.getElementById("clear-log").onclick = clearLog;
 document.getElementById("download-long-json").onclick = downloadLongLogJson;
@@ -389,8 +395,15 @@ document.getElementById("settings-overlay").addEventListener('click', (event) =>
 //Other Event Listeners
 
 function blurFocusedElement(event){
-    if (event.key === 'Enter' && ((!isNaN(document.activeElement.value) && document.activeElement.value.length != 0) || simulation.itemSelected == -1)){
-        document.activeElement.blur();
+    if (event.key === 'Enter'){
+        if (isNaN(document.activeElement.value)){
+            createNotification(notificationList.inputNan, true);
+        } else if (document.activeElement.value.length == 0) {
+            createNotification(notificationList.inputEmpty, true);
+        } else {
+            document.activeElement.blur();
+        }
+        
     }
 }
 
@@ -534,6 +547,7 @@ const depth = document.getElementById("depth-input");
 width.addEventListener("blur", () => {
     if ((width.value.length == 0 || isNaN(width.value)) && simulation.itemSelected > -1) {
         width.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.scale.x = parseFloat(width.value) / simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.width;
         synchronizeSize();
@@ -543,6 +557,7 @@ width.addEventListener("blur", () => {
 height.addEventListener("blur", () => {
     if ((height.value.length == 0 || isNaN(height.value)) && simulation.itemSelected > -1) {
         height.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.scale.y = parseFloat(height.value) / simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.height;
         synchronizeSize();
@@ -552,6 +567,7 @@ height.addEventListener("blur", () => {
 depth.addEventListener("blur", () => {
     if ((depth.value.length == 0 || isNaN(depth.value)) && simulation.itemSelected > -1) {
         depth.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.scale.z = parseFloat(depth.value) / simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.depth;
         synchronizeSize();
@@ -568,6 +584,7 @@ const zPos = document.getElementById("position.z-input");
 xPos.addEventListener("blur", () => {
     if ((xPos.value.length == 0 || isNaN(xPos.value)) && simulation.itemSelected > -1) {
         xPos.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.position.x = parseFloat(xPos.value);
         synchronizePositions();
@@ -577,6 +594,7 @@ xPos.addEventListener("blur", () => {
 yPos.addEventListener("blur", () => {
     if ((yPos.value.length == 0 || isNaN(yPos.value)) && simulation.itemSelected > -1) {
         yPos.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.position.y = parseFloat(yPos.value);
         synchronizePositions();
@@ -586,6 +604,7 @@ yPos.addEventListener("blur", () => {
 zPos.addEventListener("blur", () => {
     if ((zPos.value.length == 0 || isNaN(zPos.value)) && simulation.itemSelected > -1) {
         zPos.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.position.z = parseFloat(zPos.value);
         synchronizePositions();
@@ -601,6 +620,7 @@ const zVel = document.getElementById("velocity.z-input");
 xVel.addEventListener("blur", () => {
     if ((xVel.value.length == 0 || isNaN(xVel.value)) && simulation.itemSelected > -1) {
         xVel.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.velocity.x = parseFloat(xVel.value);
     }
@@ -609,6 +629,7 @@ xVel.addEventListener("blur", () => {
 yVel.addEventListener("blur", () => {
     if ((yVel.value.length == 0 || isNaN(yVel.value)) && simulation.itemSelected > -1) {
         yVel.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.velocity.y = parseFloat(yVel.value);
     }
@@ -617,6 +638,7 @@ yVel.addEventListener("blur", () => {
 zVel.addEventListener("blur", () => {
     if ((zVel.value.length == 0 || isNaN(zVel.value)) && simulation.itemSelected > -1) {
         zVel.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.velocity.z = parseFloat(zVel.value);
     }
@@ -631,6 +653,7 @@ const zRot = document.getElementById("rotation.z-input");
 xRot.addEventListener("blur", () => {
     if ((xRot.value.length == 0 || isNaN(xRot.value)) && simulation.itemSelected > -1) {
         xRot.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.rotation.x = parseFloat(xRot.value);
         synchronizeRotation();
@@ -640,6 +663,7 @@ xRot.addEventListener("blur", () => {
 yRot.addEventListener("blur", () => {
     if ((yRot.value.length == 0 || isNaN(yRot.value)) && simulation.itemSelected > -1) {
         yRot.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.rotation.y = parseFloat(yRot.value);
         synchronizeRotation();
@@ -649,6 +673,7 @@ yRot.addEventListener("blur", () => {
 zRot.addEventListener("blur", () => {
     if ((zRot.value.length == 0 || isNaN(zRot.value)) && simulation.itemSelected > -1) {
         zRot.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.rotation.z = parseFloat(zRot.value);
         synchronizeRotation();
@@ -664,6 +689,7 @@ const zAng = document.getElementById("angularVelocity.y-input");
 xAng.addEventListener("blur", () => {
     if ((xAng.value.length == 0 || isNaN(xAng.value)) && simulation.itemSelected > -1) {
         xAng.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.angularVelocity.x = parseFloat(xAng.value);
     }
@@ -672,6 +698,7 @@ xAng.addEventListener("blur", () => {
 yAng.addEventListener("blur", () => {
     if ((yAng.value.length == 0 || isNaN(yAng.value)) && simulation.itemSelected > -1) {
         yAng.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.angularVelocity.y = parseFloat(yAng.value);
     }
@@ -680,6 +707,7 @@ yAng.addEventListener("blur", () => {
 zAng.addEventListener("blur", () => {
     if ((zAng.value.length == 0 || isNaN(zAng.value)) && simulation.itemSelected > -1) {
         zAng.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.angularVelocity.z = parseFloat(zAng.value);
     }
@@ -694,6 +722,7 @@ const zFor = document.getElementById("force.z-input");
 xFor.addEventListener("blur", () => {
     if ((xFor.value.length == 0 || isNaN(xFor.value)) && simulation.itemSelected > -1) {
         xFor.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.force.x = parseFloat(xFor.value);
     }
@@ -702,6 +731,7 @@ xFor.addEventListener("blur", () => {
 yFor.addEventListener("blur", () => {
     if ((yFor.value.length == 0 || isNaN(yFor.value)) && simulation.itemSelected > -1) {
         yFor.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.force.y = parseFloat(yFor.value);
     }
@@ -710,6 +740,7 @@ yFor.addEventListener("blur", () => {
 zFor.addEventListener("blur", () => {
     if ((zFor.value.length == 0 || isNaN(zFor.value)) && simulation.itemSelected > -1) {
         zFor.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.force.z = parseFloat(zFor.value);
     }
@@ -720,6 +751,7 @@ const massInput = document.getElementById("mass-input");
 massInput.addEventListener("blur", () => {
     if ((massInput.value.length == 0 || isNaN(massInput.value)) && simulation.itemSelected > -1) {
         massInput.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.mass = parseFloat(massInput.value);
         simulation.boxes[simulation.itemSelected].body.updateMassProperties();
@@ -831,10 +863,6 @@ class Notification {
 
 let notifications = [];
 
-function initStyling(){
-    document.getElementById("time-step-editable").placeholder = timeStepStr;
-}
-
 function closeNotification(){
     let notificationPopup = document.getElementById("notification-popup");
     clearTimeout(tempTimeout);
@@ -850,29 +878,31 @@ function closeNotification(){
 
 let tempTimeout, tempGSAP = gsap.timeline();
 function createNotification(notification, bool){
-    if (bool){
-        notifications.push(notification);
-    }
-    let notificationPopup = document.getElementById("notification-popup");
-    if (window.getComputedStyle(notificationPopup).visibility == "hidden"){       
-        switch (notifications[0].type) {
-            case "Error":
-                notificationPopup.style.borderColor = "#ff0000";
-                break;
-            case "Warning":
-                notificationPopup.style.borderColor = "#fd7014";
-                break;
-            case "Tutorial":
-                notificationPopup.style.borderColor = "#3498db";
-                break;
-            default:
-                notificationPopup.style.borderColor = "var(--secondary-color)"
-                break;
-        } 
-        document.getElementById("notification-popup-text").innerHTML = notifications[0].type.concat(": ", notifications[0].msg);
-        notificationPopup.style.visibility = "visible";
-        tempGSAP.to(notificationPopup, { duration: 0.2, opacity: 1 });
-        tempTimeout = setTimeout(closeNotification, 5000);
+    if (showNotifications){
+        if (bool){
+            notifications.push(notification);
+        }
+        let notificationPopup = document.getElementById("notification-popup");
+        if (window.getComputedStyle(notificationPopup).visibility == "hidden"){       
+            switch (notifications[0].type) {
+                case "Error":
+                    notificationPopup.style.borderColor = "#ff0000";
+                    break;
+                case "Warning":
+                    notificationPopup.style.borderColor = "#fd7014";
+                    break;
+                case "Tutorial":
+                    notificationPopup.style.borderColor = "#3498db";
+                    break;
+                default:
+                    notificationPopup.style.borderColor = "var(--secondary-color)"
+                    break;
+            } 
+            document.getElementById("notification-popup-text").innerHTML = notifications[0].type.concat(": ", notifications[0].msg);
+            notificationPopup.style.visibility = "visible";
+            tempGSAP.to(notificationPopup, { duration: 0.2, opacity: 1 });
+            tempTimeout = setTimeout(closeNotification, 3000);
+        }
     }
 }
 
@@ -881,16 +911,21 @@ function handleMouseEnter(){
 }
 
 function handleMouseLeave(){
-    tempTimeout = setTimeout(closeNotification, 5000);
+    tempTimeout = setTimeout(closeNotification, 3000);
 }
 
 document.getElementById("close-notification-popup").onclick = closeNotification;
 document.getElementById("notification-popup").onmouseenter = handleMouseEnter;
 document.getElementById("notification-popup").onmouseleave = handleMouseLeave;
 
+let notificationList = {
+    inputEmpty: new Notification("Warning", "this field can't be empty"),
+    inputNan: new Notification("Warning", "this field must be a number")
+}
+
+document.getElementById("notification-toggle").addEventListener("click", (event) => {
+    showNotifications = event.target.checked;
+    localStorage.setItem("showNotifications", showNotifications);
+});
+
 initStyling();
-createNotification(new Notification("Warning", "hello this is a warning"), true);
-createNotification(new Notification("Error", "hello this is an error"), true);
-createNotification(new Notification("Tutorial", "test tutorial"), true);
-createNotification(new Notification("Error", "hello this is an error 2: electric boogaloo"), true);
-createNotification(new Notification("Warning", "hello this is a warning 2: you thought it was going to be another electric boogaloo but it was I, DIO"), true);
