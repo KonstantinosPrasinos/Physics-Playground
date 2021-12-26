@@ -166,10 +166,10 @@ button {
     position: absolute;
 }
 .small-icon-buttons{
-    height: 20px;
-    width: 20px;
-    background-size: 20px;
-    position: relative;
+    height: 1.5em;
+    width: 1.5em;
+    background-size: 1.5em;
+    position: absolute;
 }
 .icon-buttons:active{
     background-color: gray;
@@ -725,4 +725,15 @@ input {
 }
 #log-container {
     display: block;
+}
+#json-input{
+    display: none;
+}
+#upload-button {
+    -webkit-mask-image:  url(/assets/upload.svg);
+    mask-image: url(assets/upload.svg);
+    margin-left: 5px;
+}
+#upload-button:hover{
+    cursor: pointer;
 }
