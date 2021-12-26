@@ -86,6 +86,10 @@ function downloadCurrentLogJson(){
     }
 }
 
+function downloadSetupLogJson(){
+    
+}
+
 
 function downloadTxt(text){
     let log = "data:text;charset=utf-8," + encodeURI(text);
@@ -878,30 +882,32 @@ function closeNotification(){
 
 let tempTimeout, tempGSAP = gsap.timeline();
 function createNotification(notification, bool){
-    if (showNotifications){
-        if (bool){
-            notifications.push(notification);
-        }
-        let notificationPopup = document.getElementById("notification-popup");
-        if (window.getComputedStyle(notificationPopup).visibility == "hidden"){       
-            switch (notifications[0].type) {
-                case "Error":
-                    notificationPopup.style.borderColor = "#ff0000";
-                    break;
-                case "Warning":
-                    notificationPopup.style.borderColor = "#fd7014";
-                    break;
-                case "Tutorial":
-                    notificationPopup.style.borderColor = "#3498db";
-                    break;
-                default:
-                    notificationPopup.style.borderColor = "var(--secondary-color)"
-                    break;
-            } 
-            document.getElementById("notification-popup-text").innerHTML = notifications[0].type.concat(": ", notifications[0].msg);
-            notificationPopup.style.visibility = "visible";
-            tempGSAP.to(notificationPopup, { duration: 0.2, opacity: 1 });
-            tempTimeout = setTimeout(closeNotification, 3000);
+    if (showNotifications) {
+        if (notifications.length < 2 || (notification.length > 1 && notification.msg != notifications[notifications.length - 1].msg)) {
+            if (bool) {
+                notifications.push(notification);
+            }
+            let notificationPopup = document.getElementById("notification-popup");
+            if (window.getComputedStyle(notificationPopup).visibility == "hidden") {
+                switch (notifications[0].type) {
+                    case "Error":
+                        notificationPopup.style.borderColor = "#ff0000";
+                        break;
+                    case "Warning":
+                        notificationPopup.style.borderColor = "#fd7014";
+                        break;
+                    case "Tutorial":
+                        notificationPopup.style.borderColor = "#3498db";
+                        break;
+                    default:
+                        notificationPopup.style.borderColor = "var(--secondary-color)"
+                        break;
+                }
+                document.getElementById("notification-popup-text").innerHTML = notifications[0].type.concat(": ", notifications[0].msg);
+                notificationPopup.style.visibility = "visible";
+                tempGSAP.to(notificationPopup, { duration: 0.2, opacity: 1 });
+                tempTimeout = setTimeout(closeNotification, 3000);
+            }
         }
     }
 }
@@ -920,7 +926,14 @@ document.getElementById("notification-popup").onmouseleave = handleMouseLeave;
 
 let notificationList = {
     inputEmpty: new Notification("Warning", "this field can't be empty"),
-    inputNan: new Notification("Warning", "this field must be a number")
+    inputNan: new Notification("Warning", "this field must be a number"),
+    itemLoading: new Notification("Warning", "the items loaded will not have the same UUID"),
+    invalidFile: new Notification("Error", "the file you have selected is not a valid"),
+    loadFileInfo: new Notification("Tutorial", "only the contents of the fist timestamp are loaded from the file. Note: the items loaded will not have the same uuid as the ones in the file"),
+    emptyFile: new Notification("Error", "the file you have inserted doesn't contain any valid objects"),
+    incompleteLoad: new Notification("Warning", "not all the objects in your file were loaded successfully"),
+    invalidFileType: new Notification("Error", "the file you have selected is not of type json"),
+    noFile: new Notification("Error", "you didn't select any file")
 }
 
 document.getElementById("notification-toggle").addEventListener("click", (event) => {
@@ -929,3 +942,101 @@ document.getElementById("notification-toggle").addEventListener("click", (event)
 });
 
 initStyling();
+
+function loadfromJson(json) {
+    let data = json[0];
+    let nValid = 0;
+    for (let i in data){
+        if (data[i].hasOwnProperty('position') && data[i].hasOwnProperty('size')){
+            if (!isNaN(data[i].position.x) && !isNaN(data[i].position.y) && !isNaN(data[i].position.z) && !isNaN(data[i].size.x) && !isNaN(data[i].size.y) && !isNaN(data[i].size.z)){
+                simulation.createBox(data[i].position.x, data[i].position.y, data[i].position.z, data[i].size.x, data[i].size.y, data[i].size.z);
+                simulation.itemSelected = simulation.boxes.length - 1;
+                synchronizePositions();
+                synchronizeRotation();
+                synchronizeSize();
+                if (data[i].hasOwnProperty('rotation')){
+                    if (isNaN(data[i].position.x) && isNaN(data[i].position.y) && isNaN(data[i].position.z)){
+                        simulation.boxes[simulation.itemSelected].mesh.rotation.set(data[i].position.x, data[i].position.y, data[i].position.z);
+                    }
+                }
+                if (data[i].hasOwnProperty('name')){
+                    simulation.boxes[simulation.itemSelected].mesh.name = data[i].name;
+                }
+                if (data[i].hasOwnProperty('angularVelocity')){
+                    if (!isNaN(data[i].angularVelocity.x)){
+                        simulation.boxes[simulation.itemSelected].body.angularVelocity.x = data[i].angularVelocity.x;
+                    }
+                    if (!isNaN(data[i].angularVelocity.y)){
+                        simulation.boxes[simulation.itemSelected].body.angularVelocity.y = data[i].angularVelocity.y;
+                    }
+                    if (!isNaN(data[i].angularVelocity.z)){
+                        simulation.boxes[simulation.itemSelected].body.angularVelocity.z = data[i].angularVelocity.z;
+                    }
+                }
+                if (data[i].hasOwnProperty('force')){
+                    if (!isNaN(data[i].force.x)){
+                        simulation.boxes[simulation.itemSelected].body.force.x = data[i].force.x;
+                    }
+                    if (!isNaN(data[i].force.y)){
+                        simulation.boxes[simulation.itemSelected].body.force.y = data[i].force.y;
+                    }
+                    if (!isNaN(data[i].force.z)){
+                        simulation.boxes[simulation.itemSelected].body.force.z = data[i].force.z;
+                    }
+                }
+                if (data[i].hasOwnProperty('mass')){
+                    if (!isNaN(data[i].mass)){
+                        simulation.boxes[simulation.itemSelected].body.mass = data[i].mass;
+                    }
+                }
+                simulation.boxes[simulation.itemSelected].body.updateMassProperties();
+                if (data[i].hasOwnProperty('velocity')){
+                    if (!isNaN(data[i].velocity.x)){
+                        simulation.boxes[simulation.itemSelected].body.velocity.x = data[i].velocity.x;
+                    }
+                    if (!isNaN(data[i].velocity.y)){
+                        simulation.boxes[simulation.itemSelected].body.velocity.y = data[i].velocity.y;
+                    }
+                    if (!isNaN(data[i].velocity.z)){
+                        simulation.boxes[simulation.itemSelected].body.velocity.z = data[i].velocity.z;
+                    }
+                }
+                simulation.itemSelected = -1;
+                nValid++;
+            }
+        }
+    }
+    if (!Object.keys(data).length || nValid == 0){
+        createNotification(notificationList.emptyFile, true);
+    } else if (nValid != Object.keys(data).length){
+        createNotification(notificationList.incompleteLoad, true);
+    }
+}
+
+document.getElementById("json-input").onclick = function () {
+    createNotification(notificationList.itemLoading, true);
+}
+
+document.getElementById("json-input").onchange = async function () {
+    const fileList = this.files;
+    if (fileList.length){
+        if (fileList[0].name.slice(fileList[0].name.length - 5, fileList[0].name.length) === '.json'){
+            let fileJson = await fileToJSON(fileList[0]);
+            loadfromJson(fileJson);
+        } else {
+            createNotification(notificationList.invalidFileType, true);
+        }
+    } else {
+        createNotification(notificationList.noFile, true);
+    }
+}
+
+
+async function fileToJSON(file) {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader()
+      fileReader.onload = event => resolve(JSON.parse(event.target.result))
+      fileReader.onerror = error => reject(error)
+      fileReader.readAsText(file)
+    })
+  }
