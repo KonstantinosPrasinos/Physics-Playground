@@ -848,6 +848,7 @@ document.getElementById("background-color-picker").value = `#${renderer.getClear
 document.getElementById("time-step-editable").addEventListener("keypress", (event) => {
     if (['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '/', '*', '%', '+', '-'].indexOf(event.key) === -1) {
         event.preventDefault();
+        createNotification(notificationList.timeStepInput, true);
     }
 })
 
@@ -883,7 +884,7 @@ function closeNotification(){
 let tempTimeout, tempGSAP = gsap.timeline();
 function createNotification(notification, bool){
     if (showNotifications) {
-        if (notifications.length < 2 || (notification.length > 1 && notification.msg != notifications[notifications.length - 1].msg)) {
+        if (notifications.length < 1 || notification.type.concat(": ", notification.msg) != document.getElementById("notification-popup-text").innerHTML) {
             if (bool) {
                 notifications.push(notification);
             }
@@ -925,15 +926,16 @@ document.getElementById("notification-popup").onmouseenter = handleMouseEnter;
 document.getElementById("notification-popup").onmouseleave = handleMouseLeave;
 
 let notificationList = {
-    inputEmpty: new Notification("Warning", "this field can't be empty"),
-    inputNan: new Notification("Warning", "this field must be a number"),
-    itemLoading: new Notification("Warning", "the items loaded will not have the same UUID"),
-    invalidFile: new Notification("Error", "the file you have selected is not a valid"),
-    loadFileInfo: new Notification("Tutorial", "only the contents of the fist timestamp are loaded from the file. Note: the items loaded will not have the same uuid as the ones in the file"),
-    emptyFile: new Notification("Error", "the file you have inserted doesn't contain any valid objects"),
-    incompleteLoad: new Notification("Warning", "not all the objects in your file were loaded successfully"),
-    invalidFileType: new Notification("Error", "the file you have selected is not of type json"),
-    noFile: new Notification("Error", "you didn't select any file")
+    inputEmpty: new Notification("Warning", "this field can't be empty."),
+    inputNan: new Notification("Warning", "this field must be a number."),
+    itemLoading: new Notification("Note", "the items loaded will not have the same UUID. The fields needed to load an object are: position and dimensions."),
+    invalidFile: new Notification("Error", "the file you have selected is not a valid."),
+    loadFileInfo: new Notification("Tutorial", "only the contents of the fist timestamp are loaded from the file. Note: the items loaded will not have the same uuid as the ones in the file."),
+    emptyFile: new Notification("Error", "the file you have inserted doesn't contain any valid objects."),
+    incompleteLoad: new Notification("Warning", "not all the objects in your file were loaded successfully."),
+    invalidFileType: new Notification("Error", "the file you have selected is not of type json."),
+    noFile: new Notification("Error", "you didn't select any file."),
+    timeStepInput: new Notification("Warning", "only numbers and numerical operators are allowed.")
 }
 
 document.getElementById("notification-toggle").addEventListener("click", (event) => {
@@ -947,9 +949,9 @@ function loadfromJson(json) {
     let data = json[0];
     let nValid = 0;
     for (let i in data){
-        if (data[i].hasOwnProperty('position') && data[i].hasOwnProperty('size')){
-            if (!isNaN(data[i].position.x) && !isNaN(data[i].position.y) && !isNaN(data[i].position.z) && !isNaN(data[i].size.x) && !isNaN(data[i].size.y) && !isNaN(data[i].size.z)){
-                simulation.createBox(data[i].position.x, data[i].position.y, data[i].position.z, data[i].size.x, data[i].size.y, data[i].size.z);
+        if (data[i].hasOwnProperty('position') && data[i].hasOwnProperty('dimensions')){
+            if (!isNaN(data[i].position.x) && !isNaN(data[i].position.y) && !isNaN(data[i].position.z) && !isNaN(data[i].dimensions.x) && !isNaN(data[i].dimensions.y) && !isNaN(data[i].dimensions.z)){
+                simulation.createBox(data[i].position.x, data[i].position.y, data[i].position.z, data[i].dimensions.x, data[i].dimensions.y, data[i].dimensions.z);
                 simulation.itemSelected = simulation.boxes.length - 1;
                 synchronizePositions();
                 synchronizeRotation();
@@ -1034,7 +1036,7 @@ document.getElementById("json-input").onchange = async function () {
 
 async function fileToJSON(file) {
     return new Promise((resolve, reject) => {
-        const fileReader = new FileReader()
+        const fileReader = new FileReader();
         fileReader.onload = event => resolve(JSON.parse(event.target.result))
         fileReader.onerror = error => reject(error)
         fileReader.readAsText(file)
