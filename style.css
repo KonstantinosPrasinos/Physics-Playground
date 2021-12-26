@@ -166,9 +166,9 @@ button {
     position: absolute;
 }
 .small-icon-buttons{
-    height: 20px;
-    width: 20px;
-    background-size: 20px;
+    height: 1.5em;
+    width: 1.5em;
+    background-size: 1.5em;
     position: relative;
 }
 .icon-buttons:active{
@@ -356,7 +356,7 @@ input:disabled{
     width: 100%;
     height: 100%;
     position: fixed;
-    z-index: 10;
+    z-index: 4;
     top: 0;
     left: 0;
     /* opacity: 0; */
@@ -475,7 +475,8 @@ input {
     color: var(--secondary-color);
 }
 .checklist{
-    display: inline-block;
+    display: flex;
+    align-items: center;
     margin-right: 1em;
 }
 .simple-checkmark {
@@ -690,4 +691,50 @@ input {
 
 .inline-checkbox{
     margin-left: 0.5em;
+}
+
+#notification-popup{
+    position: fixed;
+    display: inline-block;
+    z-index: 5;
+    width: 500px;
+    background-color: var(--primary-color);
+    top: 10px;
+    left: calc(50% - 250px);
+    border: 2px solid #fd7014;
+    border-radius: 5px;
+    padding: 10px;
+    overflow: auto;
+    max-height: 20%;
+    min-height: 25px;
+    opacity: 0;
+    visibility: hidden;
+}
+#notification-popup-text{
+    width: 90%;
+    margin: 0;
+}
+#close-notification-popup {
+    position: fixed;
+    top: 15px;
+    right: calc(50% - 260px);
+}
+.settings-row {
+    display: flex;
+    align-items: center;
+}
+#log-container {
+    display: block;
+}
+#json-input{
+    display: none;
+}
+#upload-button {
+    -webkit-mask-image:  url(/assets/upload.svg);
+    mask-image: url(assets/upload.svg);
+    margin-left: 5px;
+    position: absolute;
+}
+#upload-button:hover{
+    cursor: pointer;
 }

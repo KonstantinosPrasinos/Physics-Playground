@@ -14,6 +14,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js" integrity="sha512-UxP+UhJaGRWuMG2YC6LPWYpFQnsSgnor0VUF3BHdD83PS/pOpN+FYbZmrYN+ISX8jnvgVUciqP/fILOXDjZSwg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js" integrity="sha512-avLcnGxl5mqAX/wIKERdb1gFNkOLHh2W5JNCfJm5OugpEPBz7LNXJJ3BDjjwO00AxEY1MqdNjtEmiYhKC0ld7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <div id="app">
+        <div id="notification-popup">
+            <button class="close-button icon-buttons big-icon-buttons" style="visibility: inherit; display: inline-block;" id="close-notification-popup"></button>
+            <p id="notification-popup-text"></p>
+        </div>
         <div id="left-ui">
             <button class="left-ui-buttons icon-buttons big-icon-buttons"
                 id="settings-button"></button>
@@ -249,24 +253,35 @@
                     </div>
                 </div>
                 <div class="settings-row">
-                    
+                    <div class="checklist">
+                        <span class="chapter">Show Notifications:</span>
+                        <input type="checkbox" class="simple-checkmark" id="notification-toggle" checked>
+                    </div>
+                    <div class="checklist">
+                        <span class="chapter">Do Tutorial:</span>
+                        <input type="checkbox" class="simple-checkmark" id="tutorial-toggle">
+                        <input type="file" id="json-input">
+                        <span class="chapter">Upload from json: <label for="json-input" class="icon-buttons small-icon-buttons" id="upload-button">Load from json</label></span>
+                        
+                    </div>
                 </div>
-                <div class="settings-row">
+                <div class="settings-row" id="log-container">
                     <a id="download-log" style="display:none"></a>
                     <span class="chapter">Log</span>
                     <button id="print-log" class="simple-button">Print</button>
                     <button id="clear-log" class="simple-button">Clear</button>
                     <span id="timesteps-span">Print every <input type="text" placeholder="0" class="text-editable" id="print-timestep"> timesteps</span>
                     <div id="log" style="overflow: auto;"></div>
-                    <button id="download-long-json" class="simple-button">Download long json</button>
+                    <button id="download-long-json" class="simple-button">Download all timestamps json</button>
                     <button id="download-current-json" class="simple-button">Download current json</button>
-                    <button id="download-long-txt" class="simple-button">Download long txt</button>
+                    <button id="download-long-txt" class="simple-button">Download all timestamps txt</button>
                     <button id="download-current-txt" class="simple-button">Download current txt</button>
                 </div>
             </div>
         </div>
     </div>
     <script src="main.js" type="module"></script>
+    <script src="notifications.js" type="module"></script>
     <script src="styling.js" type="module"></script>
 </body>
 </html>

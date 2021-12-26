@@ -1,6 +1,8 @@
-import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer, updateVectors, world, printToLog, generateJSON, setCamera, rewindBoxes, toggleStats} from '/main.js'
+import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer, updateVectors, world, printToLog, generateJSON, setCamera, rewindBoxes, toggleStats, changeTimeStep} from '/main.js';
 
-let tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark', printPerSteps = 0;
+import {notificationList} from '/notifications.js';
+
+let tutorialCompleted = false, mode = "setup", selectedCursor = "none", ratio = null, rightUIisCollapsed = true, storedTheme = 'dark', printPerSteps = 0, timeStepStr = '1/60', showNotifications = true;
 
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
@@ -26,32 +28,42 @@ let canvas = document.getElementById("viewportCanvas");
 
 //Local Storage Stuff
 
-if (!localStorage.theme) {
-    localStorage.setItem("theme", "dark");
-} else {
-    let theme = localStorage.getItem("theme");
-    switch (theme) {
-        case "dark":
-            document.getElementById("dark-theme-button").checked = true;
-            break;
-        case "light":
-            document.getElementById("light-theme-button").checked = true;
-            break;
-        case "midnight":
-            document.getElementById("midnight-theme-button").checked = true;
-            break;
-        case "custom":
-            document.getElementById("custom-theme-button").checked = true;
-        default:
-            break;
+function initStyling(){
+    document.getElementById("time-step-editable").placeholder = timeStepStr;
+    if (!localStorage.theme) {
+        localStorage.setItem("theme", "dark");
+    } else {
+        let theme = localStorage.getItem("theme");
+        switch (theme) {
+            case "dark":
+                document.getElementById("dark-theme-button").checked = true;
+                break;
+            case "light":
+                document.getElementById("light-theme-button").checked = true;
+                break;
+            case "midnight":
+                document.getElementById("midnight-theme-button").checked = true;
+                break;
+            case "custom":
+                document.getElementById("custom-theme-button").checked = true;
+            default:
+                break;
+        }
+        setTheme(theme);
     }
-    setTheme(theme);
+    
+    if (!localStorage.tutorialCompleted) {
+        //Start tutorial
+        localStorage.setItem("tutorialCompleted", "true");
+    }
+    
+    if (!localStorage.showNotifications){
+        localStorage.setItem("showNotifications", showNotifications);
+    } else {
+        showNotifications = localStorage.getItem("showNotifications");
+    }
 }
 
-if (!localStorage.tutorialCompleted) {
-    //Start tutorial
-    localStorage.setItem("tutorialCompleted", "true");
-}
 
 //General Functions
 document.getElementById("print-timestep").addEventListener("blur", () => {
@@ -74,6 +86,10 @@ function downloadCurrentLogJson(){
     if (simulation.boxes.length){
         downloadJson(JSON.stringify(generateJSON()));
     }
+}
+
+function downloadSetupLogJson(){
+    
 }
 
 
@@ -106,10 +122,6 @@ function clearLog(){
     }
 }
 
-function createLog(){
-    document.getElementById("log").innerHTML = "";
-    printToLog();
-}
 document.getElementById("print-log").onclick = printToLog;
 document.getElementById("clear-log").onclick = clearLog;
 document.getElementById("download-long-json").onclick = downloadLongLogJson;
@@ -389,8 +401,15 @@ document.getElementById("settings-overlay").addEventListener('click', (event) =>
 //Other Event Listeners
 
 function blurFocusedElement(event){
-    if (event.key === 'Enter' && ((!isNaN(document.activeElement.value) && document.activeElement.value.length != 0) || simulation.itemSelected == -1)){
-        document.activeElement.blur();
+    if (event.key === 'Enter'){
+        if (isNaN(document.activeElement.value)){
+            createNotification(notificationList.inputNan, true);
+        } else if (document.activeElement.value.length == 0) {
+            createNotification(notificationList.inputEmpty, true);
+        } else {
+            document.activeElement.blur();
+        }
+        
     }
 }
 
@@ -534,6 +553,7 @@ const depth = document.getElementById("depth-input");
 width.addEventListener("blur", () => {
     if ((width.value.length == 0 || isNaN(width.value)) && simulation.itemSelected > -1) {
         width.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.scale.x = parseFloat(width.value) / simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.width;
         synchronizeSize();
@@ -543,6 +563,7 @@ width.addEventListener("blur", () => {
 height.addEventListener("blur", () => {
     if ((height.value.length == 0 || isNaN(height.value)) && simulation.itemSelected > -1) {
         height.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.scale.y = parseFloat(height.value) / simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.height;
         synchronizeSize();
@@ -552,6 +573,7 @@ height.addEventListener("blur", () => {
 depth.addEventListener("blur", () => {
     if ((depth.value.length == 0 || isNaN(depth.value)) && simulation.itemSelected > -1) {
         depth.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.scale.z = parseFloat(depth.value) / simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.depth;
         synchronizeSize();
@@ -568,6 +590,7 @@ const zPos = document.getElementById("position.z-input");
 xPos.addEventListener("blur", () => {
     if ((xPos.value.length == 0 || isNaN(xPos.value)) && simulation.itemSelected > -1) {
         xPos.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.position.x = parseFloat(xPos.value);
         synchronizePositions();
@@ -577,6 +600,7 @@ xPos.addEventListener("blur", () => {
 yPos.addEventListener("blur", () => {
     if ((yPos.value.length == 0 || isNaN(yPos.value)) && simulation.itemSelected > -1) {
         yPos.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.position.y = parseFloat(yPos.value);
         synchronizePositions();
@@ -586,6 +610,7 @@ yPos.addEventListener("blur", () => {
 zPos.addEventListener("blur", () => {
     if ((zPos.value.length == 0 || isNaN(zPos.value)) && simulation.itemSelected > -1) {
         zPos.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.position.z = parseFloat(zPos.value);
         synchronizePositions();
@@ -601,6 +626,7 @@ const zVel = document.getElementById("velocity.z-input");
 xVel.addEventListener("blur", () => {
     if ((xVel.value.length == 0 || isNaN(xVel.value)) && simulation.itemSelected > -1) {
         xVel.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.velocity.x = parseFloat(xVel.value);
     }
@@ -609,6 +635,7 @@ xVel.addEventListener("blur", () => {
 yVel.addEventListener("blur", () => {
     if ((yVel.value.length == 0 || isNaN(yVel.value)) && simulation.itemSelected > -1) {
         yVel.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.velocity.y = parseFloat(yVel.value);
     }
@@ -617,6 +644,7 @@ yVel.addEventListener("blur", () => {
 zVel.addEventListener("blur", () => {
     if ((zVel.value.length == 0 || isNaN(zVel.value)) && simulation.itemSelected > -1) {
         zVel.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.velocity.z = parseFloat(zVel.value);
     }
@@ -631,6 +659,7 @@ const zRot = document.getElementById("rotation.z-input");
 xRot.addEventListener("blur", () => {
     if ((xRot.value.length == 0 || isNaN(xRot.value)) && simulation.itemSelected > -1) {
         xRot.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.rotation.x = parseFloat(xRot.value);
         synchronizeRotation();
@@ -640,6 +669,7 @@ xRot.addEventListener("blur", () => {
 yRot.addEventListener("blur", () => {
     if ((yRot.value.length == 0 || isNaN(yRot.value)) && simulation.itemSelected > -1) {
         yRot.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.rotation.y = parseFloat(yRot.value);
         synchronizeRotation();
@@ -649,6 +679,7 @@ yRot.addEventListener("blur", () => {
 zRot.addEventListener("blur", () => {
     if ((zRot.value.length == 0 || isNaN(zRot.value)) && simulation.itemSelected > -1) {
         zRot.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].mesh.rotation.z = parseFloat(zRot.value);
         synchronizeRotation();
@@ -664,6 +695,7 @@ const zAng = document.getElementById("angularVelocity.y-input");
 xAng.addEventListener("blur", () => {
     if ((xAng.value.length == 0 || isNaN(xAng.value)) && simulation.itemSelected > -1) {
         xAng.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.angularVelocity.x = parseFloat(xAng.value);
     }
@@ -672,6 +704,7 @@ xAng.addEventListener("blur", () => {
 yAng.addEventListener("blur", () => {
     if ((yAng.value.length == 0 || isNaN(yAng.value)) && simulation.itemSelected > -1) {
         yAng.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.angularVelocity.y = parseFloat(yAng.value);
     }
@@ -680,6 +713,7 @@ yAng.addEventListener("blur", () => {
 zAng.addEventListener("blur", () => {
     if ((zAng.value.length == 0 || isNaN(zAng.value)) && simulation.itemSelected > -1) {
         zAng.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.angularVelocity.z = parseFloat(zAng.value);
     }
@@ -694,6 +728,7 @@ const zFor = document.getElementById("force.z-input");
 xFor.addEventListener("blur", () => {
     if ((xFor.value.length == 0 || isNaN(xFor.value)) && simulation.itemSelected > -1) {
         xFor.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.force.x = parseFloat(xFor.value);
     }
@@ -702,6 +737,7 @@ xFor.addEventListener("blur", () => {
 yFor.addEventListener("blur", () => {
     if ((yFor.value.length == 0 || isNaN(yFor.value)) && simulation.itemSelected > -1) {
         yFor.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.force.y = parseFloat(yFor.value);
     }
@@ -710,6 +746,7 @@ yFor.addEventListener("blur", () => {
 zFor.addEventListener("blur", () => {
     if ((zFor.value.length == 0 || isNaN(zFor.value)) && simulation.itemSelected > -1) {
         zFor.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.force.z = parseFloat(zFor.value);
     }
@@ -720,6 +757,7 @@ const massInput = document.getElementById("mass-input");
 massInput.addEventListener("blur", () => {
     if ((massInput.value.length == 0 || isNaN(massInput.value)) && simulation.itemSelected > -1) {
         massInput.focus();
+        createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.boxes[simulation.itemSelected].body.mass = parseFloat(massInput.value);
         simulation.boxes[simulation.itemSelected].body.updateMassProperties();
@@ -808,3 +846,229 @@ transformControls.addEventListener("change", (event) => {
 transformControls.addEventListener("mouseUp", setRightParameters);
 
 document.getElementById("background-color-picker").value = `#${renderer.getClearColor().getHexString()}`;
+
+document.getElementById("time-step-editable").addEventListener("keypress", (event) => {
+    if (['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '/', '*', '%', '+', '-'].indexOf(event.key) === -1) {
+        event.preventDefault();
+        createNotification(notificationList.timeStepInput, true);
+    }
+})
+
+document.getElementById("time-step-editable").addEventListener("blur", (event) => {
+    if (event.target.value.length != 0){
+        timeStepStr = event.target.value;
+        changeTimeStep(eval(timeStepStr));
+    }
+})
+
+// class Notification {
+//     constructor(type, msg) {
+//         this.type = type;
+//         this.msg = msg;
+//     }
+// }
+
+let notifications = [];
+
+function closeNotification(){
+    let notificationPopup = document.getElementById("notification-popup");
+    clearTimeout(tempTimeout);
+    function hideNotification(){
+        notificationPopup.style.visibility = "hidden";
+        notifications.shift();
+        if (notifications.length > 0) {
+            createNotification(notifications[0], false);
+        }
+    }
+    tempGSAP.to(notificationPopup, {duration: 0.2, opacity: 0, onComplete: hideNotification});
+}
+
+let tempTimeout, tempGSAP = gsap.timeline();
+function createNotification(notification, bool){
+    if (showNotifications) {
+        if (notifications.length < 1 || notification.type.concat(": ", notification.msg) != document.getElementById("notification-popup-text").innerHTML) {
+            if (bool) {
+                notifications.push(notification);
+            }
+            let notificationPopup = document.getElementById("notification-popup");
+            if (window.getComputedStyle(notificationPopup).visibility == "hidden") {
+                switch (notifications[0].type) {
+                    case "Error":
+                        notificationPopup.style.borderColor = "#ff0000";
+                        break;
+                    case "Warning":
+                        notificationPopup.style.borderColor = "#fd7014";
+                        break;
+                    case "Tutorial":
+                        notificationPopup.style.borderColor = "#3498db";
+                        break;
+                    default:
+                        notificationPopup.style.borderColor = "var(--secondary-color)"
+                        break;
+                }
+                document.getElementById("notification-popup-text").innerHTML = notifications[0].type.concat(": ", notifications[0].msg);
+                notificationPopup.style.visibility = "visible";
+                tempGSAP.to(notificationPopup, { duration: 0.2, opacity: 1 });
+                tempTimeout = setTimeout(closeNotification, 3000);
+            }
+        }
+    }
+}
+
+function handleMouseEnter(){
+    clearTimeout(tempTimeout);
+}
+
+function handleMouseLeave(){
+    tempTimeout = setTimeout(closeNotification, 3000);
+}
+
+document.getElementById("close-notification-popup").onclick = closeNotification;
+document.getElementById("notification-popup").onmouseenter = handleMouseEnter;
+document.getElementById("notification-popup").onmouseleave = handleMouseLeave;
+
+// let notificationList = {
+//     inputEmpty: new Notification("Warning", "this field can't be empty."),
+//     inputNan: new Notification("Warning", "this field must be a number."),
+//     itemLoading: new Notification("Note", "the items loaded will not have the same UUID. The fields needed to load an object are: position and dimensions."),
+//     invalidFile: new Notification("Error", "the file you have selected is not a valid."),
+//     loadFileInfo: new Notification("Tutorial", "Only the contents of the fist timestamp are loaded from the file. Note: the items loaded will not have the same uuid as the ones in the file."),
+//     emptyFile: new Notification("Error", "the file you have inserted doesn't contain any valid objects."),
+//     incompleteLoad: new Notification("Warning", "not all the objects in your file were loaded successfully."),
+//     invalidFileType: new Notification("Error", "the file you have selected is not of type json."),
+//     noFile: new Notification("Error", "you didn't select any file."),
+//     timeStepInput: new Notification("Warning", "only numbers and numerical operators are allowed."),
+//     tutStart: new Notification("Tutorial", "This is the beginning of the tutorial. Hover over the different buttons and inputs to see the accompanied tutorial notification. If you want a notification to stay, you need to hover it."),
+//     tutTop: new Notification("Tutorial", "On the top bar you can see in order: the object selection buttons, play-reset, the current mode and the current time."),
+//     tutTranslate: new Notification("Tutorial", "By selecting this you can click on an object on the canvas to bring up the position translate arrows."),
+//     tutScale: new Notification("Tutorial", "By selecting this you can click on an object on the canvas to bring up the scale arrows."),
+//     tutRotate: new Notification("Tutorial", "By selecting this you can click on an object on the canvas to bring up the rotation circles."),
+//     tutPlay: new Notification("Tutorial", "With this you can start the simulation. If the simulation is running this will change into a pause button."),
+//     tutReset: new Notification("Tutorial", "With this you can reset the simulation to the previously saved Setup state."),
+//     tutRight: new Notification("Tutorial", "This opens the object ui. In this you can see and edit all the information regarding an object, as well as a list of all the objects."),
+//     tutColour: new Notification("Tutorial", "This changes the colour of the selected object."),
+//     tutWireframe: new Notification("Tutorial", "This changes the object from being filled in with colour to having only a frame."),
+//     tutInfo: new Notification("Tutorial", "All these change certain attributes of the selected object (Mass has more info)."),
+//     tutCollidable: new Notification("Tutorial", "This changes the ability of the object selected to be collidable."),
+//     tutMass: new Notification("Tutorial", "This changes the mass of the object selected. If the mass of the object is 0, the object isn't affected by gravity, or collisions (objects can still collide into it though)."),
+//     tutVectors: new Notification("Tutorial", "These the vectors for either velocity of the object or the forces applied to it. There are three options: Off, Single - only shows the resultant vector, All - shows vectors on all three dimensions."),
+//     tutItems: new Notification("Tutorial", "Here you can see all the objects in the scene. When there is an object you can click either on it's name or the pencil button to rename it. By clicking the lock button, you make the object unable to be selected. By clicking the trash button, you delete the object."),
+//     tutSettings: new Notification("Tutorial", "These are the simulations global settings."),
+//     tutBackground: new Notification("Tutorial", "This changes the colour of the canvas."),
+//     tutTheme: new Notification("Tutorial", "These change the colours of the User Interface. By selecting custom you can choose your own two colours!"),
+//     tutCameras: new Notification("Tutorial", "These change the type of the camera. Orthographic means there is no distortion on the sides, while perspective is more like a normal camera."),
+//     tutFov: new Notification("Tutorial", "This changes the field of view of the camera, if it is of type perspective."),
+//     tutTime: new Notification("Tutorial", "This changes the length of a unit of time. This means, it changes how much a time instant lasts."),
+//     tutGrid: new Notification("Tutorial", "These toggle a cartesian grid on each of the three dimensions."),
+//     tutFps: new Notification("Tutorial", "This toggles the rendering of the framerate the simulation is running in."),
+//     tutNotifs: new Notification("Tutorial", "This toggles the rendering of notifications."),
+//     tutCeption: new Notification("Tutorial", "This toggles the tutorial"),
+//     tutUpload: new Notification("Tutorial", "Using this button you can upload a json file you may have previously downloaded, to load a timestamp of all objects on the scene."),
+//     tutLog: new Notification("Tutorial", "Here you can print the data of all objects in the scene either manually, using the print button, or every number of timesteps, using the respective input. You can also clear the log with the clear button."),
+//     tutDownloads: new Notification("Tutorial", "Using these buttons you can download the log either in a txt format or in a json format. You can either download the entire log, or only the current timestamp.")
+// }
+
+document.getElementById("notification-toggle").addEventListener("click", (event) => {
+    showNotifications = event.target.checked;
+    localStorage.setItem("showNotifications", showNotifications);
+});
+
+initStyling();
+
+function loadfromJson(json) {
+    let data = json[0];
+    let nValid = 0;
+    for (let i in data){
+        if (data[i].hasOwnProperty('position') && data[i].hasOwnProperty('dimensions')){
+            if (!isNaN(data[i].position.x) && !isNaN(data[i].position.y) && !isNaN(data[i].position.z) && !isNaN(data[i].dimensions.x) && !isNaN(data[i].dimensions.y) && !isNaN(data[i].dimensions.z)){
+                simulation.createBox(data[i].position.x, data[i].position.y, data[i].position.z, data[i].dimensions.x, data[i].dimensions.y, data[i].dimensions.z);
+                simulation.itemSelected = simulation.boxes.length - 1;
+                synchronizePositions();
+                synchronizeRotation();
+                synchronizeSize();
+                if (data[i].hasOwnProperty('rotation')){
+                    if (isNaN(data[i].position.x) && isNaN(data[i].position.y) && isNaN(data[i].position.z)){
+                        simulation.boxes[simulation.itemSelected].mesh.rotation.set(data[i].position.x, data[i].position.y, data[i].position.z);
+                    }
+                }
+                if (data[i].hasOwnProperty('name')){
+                    simulation.boxes[simulation.itemSelected].mesh.name = data[i].name;
+                }
+                if (data[i].hasOwnProperty('angularVelocity')){
+                    if (!isNaN(data[i].angularVelocity.x)){
+                        simulation.boxes[simulation.itemSelected].body.angularVelocity.x = data[i].angularVelocity.x;
+                    }
+                    if (!isNaN(data[i].angularVelocity.y)){
+                        simulation.boxes[simulation.itemSelected].body.angularVelocity.y = data[i].angularVelocity.y;
+                    }
+                    if (!isNaN(data[i].angularVelocity.z)){
+                        simulation.boxes[simulation.itemSelected].body.angularVelocity.z = data[i].angularVelocity.z;
+                    }
+                }
+                if (data[i].hasOwnProperty('force')){
+                    if (!isNaN(data[i].force.x)){
+                        simulation.boxes[simulation.itemSelected].body.force.x = data[i].force.x;
+                    }
+                    if (!isNaN(data[i].force.y)){
+                        simulation.boxes[simulation.itemSelected].body.force.y = data[i].force.y;
+                    }
+                    if (!isNaN(data[i].force.z)){
+                        simulation.boxes[simulation.itemSelected].body.force.z = data[i].force.z;
+                    }
+                }
+                if (data[i].hasOwnProperty('mass')){
+                    if (!isNaN(data[i].mass)){
+                        simulation.boxes[simulation.itemSelected].body.mass = data[i].mass;
+                    }
+                }
+                simulation.boxes[simulation.itemSelected].body.updateMassProperties();
+                if (data[i].hasOwnProperty('velocity')){
+                    if (!isNaN(data[i].velocity.x)){
+                        simulation.boxes[simulation.itemSelected].body.velocity.x = data[i].velocity.x;
+                    }
+                    if (!isNaN(data[i].velocity.y)){
+                        simulation.boxes[simulation.itemSelected].body.velocity.y = data[i].velocity.y;
+                    }
+                    if (!isNaN(data[i].velocity.z)){
+                        simulation.boxes[simulation.itemSelected].body.velocity.z = data[i].velocity.z;
+                    }
+                }
+                simulation.itemSelected = -1;
+                nValid++;
+            }
+        }
+    }
+    if (!Object.keys(data).length || nValid == 0){
+        createNotification(notificationList.emptyFile, true);
+    } else if (nValid != Object.keys(data).length){
+        createNotification(notificationList.incompleteLoad, true);
+    }
+}
+
+document.getElementById("json-input").onclick = function () {
+    createNotification(notificationList.itemLoading, true);
+}
+
+document.getElementById("json-input").onchange = async function () {
+    const fileList = this.files;
+    if (fileList.length){
+        if (fileList[0].name.slice(fileList[0].name.length - 5, fileList[0].name.length) === '.json'){
+            let fileJson = await fileToJSON(fileList[0]);
+            loadfromJson(fileJson);
+        } else {
+            createNotification(notificationList.invalidFileType, true);
+        }
+    } else {
+        createNotification(notificationList.noFile, true);
+    }
+}
+
+
+async function fileToJSON(file) {
+    return new Promise((resolve, reject) => {
+        const fileReader = new FileReader();
+        fileReader.onload = event => resolve(JSON.parse(event.target.result))
+        fileReader.onerror = error => reject(error)
+        fileReader.readAsText(file)
+    })
+}
