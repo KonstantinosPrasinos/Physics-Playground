@@ -738,3 +738,7 @@ input {
 #upload-button:hover{
     cursor: pointer;
 }
+
+#grid-container {
+    display:flex;
+}

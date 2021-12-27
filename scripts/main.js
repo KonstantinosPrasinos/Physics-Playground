@@ -631,4 +631,4 @@ initCannon();
 initControls();
 
 animate();
-export {simulation, camera, transformControls, orbitControls, copyBoxes, renderer, updateVectors, world, changeTimeStep, printToLog, generateJSON, setCamera, rewindBoxes, toggleStats};
+export {simulation, camera, transformControls, orbitControls, copyBoxes, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindBoxes, toggleStats};
