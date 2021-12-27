@@ -885,7 +885,10 @@ function closeNotification(){
         notificationPopup.style.visibility = "hidden";
         notifications.shift();
         if (notifications.length > 0) {
+            let temp = showNotifications;
+            showNotifications = true;
             createNotification(notifications[0], false);
+            showNotifications = temp;
         }
     }
     tempGSAP.to(notificationPopup, {duration: 0.2, opacity: 0, onComplete: hideNotification});
@@ -893,6 +896,7 @@ function closeNotification(){
 
 let tempTimeout, tempGSAP = gsap.timeline();
 function createNotification(notification, bool){
+    console.log(notifications);
     if (showNotifications) {
         if (notifications.length < 1 || notification.type.concat(": ", notification.msg) != document.getElementById("notification-popup-text").innerHTML) {
             if (bool || notifications.length == 0) {
