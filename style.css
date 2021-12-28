@@ -125,6 +125,12 @@ button {
     top: 60px;
     position: relative;
 }
+#add-cylinder-button {
+    -webkit-mask-image:  url(/assets/cylinder.svg);
+    mask-image: url(assets/cylinder.svg);
+    top: 60px;
+    position: relative;
+}
 .close-button {
     -webkit-mask-image:  url(/assets/close.svg);
     mask-image: url(assets/close.svg);
@@ -157,7 +163,6 @@ button {
     background-repeat: no-repeat;
     background-position: -2px;
     border: none;
-    visibility: visible;
 }
 .big-icon-buttons{
     height: 32px;

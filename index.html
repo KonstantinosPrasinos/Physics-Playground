@@ -27,6 +27,7 @@
             <button class="left-ui-buttons icon-buttons big-icon-buttons" id="settings-button"></button>
             <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-cube-button"></button>
             <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-sphere-button"></button>
+            <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-cylinder-button"></button>
         </div>
         <div id="top-ui">
             <div class="top-field">
@@ -53,15 +54,15 @@
                     <div class="right-ui-grid-item">
                         <span class="right-title title-small">Colour:</span>
                     </div>
-                    <div class="right-ui-grid-item">
-                        <span class="right-ui-grid-text">W:</span>
+                    <div class="right-ui-grid-item" id="width-container">
+                        <span class="right-ui-grid-text" id="width-text">W:</span>
                         <input type="text" class="text-editable block-editable" id="width-input" placeholder="-"
                             disabled>
                     </div>
                     <div class="right-ui-grid-item">
                         <input type="color" value="#ffffff" class="color-picker" id="item-color-picker" disabled>
                     </div>
-                    <div class="right-ui-grid-item">
+                    <div class="right-ui-grid-item" id="height-container">
                         <span class="right-ui-grid-text">H:</span>
                         <input type="text" class="text-editable block-editable" id="height-input" placeholder="-"
                             disabled>
@@ -69,7 +70,7 @@
                     <div class="right-ui-grid-item">
                         <span class="right-title title-small">Is Wireframe:</span>
                     </div>
-                    <div class="right-ui-grid-item">
+                    <div class="right-ui-grid-item" id="depth-container">
                         <span class="right-ui-grid-text">D:</span>
                         <input type="text" class="text-editable block-editable" id="depth-input" placeholder="-"
                             disabled>

@@ -1,8 +1,8 @@
-import {simulation, transformControls, orbitControls, camera, copyBoxes, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindBoxes, toggleStats, changeTimeStep} from './main.js';
+import {simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, changeTimeStep, updateValues} from './main.js';
 
 import {notificationList} from './notifications.js';
 
-let mode = "setup", selectedCursor = "none", rightUIisCollapsed = true, storedTheme = 'dark', timeStepStr = '1/60', showNotifications = true, doTutorial = false;
+let mode = "setup", selectedCursor = "none", rightUIisCollapsed = true, storedTheme = 'dark', timeStepStr = '1/60', showNotifications = true, doTutorial = false, canClickCanvas = true;
 
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
@@ -83,7 +83,7 @@ function downloadJson(object){
 }
 
 function downloadCurrentLogJson(){
-    if (simulation.boxes.length){
+    if (simulation.objects.length){
         downloadJson(JSON.stringify(generateJSON()));
     }
 }
@@ -130,29 +130,50 @@ document.getElementById("download-current-txt").onclick = downloadCurrentLogTxt;
 document.getElementById("download-long-txt").onclick = downloadLongLogTxt;
 
 function synchronizePositions() {
-    simulation.boxes[simulation.itemSelected].body.position.x = simulation.boxes[simulation.itemSelected].mesh.position.x;
-    simulation.boxes[simulation.itemSelected].body.position.y = simulation.boxes[simulation.itemSelected].mesh.position.y;
-    simulation.boxes[simulation.itemSelected].body.position.z = simulation.boxes[simulation.itemSelected].mesh.position.z;
-    updateVectors(simulation.boxes[simulation.itemSelected]);
+    simulation.objects[simulation.itemSelected].body.position.x = simulation.objects[simulation.itemSelected].mesh.position.x;
+    simulation.objects[simulation.itemSelected].body.position.y = simulation.objects[simulation.itemSelected].mesh.position.y;
+    simulation.objects[simulation.itemSelected].body.position.z = simulation.objects[simulation.itemSelected].mesh.position.z;
+    updateVectors(simulation.objects[simulation.itemSelected]);
 }
 
 function synchronizeRotation() {
-    simulation.boxes[simulation.itemSelected].body.quaternion.x = simulation.boxes[simulation.itemSelected].mesh.quaternion.x;
-    simulation.boxes[simulation.itemSelected].body.quaternion.y = simulation.boxes[simulation.itemSelected].mesh.quaternion.y;
-    simulation.boxes[simulation.itemSelected].body.quaternion.z = simulation.boxes[simulation.itemSelected].mesh.quaternion.z;
+    simulation.objects[simulation.itemSelected].body.quaternion.x = simulation.objects[simulation.itemSelected].mesh.quaternion.x;
+    simulation.objects[simulation.itemSelected].body.quaternion.y = simulation.objects[simulation.itemSelected].mesh.quaternion.y;
+    simulation.objects[simulation.itemSelected].body.quaternion.z = simulation.objects[simulation.itemSelected].mesh.quaternion.z;
 }
 
 function synchronizeSize(){
-    switch (simulation.boxes[simulation.itemSelected].mesh.geometry.type) {
+    let widthSegments, heightSegments;
+    switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
         case "BoxGeometry":
-            let lowerBound = new CANNON.Vec3(simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.width * simulation.boxes[simulation.itemSelected].mesh.scale.x / -2, simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.height * simulation.boxes[simulation.itemSelected].mesh.scale.y / -2, simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.depth * simulation.boxes[simulation.itemSelected].mesh.scale.z / -2);
-            let upperBound = new CANNON.Vec3(simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.width * simulation.boxes[simulation.itemSelected].mesh.scale.x / 2, simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.height * simulation.boxes[simulation.itemSelected].mesh.scale.y / 2, simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.depth * simulation.boxes[simulation.itemSelected].mesh.scale.z / 2);
-            simulation.boxes[simulation.itemSelected].body.aabb.lowerBound = lowerBound;
-            simulation.boxes[simulation.itemSelected].body.aabb.upperBound = upperBound;
+            //Changes the size of the box
+            simulation.objects[simulation.itemSelected].body.shapes[0].halfExtents.set(simulation.objects[simulation.itemSelected].mesh.geometry.parameters.width * simulation.objects[simulation.itemSelected].mesh.scale.x / 2, simulation.objects[simulation.itemSelected].mesh.geometry.parameters.height * simulation.objects[simulation.itemSelected].mesh.scale.y / 2, simulation.objects[simulation.itemSelected].mesh.geometry.parameters.depth * simulation.objects[simulation.itemSelected].mesh.scale.z / 2);
+            break;
+        case "SphereGeometry":
+            //Synchronizes the scales of the three dimensions so that they match and become the "radius"
+            if (simulation.objects[simulation.itemSelected].mesh.scale.x == simulation.objects[simulation.itemSelected].mesh.scale.y){
+                simulation.objects[simulation.itemSelected].mesh.scale.x = simulation.objects[simulation.itemSelected].mesh.scale.y = simulation.objects[simulation.itemSelected].mesh.scale.z;
+            } else if (simulation.objects[simulation.itemSelected].mesh.scale.x == simulation.objects[simulation.itemSelected].mesh.scale.z){
+                simulation.objects[simulation.itemSelected].mesh.scale.x = simulation.objects[simulation.itemSelected].mesh.scale.z = simulation.objects[simulation.itemSelected].mesh.scale.y;
+            } else if (simulation.objects[simulation.itemSelected].mesh.scale.y == simulation.objects[simulation.itemSelected].mesh.scale.z){
+                simulation.objects[simulation.itemSelected].mesh.scale.y = simulation.objects[simulation.itemSelected].mesh.scale.z = simulation.objects[simulation.itemSelected].mesh.scale.x;
+            } else {
+                simulation.objects[simulation.itemSelected].mesh.scale.y = simulation.objects[simulation.itemSelected].mesh.scale.z = simulation.objects[simulation.itemSelected].mesh.scale.x;
+            }
+
+            //Updating of width and height segments when size changes so that if the sphere becomes bigger, it looks like a sphere
+            simulation.objects[simulation.itemSelected].mesh.geometry.parameters.widthSegments = Math.ceil(simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radius / 10) * 16;
+            simulation.objects[simulation.itemSelected].mesh.geometry.parameters.heightSegments = Math.ceil(simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radius / 10) * 8;
+            //Changes the radius of the sphere
+            simulation.objects[simulation.itemSelected].body.shapes[0].radius = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radius * simulation.objects[simulation.itemSelected].mesh.scale.x
             break;
         default:
             break;
     }
+    //Updates the size of the object
+    simulation.objects[simulation.itemSelected].body.shapes[0].updateBoundingSphereRadius();
+    simulation.objects[simulation.itemSelected].body.updateBoundingRadius();
+    simulation.objects[simulation.itemSelected].body.updateMassProperties();
 }
 
 function pauseSimulation(){
@@ -366,13 +387,13 @@ document.getElementById("custom-theme-button").onclick = toggleCustomTheme;
 document.getElementById("top-play").onclick = function togglePause(){
     if (mode == "setup"){
         transformControls.detach();
-        copyBoxes();
+        copyobjects();
         mode = "simulation";
         topMode.innerHTML = "<b>Mode:</b> Simulation";
         if (simulation.shapesForChanges.length > 0){
             simulation.removeAllArrows();
         }
-        simulation.boxes.forEach(element => {
+        simulation.objects.forEach(element => {
             element.body.position.copy(element.mesh.position);
             element.body.quaternion.copy(element.mesh.quaternion);
         });
@@ -390,10 +411,10 @@ document.getElementById("top-replay").onclick = async function toggleMode(){
         clearLog();
         pauseSimulation();
         mode = "setup";
-        rewindBoxes();
+        rewindobjects();
         topMode.innerHTML = "<b>Mode:</b> Setup";
         if (simulation.itemSelected > -1){
-            transformControls.attach(simulation.boxes[simulation.itemSelected].mesh);
+            transformControls.attach(simulation.objects[simulation.itemSelected].mesh);
         }
     }
 }
@@ -454,81 +475,115 @@ fovText.addEventListener("blur", () => {
     }
 });
 
-function setChildrenAttribute(element, attribute, bool){
-    for (let i in element.childNodes){
-        if (element.childNodes[i].nodeName == 'DIV'){
-            setChildrenAttribute(element.childNodes[i], attribute, bool);
-        } else if (element.childNodes[i].nodeName == 'INPUT') {
-            if (element.childNodes[i].type == "text") {
-                if (!bool) {
-                    let type = element.childNodes[i].id.substring(0, element.childNodes[i].id.indexOf('-'));
-                    if (type.includes('.')) {
-                        switch (type.substring(0, type.indexOf('.'))) {
-                            case 'position':
-                            case 'rotation':
-                                element.childNodes[i].value = simulation.boxes[simulation.itemSelected].mesh[type.substring(0, type.indexOf('.'))][type.substring(type.indexOf('.') + 1, type.length)];
-                                break;
-                            default:
-                                element.childNodes[i].value = simulation.boxes[simulation.itemSelected].body[type.substring(0, type.indexOf('.'))][type.substring(type.indexOf('.') + 1, type.length)];
-                                break;
-                        }
-                    } else if (type == 'mass') {
-                        element.childNodes[i].value = simulation.boxes[simulation.itemSelected].body[type];
-                    } else {
-                        switch (type) {
-                            case "width":
-                                element.childNodes[i].value = simulation.boxes[simulation.itemSelected].mesh.geometry.parameters[type] * simulation.boxes[simulation.itemSelected].mesh.scale.x;
-                                break;
-                            case "height":
-                                element.childNodes[i].value = simulation.boxes[simulation.itemSelected].mesh.geometry.parameters[type] * simulation.boxes[simulation.itemSelected].mesh.scale.y;
-                                break;
-                            case "depth":
-                                element.childNodes[i].value = simulation.boxes[simulation.itemSelected].mesh.geometry.parameters[type] * simulation.boxes[simulation.itemSelected].mesh.scale.z;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                } else {
-                    element.childNodes[i].value = "";
-                }
-            } else if(element.childNodes[i].type == "color" && simulation.itemSelected > -1){
-                element.childNodes[i].value = `#${simulation.boxes[simulation.itemSelected].mesh.material.color.getHexString()}`;
-            } else {
-                if (bool){
-                    element.childNodes[i].checked = false;
-                }
-            }
-            element.childNodes[i][attribute] = bool;
+function setAllAtrAttributes(bool){
+    document.getElementById("collisionResponse-toggle").checked = bool;
+    document.getElementById("item-color-picker").disabled = bool;
+    document.getElementById("wireframe-toggle").disabled = bool;
+    document.getElementById("width-input").disabled = bool;
+    document.getElementById("height-input").disabled = bool;
+    document.getElementById("depth-input").disabled = bool;
+    document.getElementById("position.x-input").disabled = bool;
+    document.getElementById("position.y-input").disabled = bool;
+    document.getElementById("position.z-input").disabled = bool;
+    document.getElementById("rotation.x-input").disabled = bool;
+    document.getElementById("rotation.y-input").disabled = bool;
+    document.getElementById("rotation.z-input").disabled = bool;
+    document.getElementById("velocity.x-input").disabled = bool;
+    document.getElementById("velocity.y-input").disabled = bool;
+    document.getElementById("velocity.z-input").disabled = bool;
+    document.getElementById("angularVelocity.x-input").disabled = bool;
+    document.getElementById("angularVelocity.y-input").disabled = bool;
+    document.getElementById("angularVelocity.z-input").disabled = bool;
+    document.getElementById("force.x-input").disabled = bool;
+    document.getElementById("force.y-input").disabled = bool;
+    document.getElementById("force.z-input").disabled = bool;
+    document.getElementById("mass-input").disabled = bool;
+    if (!bool){
+        updateValues();
+        colorPicker.value = `#${simulation.objects[simulation.itemSelected].mesh.material.color.getHexString()}`;
+        document.getElementById("mass-input").value = simulation.objects[simulation.itemSelected].body.mass;
+        switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
+            case "SphereGeometry":
+                document.getElementById("width-text").innerText = "R:";
+                document.getElementById("height-container").style.visibility = "hidden";
+                document.getElementById("depth-container").style.visibility = "hidden";
+                break;
+            default:
+                document.getElementById("width-text").innerText = "W:";
+                document.getElementById("height-container").style.visibility = "inherit";
+                document.getElementById("depth-container").style.visibility = "inherit";
+                break;
         }
+    } else {
+        document.getElementById("width-input").value = "";
+        document.getElementById("height-input").value = "";
+        document.getElementById("depth-input").value = "";
+        document.getElementById("position.x-input").value = "";
+        document.getElementById("position.y-input").value = "";
+        document.getElementById("position.z-input").value = "";
+        document.getElementById("rotation.x-input").value = "";
+        document.getElementById("rotation.y-input").value = "";
+        document.getElementById("rotation.z-input").value = "";
+        document.getElementById("velocity.x-input").value = "";
+        document.getElementById("velocity.y-input").value = "";
+        document.getElementById("velocity.z-input").value = "";
+        document.getElementById("angularVelocity.x-input").value = "";
+        document.getElementById("angularVelocity.y-input").value = "";
+        document.getElementById("angularVelocity.z-input").value = "";
+        document.getElementById("force.x-input").value = "";
+        document.getElementById("force.y-input").value = "";
+        document.getElementById("force.z-input").value = "";
+        document.getElementById("mass-input").value = "";
+        
+        document.getElementById("width-input").disabled = true;;
+        document.getElementById("height-input").disabled = true;;
+        document.getElementById("depth-input").disabled = true;;
+        document.getElementById("position.x-input").disabled = true;;
+        document.getElementById("position.y-input").disabled = true;;
+        document.getElementById("position.z-input").disabled = true;;
+        document.getElementById("rotation.x-input").disabled = true;;
+        document.getElementById("rotation.y-input").disabled = true;;
+        document.getElementById("rotation.z-input").disabled = true;;
+        document.getElementById("velocity.x-input").disabled = true;;
+        document.getElementById("velocity.y-input").disabled = true;;
+        document.getElementById("velocity.z-input").disabled = true;;
+        document.getElementById("angularVelocity.x-input").disabled = true;;
+        document.getElementById("angularVelocity.y-input").disabled = true;;
+        document.getElementById("angularVelocity.z-input").disabled = true;;
+        document.getElementById("force.x-input").disabled = true;;
+        document.getElementById("force.y-input").disabled = true;;
+        document.getElementById("force.z-input").disabled = true;;
+        document.getElementById("mass-input").disabled = true;;
+        colorPicker.value = "#000000";
     }
 }
 
 function setRightParameters(){
+    canClickCanvas = true;
     if (simulation.itemSelected > -1){
         transformControls.detach();
-        transformControls.attach(simulation.boxes[simulation.itemSelected].mesh)
-        document.getElementById("wireframe-toggle").checked = simulation.boxes[simulation.itemSelected].mesh.material.wireframe ? true : false;
-        document.getElementById("collisionResponse-toggle").checked = simulation.boxes[simulation.itemSelected].body.collisionResponse ? true : false;
-        document.getElementById("object-name").innerText = simulation.boxes[simulation.itemSelected].mesh.name;
+        transformControls.attach(simulation.objects[simulation.itemSelected].mesh);
+        document.getElementById("wireframe-toggle").checked = simulation.objects[simulation.itemSelected].mesh.material.wireframe ? true : false;
+        document.getElementById("collisionResponse-toggle").checked = simulation.objects[simulation.itemSelected].body.collisionResponse ? true : false;
+        document.getElementById("object-name").innerText = simulation.objects[simulation.itemSelected].mesh.name;
 
-        setChildrenAttribute(document.getElementById("right-ui-features"), 'disabled', false);
+        setAllAtrAttributes(false);
     } else {
         document.getElementById("object-name").innerText = "No item is Selected";
         
-        setChildrenAttribute(document.getElementById("right-ui-features"), 'disabled', true);
+        setAllAtrAttributes(true);
     }
 }
 
 canvas.addEventListener("mousedown", (event) => {
-    if (mode == "setup"){
+    if (mode == "setup" ){
         let intersectedObjects = simulation.checkForObject(event);
-        if (intersectedObjects.length > 0) {
+        if (intersectedObjects.length > 0 && canClickCanvas && (simulation.itemSelected == -1 || (simulation.itemSelected > -1 && simulation.objects[simulation.itemSelected].mesh.uuid != intersectedObjects[0].object.uuid))) {
             transformControls.attach(intersectedObjects[0].object);
-            for (const index in simulation.boxes) {
-                if (simulation.boxes[index].mesh.uuid == intersectedObjects[0].object.uuid) {
+            for (const index in simulation.objects) {
+                if (simulation.objects[index].mesh.uuid == intersectedObjects[0].object.uuid) {
                     simulation.itemSelected = index;
-                    transformControls.attach(simulation.boxes[index].mesh);
+                    transformControls.attach(simulation.objects[index].mesh);
                     setRightParameters();
                     break;
                 }
@@ -563,7 +618,7 @@ width.addEventListener("blur", () => {
         width.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].mesh.scale.x = parseFloat(width.value) / simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.width;
+        simulation.objects[simulation.itemSelected].mesh.scale.x = parseFloat(width.value) / simulation.objects[simulation.itemSelected].mesh.geometry.parameters.width;
         synchronizeSize();
     }
 });
@@ -573,7 +628,7 @@ height.addEventListener("blur", () => {
         height.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].mesh.scale.y = parseFloat(height.value) / simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.height;
+        simulation.objects[simulation.itemSelected].mesh.scale.y = parseFloat(height.value) / simulation.objects[simulation.itemSelected].mesh.geometry.parameters.height;
         synchronizeSize();
     }
 });
@@ -583,7 +638,7 @@ depth.addEventListener("blur", () => {
         depth.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].mesh.scale.z = parseFloat(depth.value) / simulation.boxes[simulation.itemSelected].mesh.geometry.parameters.depth;
+        simulation.objects[simulation.itemSelected].mesh.scale.z = parseFloat(depth.value) / simulation.objects[simulation.itemSelected].mesh.geometry.parameters.depth;
         synchronizeSize();
     }
 });
@@ -600,7 +655,7 @@ xPos.addEventListener("blur", () => {
         xPos.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].mesh.position.x = parseFloat(xPos.value);
+        simulation.objects[simulation.itemSelected].mesh.position.x = parseFloat(xPos.value);
         synchronizePositions();
     }
 });
@@ -610,7 +665,7 @@ yPos.addEventListener("blur", () => {
         yPos.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].mesh.position.y = parseFloat(yPos.value);
+        simulation.objects[simulation.itemSelected].mesh.position.y = parseFloat(yPos.value);
         synchronizePositions();
     }
 });
@@ -620,7 +675,7 @@ zPos.addEventListener("blur", () => {
         zPos.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].mesh.position.z = parseFloat(zPos.value);
+        simulation.objects[simulation.itemSelected].mesh.position.z = parseFloat(zPos.value);
         synchronizePositions();
     }
 });
@@ -636,7 +691,7 @@ xVel.addEventListener("blur", () => {
         xVel.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].body.velocity.x = parseFloat(xVel.value);
+        simulation.objects[simulation.itemSelected].body.velocity.x = parseFloat(xVel.value);
     }
 });
 
@@ -645,7 +700,7 @@ yVel.addEventListener("blur", () => {
         yVel.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].body.velocity.y = parseFloat(yVel.value);
+        simulation.objects[simulation.itemSelected].body.velocity.y = parseFloat(yVel.value);
     }
 });
 
@@ -654,7 +709,7 @@ zVel.addEventListener("blur", () => {
         zVel.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].body.velocity.z = parseFloat(zVel.value);
+        simulation.objects[simulation.itemSelected].body.velocity.z = parseFloat(zVel.value);
     }
 });
 
@@ -669,7 +724,7 @@ xRot.addEventListener("blur", () => {
         xRot.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].mesh.rotation.x = parseFloat(xRot.value);
+        simulation.objects[simulation.itemSelected].mesh.rotation.x = parseFloat(xRot.value);
         synchronizeRotation();
     }
 });
@@ -679,7 +734,7 @@ yRot.addEventListener("blur", () => {
         yRot.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].mesh.rotation.y = parseFloat(yRot.value);
+        simulation.objects[simulation.itemSelected].mesh.rotation.y = parseFloat(yRot.value);
         synchronizeRotation();
     }
 });
@@ -689,7 +744,7 @@ zRot.addEventListener("blur", () => {
         zRot.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].mesh.rotation.z = parseFloat(zRot.value);
+        simulation.objects[simulation.itemSelected].mesh.rotation.z = parseFloat(zRot.value);
         synchronizeRotation();
     }
 });
@@ -705,7 +760,7 @@ xAng.addEventListener("blur", () => {
         xAng.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].body.angularVelocity.x = parseFloat(xAng.value);
+        simulation.objects[simulation.itemSelected].body.angularVelocity.x = parseFloat(xAng.value);
     }
 });
 
@@ -714,7 +769,7 @@ yAng.addEventListener("blur", () => {
         yAng.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].body.angularVelocity.y = parseFloat(yAng.value);
+        simulation.objects[simulation.itemSelected].body.angularVelocity.y = parseFloat(yAng.value);
     }
 });
 
@@ -723,7 +778,7 @@ zAng.addEventListener("blur", () => {
         zAng.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].body.angularVelocity.z = parseFloat(zAng.value);
+        simulation.objects[simulation.itemSelected].body.angularVelocity.z = parseFloat(zAng.value);
     }
 });
 
@@ -738,7 +793,7 @@ xFor.addEventListener("blur", () => {
         xFor.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].body.force.x = parseFloat(xFor.value);
+        simulation.objects[simulation.itemSelected].body.force.x = parseFloat(xFor.value);
     }
 });
 
@@ -747,7 +802,7 @@ yFor.addEventListener("blur", () => {
         yFor.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].body.force.y = parseFloat(yFor.value);
+        simulation.objects[simulation.itemSelected].body.force.y = parseFloat(yFor.value);
     }
 });
 
@@ -756,7 +811,7 @@ zFor.addEventListener("blur", () => {
         zFor.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].body.force.z = parseFloat(zFor.value);
+        simulation.objects[simulation.itemSelected].body.force.z = parseFloat(zFor.value);
     }
 });
 
@@ -767,17 +822,17 @@ massInput.addEventListener("blur", () => {
         massInput.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].body.mass = parseFloat(massInput.value);
-        simulation.boxes[simulation.itemSelected].body.updateMassProperties();
+        simulation.objects[simulation.itemSelected].body.mass = parseFloat(massInput.value);
+        simulation.objects[simulation.itemSelected].body.updateMassProperties();
     }
 });
 
 document.getElementById("collisionResponse-toggle").addEventListener("click", (event) => {
     if (simulation.itemSelected > -1){
         if (event.target.checked){
-            simulation.boxes[simulation.itemSelected].body.collisionResponse = true;
+            simulation.objects[simulation.itemSelected].body.collisionResponse = true;
         } else {
-            simulation.boxes[simulation.itemSelected].body.collisionResponse = false;
+            simulation.objects[simulation.itemSelected].body.collisionResponse = false;
         }
     }
 });
@@ -788,7 +843,7 @@ document.getElementById("fps-toggle").addEventListener("click", (event) => {
 
 colorPicker.addEventListener("change", (event) => {
     if (simulation.itemSelected > -1) {
-        simulation.boxes[simulation.itemSelected].mesh.material.color.set(`${event.target.value}`);
+        simulation.objects[simulation.itemSelected].mesh.material.color.set(`${event.target.value}`);
     }
 });
 
@@ -812,14 +867,14 @@ document.getElementById("background-color-picker").addEventListener("change", (e
 
 //Temp
 document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation, 0, 0, 0, 2, 2, 2);
-document.getElementById("add-sphere-button").onclick = simulation.createBox.bind(simulation, 5, 0, 0, 2, 2, 2);
+document.getElementById("add-sphere-button").onclick = simulation.createSphere.bind(simulation, 5, 0, 0, 1);
 
 function handleWireFrameToggle(){
     if (document.getElementById("wireframe-toggle").checked && simulation.itemSelected > -1){
-        simulation.boxes[simulation.itemSelected].mesh.material.wireframe = true;
+        simulation.objects[simulation.itemSelected].mesh.material.wireframe = true;
     } else {
         if (simulation.itemSelected > -1){
-            simulation.boxes[simulation.itemSelected].mesh.material.wireframe = false;
+            simulation.objects[simulation.itemSelected].mesh.material.wireframe = false;
         }
     }
 }
@@ -852,6 +907,7 @@ transformControls.addEventListener("change", (event) => {
 });
 
 transformControls.addEventListener("mouseUp", setRightParameters);
+transformControls.addEventListener("mouseDown", () => {canClickCanvas = false});
 
 document.getElementById("background-color-picker").value = `#${renderer.getClearColor().getHexString()}`;
 
@@ -896,7 +952,6 @@ function closeNotification(){
 
 let tempTimeout, tempGSAP = gsap.timeline();
 function createNotification(notification, bool){
-    console.log(notifications);
     if (showNotifications) {
         if (notifications.length < 1 || notification.type.concat(": ", notification.msg) != document.getElementById("notification-popup-text").innerHTML) {
             if (bool || notifications.length == 0) {
@@ -958,58 +1013,66 @@ function loadfromJson(json) {
     let data = json[0];
     let nValid = 0;
     for (let i in data){
-        if (data[i].hasOwnProperty('position') && data[i].hasOwnProperty('dimensions')){
-            if (!isNaN(data[i].position.x) && !isNaN(data[i].position.y) && !isNaN(data[i].position.z) && !isNaN(data[i].dimensions.x) && !isNaN(data[i].dimensions.y) && !isNaN(data[i].dimensions.z)){
-                simulation.createBox(data[i].position.x, data[i].position.y, data[i].position.z, data[i].dimensions.x, data[i].dimensions.y, data[i].dimensions.z);
-                simulation.itemSelected = simulation.boxes.length - 1;
+        if (data[i].hasOwnProperty('position') && data[i].hasOwnProperty('dimensions') && data[i].hasOwnProperty('geometryType')){
+            if (!isNaN(data[i].position.x) && !isNaN(data[i].position.y) && !isNaN(data[i].position.z) && ((!isNaN(data[i].dimensions.x) && !isNaN(data[i].dimensions.y) && !isNaN(data[i].dimensions.z)) || !isNaN(data[i].dimensions.radius))){
+                switch (data[i].geometryType) {
+                    case "SphereGeometry":
+                        simulation.createSphere(data[i].position.x, data[i].position.y, data[i].position.z, data[i].dimensions.radius);
+                        break;
+                    case "BoxGeometry":
+                        simulation.createBox(data[i].position.x, data[i].position.y, data[i].position.z, data[i].dimensions.x, data[i].dimensions.y, data[i].dimensions.z);
+                        break;
+                }
+                
+                simulation.itemSelected = simulation.objects.length - 1;
                 synchronizePositions();
                 synchronizeRotation();
                 synchronizeSize();
                 if (data[i].hasOwnProperty('rotation')){
                     if (isNaN(data[i].position.x) && isNaN(data[i].position.y) && isNaN(data[i].position.z)){
-                        simulation.boxes[simulation.itemSelected].mesh.rotation.set(data[i].position.x, data[i].position.y, data[i].position.z);
+                        simulation.objects[simulation.itemSelected].mesh.rotation.set(data[i].position.x, data[i].position.y, data[i].position.z);
                     }
                 }
                 if (data[i].hasOwnProperty('name')){
-                    simulation.boxes[simulation.itemSelected].mesh.name = data[i].name;
+                    simulation.objects[simulation.itemSelected].mesh.name = data[i].name;
                 }
                 if (data[i].hasOwnProperty('angularVelocity')){
                     if (!isNaN(data[i].angularVelocity.x)){
-                        simulation.boxes[simulation.itemSelected].body.angularVelocity.x = data[i].angularVelocity.x;
+                        simulation.objects[simulation.itemSelected].body.angularVelocity.x = data[i].angularVelocity.x;
                     }
                     if (!isNaN(data[i].angularVelocity.y)){
-                        simulation.boxes[simulation.itemSelected].body.angularVelocity.y = data[i].angularVelocity.y;
+                        simulation.objects[simulation.itemSelected].body.angularVelocity.y = data[i].angularVelocity.y;
                     }
                     if (!isNaN(data[i].angularVelocity.z)){
-                        simulation.boxes[simulation.itemSelected].body.angularVelocity.z = data[i].angularVelocity.z;
+                        simulation.objects[simulation.itemSelected].body.angularVelocity.z = data[i].angularVelocity.z;
                     }
                 }
                 if (data[i].hasOwnProperty('force')){
                     if (!isNaN(data[i].force.x)){
-                        simulation.boxes[simulation.itemSelected].body.force.x = data[i].force.x;
+                        simulation.objects[simulation.itemSelected].body.force.x = data[i].force.x;
                     }
                     if (!isNaN(data[i].force.y)){
-                        simulation.boxes[simulation.itemSelected].body.force.y = data[i].force.y;
+                        simulation.objects[simulation.itemSelected].body.force.y = data[i].force.y;
                     }
                     if (!isNaN(data[i].force.z)){
-                        simulation.boxes[simulation.itemSelected].body.force.z = data[i].force.z;
+                        simulation.objects[simulation.itemSelected].body.force.z = data[i].force.z;
                     }
                 }
                 if (data[i].hasOwnProperty('mass')){
                     if (!isNaN(data[i].mass)){
-                        simulation.boxes[simulation.itemSelected].body.mass = data[i].mass;
+                        simulation.objects[simulation.itemSelected].body.mass = data[i].mass;
                     }
                 }
-                simulation.boxes[simulation.itemSelected].body.updateMassProperties();
+                simulation.objects[simulation.itemSelected].body.updateMassProperties();
                 if (data[i].hasOwnProperty('velocity')){
                     if (!isNaN(data[i].velocity.x)){
-                        simulation.boxes[simulation.itemSelected].body.velocity.x = data[i].velocity.x;
+                        simulation.objects[simulation.itemSelected].body.velocity.x = data[i].velocity.x;
                     }
                     if (!isNaN(data[i].velocity.y)){
-                        simulation.boxes[simulation.itemSelected].body.velocity.y = data[i].velocity.y;
+                        simulation.objects[simulation.itemSelected].body.velocity.y = data[i].velocity.y;
                     }
                     if (!isNaN(data[i].velocity.z)){
-                        simulation.boxes[simulation.itemSelected].body.velocity.z = data[i].velocity.z;
+                        simulation.objects[simulation.itemSelected].body.velocity.z = data[i].velocity.z;
                     }
                 }
                 simulation.itemSelected = -1;
