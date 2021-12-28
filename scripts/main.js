@@ -55,7 +55,7 @@ function initThree() {
     perspectiveCamera.position.z = 50;
     scene.add(orthographicCamera);
     scene.add(perspectiveCamera);
-    camera = perspectiveCamera;
+    camera = orthographicCamera
 
     renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true});
     renderer.setClearColor( 0xffffff, 1);

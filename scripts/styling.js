@@ -430,19 +430,22 @@ document.getElementById("settings-overlay").addEventListener('click', (event) =>
 //Other Event Listeners
 
 function blurFocusedElement(event){
-    if (event.key === 'Enter'){
-        if (isNaN(document.activeElement.value)){
-            createNotification(notificationList.inputNan, true);
-        } else if (document.activeElement.value.length == 0) {
-            createNotification(notificationList.inputEmpty, true);
-        } else {
-            document.activeElement.blur();
-        }
-        
+    if (isNaN(document.activeElement.value)) {
+        createNotification(notificationList.inputNan, true);
+    } else if (document.activeElement.value.length == 0) {
+        createNotification(notificationList.inputEmpty, true);
+    } else {
+        document.activeElement.blur();
     }
 }
 
-document.getElementById("right-ui-features").addEventListener("keydown", blurFocusedElement);
+function handleEnter(event){
+    if (event.key === 'Enter'){
+        blurFocusedElement();
+    }
+}
+
+document.getElementById("right-ui-features").addEventListener("keydown", handleEnter);
 
 let fovSlider = document.getElementById("fov-slider");
 let fovText = document.getElementById("fov-text");
@@ -576,7 +579,9 @@ function setRightParameters(){
 }
 
 canvas.addEventListener("mousedown", (event) => {
+    console.log(1)
     if (mode == "setup" ){
+        console.log(2)
         let intersectedObjects = simulation.checkForObject(event);
         if (intersectedObjects.length > 0 && canClickCanvas && (simulation.itemSelected == -1 || (simulation.itemSelected > -1 && simulation.objects[simulation.itemSelected].mesh.uuid != intersectedObjects[0].object.uuid))) {
             transformControls.attach(intersectedObjects[0].object);
@@ -589,12 +594,19 @@ canvas.addEventListener("mousedown", (event) => {
                 }
             }
         } else {
+            console.log(3)
             if (transformControls.object && !transformControls.dragging) {
+                console.log(4)
+                document.activeElement.blur();
                 transformControls.detach();
                 simulation.itemSelected = -1;
                 setRightParameters();
+            } else {
+                console.log(5)
             }
         }
+    } else {
+        console.log(6)
     }
 });
 
