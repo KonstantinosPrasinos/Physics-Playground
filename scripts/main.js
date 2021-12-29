@@ -110,12 +110,12 @@ function animate() {
 //General Functions
 
 function toggleStats(bool){
-    statsOn = bool
     if (bool){
         document.body.appendChild(stats.dom);
     } else {
         document.body.removeChild(stats.dom);
     }
+    statsOn = bool;
 }
 
 function updateValues(){

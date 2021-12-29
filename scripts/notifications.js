@@ -24,7 +24,7 @@ export let notificationList = {
     tutRotate: new Notification("Tutorial", "By selecting this you can click on an object on the canvas to bring up the rotation circles."),
     tutPlay: new Notification("Tutorial", "With this you can start the simulation. If the simulation is running this will change into a pause button."),
     tutReset: new Notification("Tutorial", "With this you can reset the simulation to the previously saved Setup state."),
-    tutRight: new Notification("Tutorial", "This opens the object ui. In this you can see and edit all the information regarding an object, as well as a list of all the objects."),
+    tutRight: new Notification("Tutorial", "This opens the object ui. In this you can see and edit all the information regarding an object, as well as a list of all the objects. You need to select an object to see the tutorial for the object attributes."),
     tutColor: new Notification("Tutorial", "This changes the color of the selected object."),
     tutWireframe: new Notification("Tutorial", "This changes the object from being filled in with color to having only a frame."),
     tutInfo: new Notification("Tutorial", "All these change certain attributes of the selected object (Mass has more info)."),

@@ -2,7 +2,7 @@ import {simulation, transformControls, orbitControls, camera, copyobjects, rende
 
 import {notificationList} from './notifications.js';
 
-let mode = "setup", selectedCursor = "none", rightUIisCollapsed = true, storedTheme = 'dark', timeStepStr = '1/60', showNotifications = true, doTutorial = false, canClickCanvas = true;
+let mode = "setup", selectedCursor = "none", rightUIisCollapsed = true, storedTheme = 'dark', timeStepStr = '1/60', showNotifications = true, doTutorial = true, canClickCanvas = true;
 
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
@@ -25,11 +25,18 @@ let colorPicker = document.getElementById("item-color-picker");
 let togglePauseButton = document.getElementById("top-play");
 let topMode = document.getElementById("top-mode");
 let canvas = document.getElementById("viewportCanvas");
+let fovSlider = document.getElementById("fov-slider");
+let fovText = document.getElementById("fov-text");
 
 //Local Storage Stuff
 
 function initStyling(){
-    document.getElementById("time-step-editable").placeholder = timeStepStr;
+    if (!localStorage.backgroundColor){
+        localStorage.setItem("backgroundColor", "#ffffff");
+    } else {
+        setBackgroundColor(localStorage.getItem("backgroundColor"));
+    }
+
     if (!localStorage.theme) {
         localStorage.setItem("theme", "dark");
     } else {
@@ -51,16 +58,82 @@ function initStyling(){
         }
         setTheme(theme);
     }
-    
-    if (!localStorage.tutorialCompleted) {
-        //Start tutorial
-        localStorage.setItem("tutorialCompleted", "true");
+
+    if (!localStorage.cameraType){
+        localStorage.setItem("cameraType", "OrthographicCamera")
+    } else {
+        let cameraType = localStorage.getItem("cameraType");
+        handleCameraButton(cameraType);
+        if (cameraType == "OrthographicCamera"){
+            document.getElementById("orthographic-button").checked = true;
+            document.getElementById("perspective-button").checked = false;
+        } else {
+            document.getElementById("orthographic-button").checked = false;
+            document.getElementById("perspective-button").checked = true;
+        }
     }
-    
+
+    if (!localStorage.cameraFov){
+        localStorage.setItem("cameraFov", 45);
+    } else {
+        let fov = parseInt(localStorage.getItem("cameraFov"))
+        camera.fov = fov;
+        fovText.placeholder = fov;
+        fovSlider.value = fov;
+    }
+
+    if (!localStorage.timeStep){
+        localStorage.setItem("timeStep", timeStepStr);
+        document.getElementById("time-step-editable").placeholder = timeStepStr;
+    } else {
+        timeStepStr = localStorage.getItem("timeStep");
+        document.getElementById("time-step-editable").placeholder = timeStepStr;
+        changeTimeStep(eval(timeStepStr))
+    }
+
+    if (!localStorage.gridX){
+        localStorage.setItem("gridX", false);
+    } else {
+        //Do grid x stuff
+    }
+
+    if (!localStorage.gridY){
+        localStorage.setItem("gridY", false);
+    } else {
+        //Do grid y stuff
+    }
+
+    if (!localStorage.gridX){
+        localStorage.setItem("gridZ", false);
+    } else {
+        //Do grid z stuff
+    }
+
+    if (!localStorage.fpsBool){
+        localStorage.setItem("fpsBool", false);
+    } else {
+        let fps = localStorage.getItem("fpsBool");
+        if (fps === 'true'){
+            toggleStats(fps);
+        }
+        document.getElementById("fps-toggle").checked = (fps === 'true');
+    }
+
     if (!localStorage.showNotifications){
         localStorage.setItem("showNotifications", showNotifications);
     } else {
         showNotifications = localStorage.getItem("showNotifications");
+    }
+
+    if (!localStorage.doTutorial) {
+        localStorage.setItem("doTutorial", true);
+        handleTutorialToggle(doTutorial == 'true');
+    } else {
+        doTutorial = (localStorage.getItem("doTutorial") == 'true');
+        document.getElementById("tutorial-toggle").checked = doTutorial;
+        if (doTutorial) {
+            handleTutorialToggle(doTutorial);
+        }
     }
 }
 
@@ -272,11 +345,13 @@ function handleCameraButton(type){
         if (window.getComputedStyle(fovGrid).opacity == 0){
             gsap.to(fovGrid, { duration: 0.2, opacity: 1});
         }
+        localStorage.setItem("cameraType", type);
     } else if (type == "OrthographicCamera"){
         setCamera("OrthographicCamera");
         if (window.getComputedStyle(fovGrid).opacity == 1){
             gsap.to(fovGrid, { duration: 0.2, opacity: 0});
         }
+        localStorage.setItem("cameraType", type);
     }
 }
 
@@ -364,10 +439,10 @@ document.getElementById("collapse-right-ui-button").onclick = function toggleRig
 }
 
 function handleSettingsOpen(){
-    toggleSettings();
-    if (showNotifications && doTutorial && window.getComputedStyle(document.getElementById("settings-box")).opacity == 0){
+    if (showNotifications && doTutorial && window.getComputedStyle(document.getElementById("settings-box")).visibility == "hidden"){
         createNotification(notificationList.tutSettings, false);
     }
+    toggleSettings();
 }
 
 document.getElementById("settings-button").onclick = handleSettingsOpen;
@@ -447,13 +522,10 @@ function handleEnter(event){
 
 document.getElementById("right-ui-features").addEventListener("keydown", handleEnter);
 
-let fovSlider = document.getElementById("fov-slider");
-let fovText = document.getElementById("fov-text");
-
-
 fovSlider.oninput = function (){
     if (camera.type == "PerspectiveCamera"){
         camera.fov = parseInt(fovSlider.value);
+        localStorage.setItem("cameraFov", parseInt(fovSlider.value));
         fovText.placeholder = camera.fov;
         camera.updateProjectionMatrix();
     }
@@ -472,6 +544,7 @@ fovText.addEventListener("blur", () => {
         } else {
             fovText.placeholder = fovText.value;
             camera.fov = parseInt(fovText.value);
+            locaStorage.cameraFov = parseInt(fovText.value);
         }
         fovText.value = "";
         fovSlider.value = camera.fov;
@@ -579,9 +652,7 @@ function setRightParameters(){
 }
 
 canvas.addEventListener("mousedown", (event) => {
-    console.log(1)
     if (mode == "setup" ){
-        console.log(2)
         let intersectedObjects = simulation.checkForObject(event);
         if (intersectedObjects.length > 0 && canClickCanvas && (simulation.itemSelected == -1 || (simulation.itemSelected > -1 && simulation.objects[simulation.itemSelected].mesh.uuid != intersectedObjects[0].object.uuid))) {
             transformControls.attach(intersectedObjects[0].object);
@@ -594,19 +665,13 @@ canvas.addEventListener("mousedown", (event) => {
                 }
             }
         } else {
-            console.log(3)
             if (transformControls.object && !transformControls.dragging) {
-                console.log(4)
                 document.activeElement.blur();
                 transformControls.detach();
                 simulation.itemSelected = -1;
                 setRightParameters();
-            } else {
-                console.log(5)
             }
         }
-    } else {
-        console.log(6)
     }
 });
 
@@ -851,6 +916,7 @@ document.getElementById("collisionResponse-toggle").addEventListener("click", (e
 
 document.getElementById("fps-toggle").addEventListener("click", (event) => {
     toggleStats(event.target.checked);
+    localStorage.setItem("fpsBool", event.target.checked);
 });
 
 colorPicker.addEventListener("change", (event) => {
@@ -873,8 +939,13 @@ document.getElementById("custom-secondary-color-picker").addEventListener("chang
     }
 })
 
+function setBackgroundColor(color){
+    renderer.setClearColor(color);
+}
+
 document.getElementById("background-color-picker").addEventListener("change", (event) => {
-    renderer.setClearColor(event.target.value);
+    localStorage.backgroundColor = event.target.value;
+    setBackgroundColor(event.target.value);
 })
 
 //Temp
@@ -980,6 +1051,9 @@ function createNotification(notification, bool){
                         break;
                     case "Tutorial":
                         notificationPopup.style.borderColor = "#3498db";
+                        if (!doTutorial){
+                            return;
+                        }
                         break;
                     default:
                         notificationPopup.style.borderColor = "var(--secondary-color)"
@@ -1009,13 +1083,15 @@ document.getElementById("notification-popup").onmouseleave = handleMouseLeave;
 document.getElementById("notification-toggle").addEventListener("click", (event) => {
     showNotifications = event.target.checked;
     localStorage.setItem("showNotifications", showNotifications);
-    if (showNotifications == false && doTutorial == true){
+    if (showNotifications == false){
         document.getElementById("tutorial-toggle").checked = false;
         localStorage.setItem("doTutorial", false);
         doTutorial = false;
-        showNotifications = true;
-        createNotification(notificationList.noNotifs, true);
-        showNotifications = false;
+        if (doTutorial){
+            showNotifications = true;
+            createNotification(notificationList.noNotifs, true);
+            showNotifications = false;
+        }
     }
 });
 
@@ -1127,10 +1203,10 @@ async function fileToJSON(file) {
     })
 }
 
-document.getElementById("tutorial-toggle").addEventListener("click", (event) => {
-    localStorage.setItem("doTutorial", event.target.checked);
-    doTutorial = event.target.checked;
-    if (event.target.checked && showNotifications){
+function handleTutorialToggle(bool){
+    localStorage.setItem("doTutorial", bool);
+    doTutorial = bool;
+    if (bool && showNotifications){
         createNotification(notificationList.tutStart, true);
         // document.getElementById("top-ui").onmouseenter = createNotification.bind(this, notificationList.tutTop, false);
         document.getElementById("top-select").onmouseenter = createNotification.bind(this, notificationList.tutTranslate, false);
@@ -1162,12 +1238,18 @@ document.getElementById("tutorial-toggle").addEventListener("click", (event) => 
         document.getElementById("upload-container").onmouseenter = createNotification.bind(this, notificationList.tutUpload, false);
         document.getElementById("log").onmouseenter = createNotification.bind(this, notificationList.tutLog, false);
         document.getElementById("downloads-container").onmouseenter = createNotification.bind(this, notificationList.tutDownloads, false);
-    } else if (!showNotifications && event.target.checked){
+    } else if (!showNotifications && bool){
         showNotifications = true;
         createNotification(notificationList.noNotifs, true);
         showNotifications = false;
         document.getElementById("tutorial-toggle").checked = false;
-        localStorage.setItem("doTutorial", event.target.checked);
-        doTutorial = event.target.checked;
+        // localStorage.setItem("doTutorial", bool);
+        doTutorial = bool;
     }
+}
+
+document.getElementById("tutorial-toggle").addEventListener("click", (event) => {
+    handleTutorialToggle(event.target.checked);
 });
+
+localStorage.setItem("doTutorial", false);
