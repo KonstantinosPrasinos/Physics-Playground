@@ -135,13 +135,23 @@ function initStyling(){
             handleTutorialToggle(doTutorial);
         }
     }
+
+    if (!localStorage.printTimestep){
+        localStorage.setItem("printTimestep", 0);
+    } else {
+        let perTimeStep = localStorage.getItem("printTimestep");
+        simulation.logPerSteps = perTimeStep;
+        document.getElementById("print-timestep").placeholder = perTimeStep;
+    }
 }
 
 
 //General Functions
 document.getElementById("print-timestep").addEventListener("blur", () => {
     if (document.getElementById("print-timestep").value){
-        simulation.logPerSteps = parseInt(document.getElementById("print-timestep").value);
+        let value = parseInt(document.getElementById("print-timestep").value);
+        simulation.logPerSteps = value;
+        localStorage.setItem("printTimestep", value);
     } else {
         simulation.logPerSteps = 0;
     }
