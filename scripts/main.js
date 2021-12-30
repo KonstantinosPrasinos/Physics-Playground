@@ -240,9 +240,13 @@ function addItemToList(index){
     lockButtonNode.classList.add("icon-buttons");
     lockButtonNode.classList.add("small-icon-buttons");
     lockButtonNode.addEventListener('click', () => {
-        simulation.objects[index].mesh.userData.moveable = !simulation.objects[index].mesh.userData.moveable;
-        if (!simulation.objects[index].mesh.userData.moveable) {
+        simulation.objects[index].mesh.userData.selectable = !simulation.objects[index].mesh.userData.selectable;
+        console.log(simulation.objects[index].mesh.userData.selectable)
+        if (!simulation.objects[index].mesh.userData.selectable) {
             lockButtonNode.style.backgroundColor = 'orange';
+            if (index == simulation.itemSelected){
+                canvas.click();
+            }
         } else {
             lockButtonNode.style.backgroundColor = 'var(--secondary-color)';
         }
@@ -576,8 +580,7 @@ let simulation = {
         let tempMesh = new THREE.Mesh(geometry, material);
         tempMesh.position.set(x, y, z);
         tempMesh.userData.createsGravity = true;
-        tempMesh.userData.affectedByGravity = true;
-        tempMesh.userData.moveable = true;
+        tempMesh.userData.selectable = true;
         scene.add(tempMesh);
 
         tempMesh.name = `Cube-${this.objects.length}`;
@@ -601,8 +604,7 @@ let simulation = {
         let tempMesh = new THREE.Mesh(geometry, material);
         tempMesh.position.set(x, y, z);
         tempMesh.userData.createsGravity = true;
-        tempMesh.userData.affectedByGravity = true;
-        tempMesh.userData.moveable = true;
+        tempMesh.userData.selectable = true;
         scene.add(tempMesh);
         
         tempMesh.name = `Sphere-${this.objects.length}`;

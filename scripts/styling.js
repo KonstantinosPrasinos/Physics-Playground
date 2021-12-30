@@ -34,7 +34,9 @@ function initStyling(){
     if (!localStorage.backgroundColor){
         localStorage.setItem("backgroundColor", "#ffffff");
     } else {
-        setBackgroundColor(localStorage.getItem("backgroundColor"));
+        let color = localStorage.getItem("backgroundColor")
+        document.getElementById("background-color-picker").value = color;
+        setBackgroundColor(color);
     }
 
     if (!localStorage.theme) {
@@ -482,6 +484,7 @@ document.getElementById("top-play").onclick = function togglePause(){
             element.body.position.copy(element.mesh.position);
             element.body.quaternion.copy(element.mesh.quaternion);
         });
+        setDisabled(true);
         // synchronizePositions();
     }
     if (simulation.isPaused){
@@ -500,6 +503,7 @@ document.getElementById("top-replay").onclick = async function toggleMode(){
         topMode.innerHTML = "<b>Mode:</b> Setup";
         if (simulation.itemSelected > -1){
             transformControls.attach(simulation.objects[simulation.itemSelected].mesh);
+            setAllAttributes(false);
         }
     }
 }
@@ -561,8 +565,7 @@ fovText.addEventListener("blur", () => {
     }
 });
 
-function setAllAtrAttributes(bool){
-    document.getElementById("collisionResponse-toggle").checked = bool;
+function setDisabled(bool){
     document.getElementById("item-color-picker").disabled = bool;
     document.getElementById("wireframe-toggle").disabled = bool;
     document.getElementById("width-input").disabled = bool;
@@ -584,6 +587,11 @@ function setAllAtrAttributes(bool){
     document.getElementById("force.y-input").disabled = bool;
     document.getElementById("force.z-input").disabled = bool;
     document.getElementById("mass-input").disabled = bool;
+}
+
+function setAllAttributes(bool){
+    document.getElementById("collisionResponse-toggle").checked = bool;
+    setDisabled(bool);
     if (!bool){
         updateValues();
         colorPicker.value = `#${simulation.objects[simulation.itemSelected].mesh.material.color.getHexString()}`;
@@ -620,32 +628,11 @@ function setAllAtrAttributes(bool){
         document.getElementById("force.y-input").value = "";
         document.getElementById("force.z-input").value = "";
         document.getElementById("mass-input").value = "";
-        
-        document.getElementById("width-input").disabled = true;;
-        document.getElementById("height-input").disabled = true;;
-        document.getElementById("depth-input").disabled = true;;
-        document.getElementById("position.x-input").disabled = true;;
-        document.getElementById("position.y-input").disabled = true;;
-        document.getElementById("position.z-input").disabled = true;;
-        document.getElementById("rotation.x-input").disabled = true;;
-        document.getElementById("rotation.y-input").disabled = true;;
-        document.getElementById("rotation.z-input").disabled = true;;
-        document.getElementById("velocity.x-input").disabled = true;;
-        document.getElementById("velocity.y-input").disabled = true;;
-        document.getElementById("velocity.z-input").disabled = true;;
-        document.getElementById("angularVelocity.x-input").disabled = true;;
-        document.getElementById("angularVelocity.y-input").disabled = true;;
-        document.getElementById("angularVelocity.z-input").disabled = true;;
-        document.getElementById("force.x-input").disabled = true;;
-        document.getElementById("force.y-input").disabled = true;;
-        document.getElementById("force.z-input").disabled = true;;
-        document.getElementById("mass-input").disabled = true;;
         colorPicker.value = "#000000";
     }
 }
 
 function setRightParameters(){
-    canClickCanvas = true;
     if (simulation.itemSelected > -1){
         transformControls.detach();
         transformControls.attach(simulation.objects[simulation.itemSelected].mesh);
@@ -653,23 +640,27 @@ function setRightParameters(){
         document.getElementById("collisionResponse-toggle").checked = simulation.objects[simulation.itemSelected].body.collisionResponse ? true : false;
         document.getElementById("object-name").innerText = simulation.objects[simulation.itemSelected].mesh.name;
 
-        setAllAtrAttributes(false);
+        setAllAttributes(false);
     } else {
         document.getElementById("object-name").innerText = "No item is Selected";
         
-        setAllAtrAttributes(true);
+        setAllAttributes(true);
     }
 }
 
-canvas.addEventListener("mousedown", (event) => {
+function handleCanvasClick(event, bool){
     if (mode == "setup" ){
-        let intersectedObjects = simulation.checkForObject(event);
-        if (intersectedObjects.length > 0 && canClickCanvas && (simulation.itemSelected == -1 || (simulation.itemSelected > -1 && simulation.objects[simulation.itemSelected].mesh.uuid != intersectedObjects[0].object.uuid))) {
+        let intersectedObjects;
+        if (bool){
+            intersectedObjects = simulation.checkForObject(event);
+        } else {intersectedObjects = []};
+        if (intersectedObjects.length > 0 && intersectedObjects[0].object.userData.selectable && canClickCanvas && (simulation.itemSelected == -1 || (simulation.itemSelected > -1 && simulation.objects[simulation.itemSelected].mesh.uuid != intersectedObjects[0].object.uuid))) {
             transformControls.attach(intersectedObjects[0].object);
             for (const index in simulation.objects) {
                 if (simulation.objects[index].mesh.uuid == intersectedObjects[0].object.uuid) {
                     simulation.itemSelected = index;
                     transformControls.attach(simulation.objects[index].mesh);
+                    canClickCanvas = true;
                     setRightParameters();
                     break;
                 }
@@ -679,9 +670,19 @@ canvas.addEventListener("mousedown", (event) => {
                 document.activeElement.blur();
                 transformControls.detach();
                 simulation.itemSelected = -1;
+                canClickCanvas = true;
                 setRightParameters();
             }
         }
+    }
+}
+
+canvas.addEventListener("mousedown", (event) => {
+    handleCanvasClick(event, true);
+});
+canvas.addEventListener("click", (event) => {
+    if (event.pointerId === -1){
+        handleCanvasClick(event, false);
     }
 });
 
@@ -999,10 +1000,8 @@ transformControls.addEventListener("change", (event) => {
     }
 });
 
-transformControls.addEventListener("mouseUp", setRightParameters);
+transformControls.addEventListener("mouseUp", () => {canClickCanvas = true; setRightParameters();});
 transformControls.addEventListener("mouseDown", () => {canClickCanvas = false});
-
-document.getElementById("background-color-picker").value = `#${renderer.getClearColor().getHexString()}`;
 
 document.getElementById("time-step-editable").addEventListener("keypress", (event) => {
     if (['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '/', '*', '%', '+', '-'].indexOf(event.key) === -1) {
@@ -1263,3 +1262,4 @@ document.getElementById("tutorial-toggle").addEventListener("click", (event) => 
 });
 
 localStorage.setItem("doTutorial", false);
+console.log(renderer);
