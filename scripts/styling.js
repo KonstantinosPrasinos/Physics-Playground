@@ -1386,3 +1386,4 @@ function handleAllForceToggle(){
 }
 
 document.getElementById("force-vectors-all").onclick = handleAllForceToggle;
+console.log("hello");
