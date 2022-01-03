@@ -125,6 +125,12 @@ button {
     top: 60px;
     position: relative;
 }
+#add-cylinder-button {
+    -webkit-mask-image:  url(/assets/cylinder.svg);
+    mask-image: url(assets/cylinder.svg);
+    top: 60px;
+    position: relative;
+}
 .close-button {
     -webkit-mask-image:  url(/assets/close.svg);
     mask-image: url(assets/close.svg);
@@ -157,7 +163,6 @@ button {
     background-repeat: no-repeat;
     background-position: -2px;
     border: none;
-    visibility: visible;
 }
 .big-icon-buttons{
     height: 32px;
@@ -200,14 +205,14 @@ button {
     padding-top: 10px;
     position: absolute;
     width: 100%;
-    height: 72%;
+    height: 77%;
 }
 #right-ui-items-list {
     opacity: 0;
     position: absolute;
     width: 100%;
-    height: 28%;
-    top: 72%;
+    height: 23%;
+    top: 77%;
 }
 input[type=color]{
     opacity: inherit;
@@ -242,7 +247,7 @@ input:disabled{
     position: absolute;
     left: 5px;
     width: calc(100% - 10px);
-    height: 88%;
+    height: 85%;
     border-radius: 8px;
     overflow: auto;
 }
@@ -352,7 +357,7 @@ input:disabled{
 
 /* Settings */
 #settings-overlay {
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(0, 0, 0, 0);
     width: 100%;
     height: 100%;
     position: fixed;
@@ -605,6 +610,7 @@ input {
     border-radius: 5px;
     padding: 5px;
     opacity: 0;
+    visibility: hidden;
 }
 #custom-grid-container * {
     margin: auto;
@@ -629,23 +635,17 @@ input {
     border-radius: 5px;
     padding: 5px;
     margin-left: 10px;
+    visibility: hidden;
 }
 
-#velocity-vectors-container{
-    display: inline-grid;
-    grid-template-columns: auto auto auto;
+.vectors-container {
+    display: grid;
+    grid-template-columns: auto auto;
     column-gap: 3em;
     text-align: center;
 }
 #velocity-vectors-container *{
     margin: auto;
-}
-
-#force-vectors-container{
-    display: inline-grid;
-    grid-template-columns: auto auto auto;
-    column-gap: 3em;
-    text-align: center;
 }
 #force-vectors-container *{
     margin: auto;
@@ -737,4 +737,11 @@ input {
 }
 #upload-button:hover{
     cursor: pointer;
+}
+
+#grid-container {
+    display:flex;
+}
+#collidable-checklist {
+    display: inline;
 }
