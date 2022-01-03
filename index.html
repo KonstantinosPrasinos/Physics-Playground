@@ -180,36 +180,33 @@
                 </div>
                 <div class="right-text-field">
                     <span>Collidable:</span>
-                    <div class="checklist">
+                    <div class="checklist" id="collidable-checklist">
                         <input type="checkbox" class="simple-checkmark inline-checkbox" id="collisionResponse-toggle"
                             disabled>
                     </div>
                 </div>
                 <div class="right-text-field">
                     <div class="right-title title-small">Velocity Vectors:</div>
-                    <div id="velocity-vectors-container">
-                        <input type="radio" id="velocity-vectors-off" class="simple-radio block-editable radio-filled"
-                            value="off" name="velocity-radio" disabled>
-                        <input type="radio" id="velocity-vectors-single"
-                            class="simple-radio block-editable radio-filled" value="single" name="velocity-radio"
-                            disabled>
-                        <input type="radio" id="velocity-vectors-all" class="simple-radio block-editable radio-filled"
-                            value="all" name="velocity-radio" disabled>
-                        <span>Off</span>
+                    <div id="velocity-vectors-container" class="vectors-container">
+                        <div class="checklist">
+                            <input type="checkbox" class="simple-checkmark" id="velocity-vectors-single" disabled>
+                        </div>
+                        <div class="checklist">
+                            <input type="checkbox" class="simple-checkmark" id="velocity-vectors-all" disabled>
+                        </div>
                         <span>Single</span>
                         <span>All</span>
                     </div>
                 </div>
                 <div class="right-text-field">
                     <div class="right-title title-small">Force Vectors:</div>
-                    <div id="force-vectors-container">
-                        <input type="radio" id="force-vectors-off" class="simple-radio block-editable radio-filled"
-                            value="off" name="force-radio" disabled>
-                        <input type="radio" id="force-vectors-single" class="simple-radio block-editable radio-filled"
-                            value="single" name="force-radio" disabled>
-                        <input type="radio" id="force-vectors-all" class="simple-radio block-editable radio-filled"
-                            value="all" name="force-radio" disabled>
-                        <span>Off</span>
+                    <div id="force-vectors-container" class="vectors-container">
+                        <div class="checklist">
+                            <input type="checkbox" class="simple-checkmark" id="force-vectors-single" disabled>
+                        </div>
+                        <div class="checklist">
+                            <input type="checkbox" class="simple-checkmark" id="force-vectors-all" disabled>
+                        </div>
                         <span>Single</span>
                         <span>All</span>
                     </div>

@@ -105,6 +105,11 @@ function animate() {
     if (statsOn){
         stats.update();
     }
+    for (let i in simulation.objects){
+        if (simulation.objects[i].mesh.userData.hasVectors){
+            updateVectors(simulation.objects[i]);
+        }
+    }
 }
 
 //General Functions
@@ -122,12 +127,16 @@ function updateValues(){
     if (simulation.itemSelected > -1){
         switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
             case "SphereGeometry":
-                document.getElementById("width-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radius;
+                document.getElementById("width-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radius * simulation.objects[simulation.itemSelected].mesh.scale.x;
                 break;
             case "BoxGeometry":
                 document.getElementById("width-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.width * simulation.objects[simulation.itemSelected].mesh.scale.x;
                 document.getElementById("height-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.height * simulation.objects[simulation.itemSelected].mesh.scale.y;
                 document.getElementById("depth-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.depth * simulation.objects[simulation.itemSelected].mesh.scale.z;
+                break;
+            case "CylinderGeometry":
+                document.getElementById("width-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radiusTop * simulation.objects[simulation.itemSelected].mesh.scale.x;
+                document.getElementById("height-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.height * simulation.objects[simulation.itemSelected].mesh.scale.y;
                 break;
         }
         document.getElementById("position.x-input").value = simulation.objects[simulation.itemSelected].mesh.position.x;
@@ -163,12 +172,16 @@ function generateJSON(){
         timeLine[item.mesh.uuid] = {name: item.mesh.name, mass: item.body.mass, position: {x: item.body.position.x, y: item.body.position.y, z: item.body.position.z}, velocity: {x: item.body.velocity.x, y: item.body.velocity.y, z: item.body.velocity.z}, rotation: {x: item.mesh.rotation.x, y: item.mesh.rotation.y, z: item.mesh.rotation.z}, angularVelocity: {x: item.body.angularVelocity.x, y: item.body.angularVelocity.y, z: item.body.angularVelocity.z}, force: {x: item.body.force.x, y: item.body.force.y, z: item.body.force.z}};
         switch (item.mesh.geometry.type) {
             case "SphereGeometry":
-                timeLine[item.mesh.uuid].dimensions = {radius: item.mesh.geometry.parameters.radius};
+                timeLine[item.mesh.uuid].dimensions = {radius: item.mesh.geometry.parameters.radius * item.mesh.scale.x};
                 timeLine[item.mesh.uuid].geometryType = "SphereGeometry";
                 break;
             case "BoxGeometry":
                 timeLine[item.mesh.uuid].dimensions = {x: item.mesh.geometry.parameters.width * item.mesh.scale.x, y: item.mesh.geometry.parameters.height * item.mesh.scale.y, z: item.mesh.geometry.parameters.depth * item.mesh.scale.z};
                 timeLine[item.mesh.uuid].geometryType = "BoxGeometry";
+                break;
+            case "CylinderGeometry":
+                timeLine[item.mesh.uuid].dimensions = {radius: item.mesh.geometry.parameters.radiusTop * item.mesh.scale.x, height: item.mesh.geometry.parameters.height * item.mesh.scale.y};
+                timeLine[item.mesh.uuid].geometryType = "CylinderGeometry";
                 break;
         }
     });
@@ -241,7 +254,6 @@ function addItemToList(index){
     lockButtonNode.classList.add("small-icon-buttons");
     lockButtonNode.addEventListener('click', () => {
         simulation.objects[index].mesh.userData.selectable = !simulation.objects[index].mesh.userData.selectable;
-        console.log(simulation.objects[index].mesh.userData.selectable)
         if (!simulation.objects[index].mesh.userData.selectable) {
             lockButtonNode.style.backgroundColor = 'orange';
             if (index == simulation.itemSelected){
@@ -273,6 +285,9 @@ function addItemToList(index){
 }
 
 function deleteObjectFromList(index) {
+    if (transformControls.object.uuid == simulation.objects[index].mesh.uuid){
+        transformControls.detach();
+    }
     scene.remove(simulation.objects[index].mesh);
     world.remove(simulation.objects[index].body);
     simulation.objects.splice(index, 1);
@@ -288,77 +303,100 @@ function refreshListOfObjects(){
     }
 }
 
-function processArtificialGravity(){
-    // simulation.objects[0].body.mass = 10**12;
-    // simulation.objects[0].body.updateMassProperties();
-    // simulation.objects[1].body.mass = 10**12;
-    // simulation.objects[1].body.updateMassProperties();
-    const zero = new CANNON.Vec3(0, 0, 0);
-    for (const index in simulation.objects){
-        simulation.objects[index].body.force = zero;
-    }
-    
-    for (let i = 0; i < simulation.objects.length - 1; i++){
-        for (let j = i + 1; j < simulation.objects.length; j ++ ){
-            calculateGravity(simulation.objects[0], simulation.objects[1]);
-        }
-    }
-    
-}
-
 function updateVectors(object) {
-    let F, V, direction, length, origin = object.mesh.position;;
+    let F, V, direction, length, origin = object.mesh.position;
     for (const index in object.mesh.children) {
         switch (object.mesh.children[index].name) {
             case "resultantForceVector":
                 F = Math.sqrt(object.body.force.x ** 2 + object.body.force.y ** 2 + object.body.force.z ** 2);
-                direction = ((new THREE.Vector3(object.body.force.x, object.body.force.y, object.body.force.z)).add(origin)).normalize();
-                length = F / 10;
-                object.mesh.children[index].setDirection(direction);
-                object.mesh.children[index].setLength(length);
+                if (F != 0) {
+                    object.mesh.children[index].visible = true;
+                    direction = (new THREE.Vector3(object.body.force.x, object.body.force.y, object.body.force.z)).normalize();
+                    length = F;
+                    object.mesh.children[index].setDirection(direction);
+                    object.mesh.children[index].setLength(length);
+                } else {
+                    object.mesh.children[index].visible = false;
+                }
                 break;
             case "forceVectorX":
-                direction = ((new THREE.Vector3(object.body.force.x, origin.y, origin.z)).add(origin)).normalize();
-                length = object.body.force.x / 10;
-                object.mesh.children[index].setDirection(direction);
-                object.mesh.children[index].setLength(length);
+                if (object.body.force.x != 0){
+                    object.mesh.children[index].visible = true;
+                    direction = new THREE.Vector3(object.body.force.x, 0, 0);
+                    length = object.body.force.x;
+                    object.mesh.children[index].setDirection(direction);
+                    object.mesh.children[index].setLength(length);
+                } else {
+                    object.mesh.children[index].visible = false;
+                }
                 break;
             case "forceVectorY":
-                direction = ((new THREE.Vector3(origin.x, object.body.force.y, origin.z)).add(origin)).normalize();
-                length = object.body.force.y / 10;
-                object.mesh.children[index].setDirection(direction);
-                object.mesh.children[index].setLength(length);
+                if (object.body.force.y != 0){
+                    object.mesh.children[index].visible = true;
+                    direction = new THREE.Vector3(0, object.body.force.y, 0);
+                    length = object.body.force.y;
+                    object.mesh.children[index].setDirection(direction);
+                    object.mesh.children[index].setLength(length);
+                } else {
+                    object.mesh.children[index].visible = false;
+                }
                 break;
             case "forceVectorZ":
-                direction = ((new THREE.Vector3(origin.x, origin.y, object.body.force.z)).add(origin)).normalize();
-                length = object.body.force.z / 10;
-                object.mesh.children[index].setDirection(direction);
-                object.mesh.children[index].setLength(length);
+                if (object.body.force.z != 0){
+                    object.mesh.children[index].visible = true;
+                    direction = new THREE.Vector3(0, 0, object.body.force.z);
+                    length = object.body.force.z;
+                    object.mesh.children[index].setDirection(direction);
+                    object.mesh.children[index].setLength(length);
+                } else {
+                    object.mesh.children[index].visible = false;
+                }
                 break;
             case "resultantVelocityVector":
                 V = Math.sqrt(object.body.velocity.x ** 2 + object.body.velocity.y ** 2 + object.body.velocity.z ** 2);
-                direction = ((new THREE.Vector3(object.body.velocity.x, object.body.velocity.y, object.body.velocity.z)).add(origin)).normalize();
-                length = V / 10;
-                object.mesh.children[index].setDirection(direction);
-                object.mesh.children[index].setLength(length);
+                if (V != 0) {
+                    object.mesh.children[index].visible = true;
+                    direction = (new THREE.Vector3(object.body.velocity.x, object.body.velocity.y, object.body.velocity.z)).normalize();
+
+                    length = V;
+                    object.mesh.children[index].setDirection(direction);
+                    object.mesh.children[index].setLength(length);
+                } else {
+                    object.mesh.children[index].visible = false;
+                }
                 break;
             case "velocityVectorX":
-                direction = ((new THREE.Vector3(object.body.velocity.x, origin.y, origin.z)).add(origin)).normalize();
-                length = object.body.velocity.x / 10;
-                object.mesh.children[index].setDirection(direction);
-                object.mesh.children[index].setLength(length);
+                if (object.body.velocity.x != 0){
+                    object.mesh.children[index].visible = true;
+                    direction = new THREE.Vector3(object.body.velocity.x, 0, 0);
+                    length = object.body.velocity.x;
+                    object.mesh.children[index].setDirection(direction);
+                    object.mesh.children[index].setLength(length);
+                } else {
+                    object.mesh.children[index].visible = false;
+                }
                 break;
             case "velocityVectorY":
-                direction = ((new THREE.Vector3(origin.x, object.body.velocity.y, origin.z)).add(origin)).normalize();
-                length = object.body.velocity.y / 10;
-                object.mesh.children[index].setDirection(direction);
-                object.mesh.children[index].setLength(length);
+                if (object.body.velocity.y != 0){
+                    object.mesh.children[index].visible = true;
+                    direction = new THREE.Vector3(0, object.body.velocity.y, 0);
+                    length = object.body.velocity.y;
+                    object.mesh.children[index].setDirection(direction);
+                    object.mesh.children[index].setLength(length);
+                } else {
+                    object.mesh.children[index].visible = false;
+                }
                 break;
             case "velocityVectorZ":
-                direction = ((new THREE.Vector3(origin.x, origin.y, object.body.velocity.z)).add(origin)).normalize();
-                length = object.body.velocity.z / 10;
-                object.mesh.children[index].setDirection(direction);
-                object.mesh.children[index].setLength(length);
+                if (object.body.velocity.z != 0){
+                    object.mesh.children[index].visible = true;
+                    direction = new THREE.Vector3(0, 0, object.body.velocity.z);
+                    length = object.body.velocity.z;
+                    object.mesh.children[index].setDirection(direction);
+                    object.mesh.children[index].setLength(length);
+                } else {
+                    object.mesh.children[index].visible = false;
+                }
                 break;
             default:
                 break;
@@ -370,61 +408,107 @@ function toggleResultantForceVector(object){
     for (const index in object.mesh.children){
         if (object.mesh.children[index].name == "resultantForceVector"){
             object.mesh.remove(object.mesh.children[index]);
+            object.mesh.userData.hasVectors = false;
             return true;
         }
     }
-    const F = Math.sqrt(object.body.force.x ** 2 + object.body.force.y ** 2 + object.body.force.z ** 2);
-    if (F != 0){
-        const origin = object.mesh.position;
-        const direction = ((new THREE.Vector3(object.body.force.x, object.body.force.y, object.body.force.z)).add(origin)).normalize();
-        const length = F / 10;
-        const hex = 0xffff00;
-        const arrowHelper = new THREE.ArrowHelper(direction, origin, length, hex);
-        arrowHelper.name = "resultantForceVector";
-        object.mesh.add(arrowHelper);
+    object.mesh.userData.hasVectors = true;
+    const V = Math.sqrt(object.body.force.x ** 2 + object.body.force.y ** 2 + object.body.force.z ** 2);
+    const origin = object.mesh.position;
+    const direction = ((new THREE.Vector3(object.body.force.x, object.body.force.y, object.body.force.z)).add(origin)).normalize();
+    let length;
+    const hex = 0xff0000;
+    let visible = true;
+    if (V != 0){
+        length = V;
+    } else {
+        length = 10;
+        visible = false;
     }
+    const arrowHelper = new THREE.ArrowHelper(direction, origin, length, hex);
+    arrowHelper.visible = visible;
+    arrowHelper.name = "resultantForceVector";
+    arrowHelper.line.material.depthTest = false;
+    arrowHelper.line.renderOrder = Infinity;
+    arrowHelper.cone.material.depthTest = false;
+    arrowHelper.cone.renderOrder = Infinity;
+    object.mesh.add(arrowHelper);
 }
 
 function toggleComponentForcesVectors(object){
     let vectorsFound = false;
-    for (const index in object.mesh.children){
+    for (let index = 0; index < object.mesh.children.length; index++){
         switch (object.mesh.children[index].name) {
             case "forceVectorX":
             case "forceVectorY":
             case "forceVectorZ":
                 vectorsFound = true;
+                object.mesh.userData.hasVectors = false;
                 object.mesh.remove(object.mesh.children[index]);
                 break;
             default:
                 break;
         }
     }
-    if (vectorsFound == false){
+    if (!vectorsFound){
+        let visible, length, direction, color;
         const origin = object.mesh.position;
+
+        object.mesh.userData.hasVectors = true;
+
+        visible = true;
+        direction = ((new THREE.Vector3(object.body.force.x, 0, 0)).add(origin)).normalize();
         if (object.body.force.x != 0){
-            const directionX = ((new THREE.Vector3(object.body.force.x, origin.y, origin.z)).add(origin)).normalize();
-            const lengthX = object.body.force.x / 10;
-            const hexX = 0x00cdcd;
-            const arrowHelperX = new THREE.ArrowHelper(directionX, origin, lengthX, hexX);
-            arrowHelperX.name = "forceVectorX";
-            object.mesh.add(arrowHelperX);
+            length = object.body.force.x;
+        } else {
+            length = 10;
+            visible = false;
         }
-        if (object.body.force.y != 0){
-            const directionY = ((new THREE.Vector3(origin.x, object.body.force.y, origin.z)).add(origin)).normalize();
-            const lengthY = object.body.force.y / 10;
-            const hexY = 0xcd00cd;
-            const arrowHelperY = new THREE.ArrowHelper(directionY, origin, lengthY, hexY);
-            arrowHelperY.name = "forceVectorY";
-            object.mesh.add(arrowHelperY);
+        color = 0xff4500;
+        const arrowHelperX = new THREE.ArrowHelper(direction, origin, length, color);
+        arrowHelperX.visible = visible;
+        arrowHelperX.name = "forceVectorX";
+        arrowHelperX.line.material.depthTest = false;
+        arrowHelperX.line.renderOrder = Infinity;
+        arrowHelperX.cone.material.depthTest = false;
+        arrowHelperX.cone.renderOrder = Infinity;
+        object.mesh.add(arrowHelperX);
+
+        visible = true;
+        direction = ((new THREE.Vector3(0, object.body.force.y, 0)).add(origin)).normalize();
+        if (object.body.force.x != 0){
+            length = object.body.force.x;
+        } else {
+            length = 10;
+            visible = false;
         }
-        if (object.body.force.z != 0){
-            const directionZ = ((new THREE.Vector3(origin.x, origin.y, object.body.force.y)).add(origin)).normalize();
-            const lengthZ = object.body.force.z / 10;
-            const hexZ = 0xcd00cd;
-            const arrowHelperZ = new THREE.ArrowHelper(directionZ, origin, lengthZ, hexZ);
-            arrowHelperZ.name = "forceVectorZ";
-            object.mesh.add(arrowHelperZ);
+        color = 0xffff00;
+        const arrowHelperY = new THREE.ArrowHelper(direction, origin, length, color);
+        arrowHelperY.visible = visible;
+        arrowHelperY.name = "forceVectorY";
+        arrowHelperY.line.material.depthTest = false;
+        arrowHelperY.line.renderOrder = Infinity;
+        arrowHelperY.cone.material.depthTest = false;
+        arrowHelperY.cone.renderOrder = Infinity;
+        object.mesh.add(arrowHelperY);
+
+        visible = true;
+        direction = ((new THREE.Vector3(0, 0, object.body.force.z)).add(origin)).normalize();
+        if (object.body.force.x != 0){
+            length = object.body.force.x;
+        } else {
+            length = 10;
+            visible = false;
         }
+        color = 0x00ff00;
+        const arrowHelperZ = new THREE.ArrowHelper(direction, origin, length, color);
+        arrowHelperZ.visible = visible;
+        arrowHelperZ.name = "forceVectorZ";
+        arrowHelperZ.line.material.depthTest = false;
+        arrowHelperZ.line.renderOrder = Infinity;
+        arrowHelperZ.cone.material.depthTest = false;
+        arrowHelperZ.cone.renderOrder = Infinity;
+        object.mesh.add(arrowHelperZ);
     }
 }
 
@@ -432,90 +516,111 @@ function toggleResultantVelocityVector(object){
     for (const index in object.mesh.children){
         if (object.mesh.children[index].name == "resultantVelocityVector"){
             object.mesh.remove(object.mesh.children[index]);
+            object.mesh.userData.hasVectors = false;
             return true;
         }
     }
+    object.mesh.userData.hasVectors = true;
     const V = Math.sqrt(object.body.velocity.x ** 2 + object.body.velocity.y ** 2 + object.body.velocity.z ** 2);
+    const origin = object.mesh.position;
+    const direction = ((new THREE.Vector3(object.body.velocity.x, object.body.velocity.y, object.body.velocity.z)).add(origin)).normalize();
+    let length;
+    const hex = 0x0000ff;
+    let visible = true;
     if (V != 0){
-        const origin = object.mesh.position;
-        const direction = ((new THREE.Vector3(object.body.velocity.x, object.body.velocity.y, object.body.velocity.z)).add(origin)).normalize();
-        const length = V / 10;
-        const hex = 0x00ffff;
-        const arrowHelper = new THREE.ArrowHelper(direction, origin, length, hex);
-        arrowHelper.name = "resultantVelocityVector";
-        object.mesh.add(arrowHelper);
+        length = V;
+    } else {
+        length = 10;
+        visible = false;
     }
+    const arrowHelper = new THREE.ArrowHelper(direction, origin, length, hex);
+    arrowHelper.visible = visible;
+    arrowHelper.name = "resultantVelocityVector";
+    arrowHelper.line.material.depthTest = false;
+    arrowHelper.line.renderOrder = Infinity;
+    arrowHelper.cone.material.depthTest = false;
+    arrowHelper.cone.renderOrder = Infinity;
+    object.mesh.add(arrowHelper);
 }
 
 function toggleComponentVelocityVectors(object){
     let vectorsFound = false;
-    for (const index in object.mesh.children){
+    for (let index = 0; index < object.mesh.children.length; index++){
         switch (object.mesh.children[index].name) {
             case "velocityVectorX":
             case "velocityVectorY":
             case "velocityVectorZ":
                 vectorsFound = true;
+                object.mesh.userData.hasVectors = false;
                 object.mesh.remove(object.mesh.children[index]);
+                index--;
                 break;
             default:
                 break;
         }
     }
-    if (vectorsFound == false){
+    if (!vectorsFound){
+        let visible, length, direction, color;
         const origin = object.mesh.position;
+
+        object.mesh.userData.hasVectors = true;
+
+        visible = true;
         if (object.body.velocity.x != 0){
-            const directionX = ((new THREE.Vector3(object.body.velocity.x, origin.y, origin.z)).add(origin)).normalize();
-            const lengthX = object.body.velocity.x / 10;
-            const hexX = 0x007878;
-            const arrowHelperX = new THREE.ArrowHelper(directionX, origin, lengthX, hexX);
-            arrowHelperX.name = "velocityVectorX";
-            object.mesh.add(arrowHelperX);
+            direction = ((new THREE.Vector3(object.body.velocity.x, 0, 0)).add(origin)).normalize();
+            length = object.body.velocity.x;
+        } else {
+            length = 10;
+            visible = false;
+            direction = new THREE.Vector3(0.1, 0, 0);
         }
+        color = 0x4b0082;
+        const arrowHelperX = new THREE.ArrowHelper(direction, origin, length, color);
+        arrowHelperX.visible = visible;
+        arrowHelperX.name = "velocityVectorX";
+        arrowHelperX.line.material.depthTest = false;
+        arrowHelperX.line.renderOrder = Infinity;
+        arrowHelperX.cone.material.depthTest = false;
+        arrowHelperX.cone.renderOrder = Infinity;
+        object.mesh.add(arrowHelperX);
+
+        visible = true;
         if (object.body.velocity.y != 0){
-            const directionY = ((new THREE.Vector3(origin.x, object.body.velocity.y, origin.z)).add(origin)).normalize();
-            const lengthY = object.body.velocity.y / 10;
-            const hexY = 0x780078;
-            const arrowHelperY = new THREE.ArrowHelper(directionY, origin, lengthY, hexY);
-            arrowHelperY.name = "velocityVectorY";
-            object.mesh.add(arrowHelperY);
+            direction = ((new THREE.Vector3(0, object.body.velocity.y, 0)).add(origin)).normalize();
+            length = object.body.velocity.y;
+        } else {
+            length = 10;
+            visible = false;
+            direction = new THREE.Vector3(0, 0.1, 0);
         }
+        color = 0x8f00ff;
+        const arrowHelperY = new THREE.ArrowHelper(direction, origin, length, color);
+        arrowHelperY.visible = visible;
+        arrowHelperY.name = "velocityVectorY";
+        arrowHelperY.line.material.depthTest = false;
+        arrowHelperY.line.renderOrder = Infinity;
+        arrowHelperY.cone.material.depthTest = false;
+        arrowHelperY.cone.renderOrder = Infinity;
+        object.mesh.add(arrowHelperY);
+
+        visible = true;
         if (object.body.velocity.z != 0){
-            const directionZ = ((new THREE.Vector3(origin.x, origin.y, object.body.velocity.y)).add(origin)).normalize();
-            const lengthZ = object.body.velocity.z / 10;
-            const hexZ = 0x787800;
-            const arrowHelperZ = new THREE.ArrowHelper(directionZ, origin, lengthZ, hexZ);
-            arrowHelperZ.name = "velocityVectorZ";
-            object.mesh.add(arrowHelperZ);
+            direction = ((new THREE.Vector3(0, 0, object.body.velocity.z)).add(origin)).normalize();
+            length = object.body.velocity.z;
+        } else {
+            length = 10;
+            visible = false;
+            direction = new THREE.Vector3(0, 0, 0.1);
         }
-    }
-}
-
-
-
-function calculateGravity(object1, object2){
-    const G = 6.67408 * 10 **(-11);
-
-    const distance = object1.body.position.distanceTo(object2.body.position);
-
-    //We calculate the total force of gravity between each body is causing to the other
-    let Fg = G * (object1.body.mass  * object2.body.mass) / (distance ** 2);
-
-    //We calculate the components of the force vector
-    let c = Fg / (Math.sqrt((object2.body.position.x - object1.body.position.x)**2 + (object2.body.position.y - object1.body.position.y)**2) + (object2.body.position.z - object1.body.position.z)**2);
-
-    let Fx = c * (object2.body.position.x - object1.body.position.x);
-    let Fy = c * (object2.body.position.y - object1.body.position.y);
-    let Fz = c * (object2.body.position.z - object1.body.position.z);
-
-    //We add to each body the force calculated for each axis
-    if (object1.mesh.userData.affectedByGravity && object2.mesh.userData.createsGravity){
-        const F1 = new CANNON.Vec3(object1.body.force.x + Fx, object1.body.force.y + Fy, object1.body.force.z + Fz);
-        object1.body.force = F1;
-    }
-
-    if (object2.mesh.userData.affectedByGravity && object1.mesh.userData.createsGravity){
-        const F2 = new CANNON.Vec3(object2.body.force.x - Fx, object2.body.force.y - Fy, object2.body.force.z - Fz);
-        object2.body.force = F2;
+        color = 0xffc0cb;
+        const arrowHelperZ = new THREE.ArrowHelper(direction, origin, length, color);
+        arrowHelperZ.visible = visible;
+        arrowHelperZ.name = "velocityVectorZ";
+        arrowHelperZ.line.material.depthTest = false;
+        arrowHelperZ.line.renderOrder = Infinity;
+        arrowHelperZ.cone.material.depthTest = false;
+        arrowHelperZ.cone.renderOrder = Infinity;
+        object.mesh.add(arrowHelperZ);
     }
 }
 
@@ -581,6 +686,7 @@ let simulation = {
         tempMesh.position.set(x, y, z);
         tempMesh.userData.createsGravity = true;
         tempMesh.userData.selectable = true;
+        tempMesh.userData.hasVectors = false;
         scene.add(tempMesh);
 
         tempMesh.name = `Cube-${this.objects.length}`;
@@ -605,6 +711,7 @@ let simulation = {
         tempMesh.position.set(x, y, z);
         tempMesh.userData.createsGravity = true;
         tempMesh.userData.selectable = true;
+        tempMesh.userData.hasVectors = false;
         scene.add(tempMesh);
         
         tempMesh.name = `Sphere-${this.objects.length}`;
@@ -613,6 +720,39 @@ let simulation = {
             mesh: tempMesh
         }
         this.objects.push(sphere);
+        addItemToList(this.objects.length - 1);
+    },
+    createCylinder(x, y, z, radius, height){
+        let shape = new CANNON.Cylinder(radius, radius, height, Math.ceil(radius / 10) * 8);
+        let tempBody = new CANNON.Body({
+            mass: 4
+        });
+
+        //Align three js to cannon js rotation
+        var quat = new CANNON.Quaternion();
+        quat.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+        var translation = new CANNON.Vec3(0,0,0);
+        shape.transformAllPoints(translation,quat);
+
+        tempBody.addShape(shape);
+        tempBody.position.set(x, y, z);
+        world.addBody(tempBody);
+        let geometry = new THREE.CylinderGeometry( radius, radius, height, Math.ceil(radius / 10) * 16);
+        let material = new THREE.MeshBasicMaterial( {color: 0xff0000, wireframe: true} );
+        let tempMesh = new THREE.Mesh(geometry, material);
+        tempMesh.position.set(x, y, z);
+        tempMesh.userData.createsGravity = true;
+        tempMesh.userData.selectable = true;
+        tempMesh.userData.hasVectors = false;
+        tempMesh.userData.previousScale = {x: 1, z: 1};
+        scene.add(tempMesh);
+        
+        tempMesh.name = `Cylinder-${this.objects.length}`;
+        let cylinder = {
+            body: tempBody,
+            mesh: tempMesh
+        }
+        this.objects.push(cylinder);
         addItemToList(this.objects.length - 1);
     },
     checkForObject(event){
@@ -658,4 +798,4 @@ initCannon();
 initControls();
 
 animate();
-export {simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, updateValues};
+export {simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, updateValues, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors};
