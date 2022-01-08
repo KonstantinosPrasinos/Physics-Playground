@@ -38,16 +38,6 @@ function setCamera(cameraType) {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
 const canvasHandlerParams = {
     canClickCanvas: true
 }
@@ -233,32 +223,6 @@ function toggleValues(bool) {
 function updateValuesWhileRunning(bool) {
     updateVarValues(bool);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //Init Functions
 
