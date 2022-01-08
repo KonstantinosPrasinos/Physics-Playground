@@ -48,5 +48,6 @@ export let notificationList = {
     tutCeption: new Notification("Tutorial", "This toggles the tutorial"),
     tutUpload: new Notification("Tutorial", "Using this button you can upload a json file you may have previously downloaded, to load a timestamp of all objects on the scene."),
     tutLog: new Notification("Tutorial", "Here you can print the data of all objects in the scene either manually, using the print button, or every number of timesteps, using the respective input. You can also clear the log with the clear button."),
-    tutDownloads: new Notification("Tutorial", "Using these buttons you can download the log either in a txt format or in a json format. You can either download the entire log, or only the current timestamp.")
+    tutDownloads: new Notification("Tutorial", "Using these buttons you can download the log either in a txt format or in a json format. You can either download the entire log, or only the current timestamp."),
+    copyEmail: new Notification("Copied to Clipboard", "konstantinos.prasinos@gmail.com")
 }

@@ -3,20 +3,21 @@ import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
 import Stats from 'https://unpkg.com/three@0.126.1/examples/jsm/libs/stats.module.js';
+import {flyControls} from './controls.js';
 
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
 
-let rayDirection, savedobjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats;
+let rayDirection, savedobjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
 let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
 
-function changeTimeStep(temp){
+function changeTimeStep(temp) {
     timeStep = temp;
 }
 
-function setCamera(cameraType){
-    if (camera.type != cameraType){
-        switch (cameraType)  {
+function setCamera(cameraType) {
+    if (camera.type != cameraType) {
+        switch (cameraType) {
             case "PerspectiveCamera":
                 camera = perspectiveCamera;
                 orbitControls.object = camera;
@@ -37,28 +38,216 @@ function setCamera(cameraType){
     }
 }
 
+const canvasHandlerParams = {
+    canClickCanvas: true
+}
+
+function switchControls(controlsType) {
+    console.log("test");
+    if (controlsType == 'transform') {
+        if (simulation.itemSelected > -1) {
+            orbitControls.enabled = false;
+            transformControls.enabled = true;
+            transformControls.attach(simulation.objects[simulation.itemSelected].mesh);
+        }
+    } else {
+        transformControls.detach();
+        transformControls.enabled = false;
+        orbitControls.enabled = true;
+    }
+}
+
+function setDisabledPhysical(bool) {
+    document.getElementById("width-input").disabled = bool;
+    document.getElementById("height-input").disabled = bool;
+    document.getElementById("depth-input").disabled = bool;
+    document.getElementById("position.x-input").disabled = bool;
+    document.getElementById("position.y-input").disabled = bool;
+    document.getElementById("position.z-input").disabled = bool;
+    document.getElementById("rotation.x-input").disabled = bool;
+    document.getElementById("rotation.y-input").disabled = bool;
+    document.getElementById("rotation.z-input").disabled = bool;
+    document.getElementById("velocity.x-input").disabled = bool;
+    document.getElementById("velocity.y-input").disabled = bool;
+    document.getElementById("velocity.z-input").disabled = bool;
+    document.getElementById("angularVelocity.x-input").disabled = bool;
+    document.getElementById("angularVelocity.y-input").disabled = bool;
+    document.getElementById("angularVelocity.z-input").disabled = bool;
+    document.getElementById("force.x-input").disabled = bool;
+    document.getElementById("force.y-input").disabled = bool;
+    document.getElementById("force.z-input").disabled = bool;
+    document.getElementById("mass-input").disabled = bool;
+    document.getElementById("collisionResponse-toggle").disabled = bool;
+}
+
+function setDisabledVisual(bool) {
+    document.getElementById("item-color-picker").disabled = bool;
+    document.getElementById("wireframe-toggle").disabled = bool;
+    document.getElementById("force-vectors-all").disabled = bool;
+    document.getElementById("force-vectors-single").disabled = bool;
+    document.getElementById("velocity-vectors-all").disabled = bool;
+    document.getElementById("velocity-vectors-single").disabled = bool;
+}
+
+function updateStaticValues(bool) {
+    if (bool) {
+        if (simulation.itemSelected > -1) {
+            document.getElementById("item-color-picker").value = `#${simulation.objects[simulation.itemSelected].mesh.material.color.getHexString()}`;
+            switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
+                case "SphereGeometry":
+                    document.getElementById("width-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radius * simulation.objects[simulation.itemSelected].mesh.scale.x;
+                    break;
+                case "BoxGeometry":
+                    document.getElementById("width-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.width * simulation.objects[simulation.itemSelected].mesh.scale.x;
+                    document.getElementById("height-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.height * simulation.objects[simulation.itemSelected].mesh.scale.y;
+                    document.getElementById("depth-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.depth * simulation.objects[simulation.itemSelected].mesh.scale.z;
+                    break;
+                case "CylinderGeometry":
+                    document.getElementById("width-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radiusTop * simulation.objects[simulation.itemSelected].mesh.scale.x;
+                    document.getElementById("height-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.height * simulation.objects[simulation.itemSelected].mesh.scale.y;
+                    break;
+            }
+            document.getElementById("wireframe-toggle").checked = simulation.objects[simulation.itemSelected].mesh.material.wireframe;
+            document.getElementById("collisionResponse-toggle").checked = simulation.objects[simulation.itemSelected].body.collisionResponse;
+            document.getElementById("object-name").innerText = simulation.objects[simulation.itemSelected].mesh.name;
+            document.getElementById("mass-input").value = simulation.objects[simulation.itemSelected].body.mass;
+            if (simulation.objects[simulation.itemSelected].mesh.userData.hasVectors) {
+                for (let i in simulation.objects[simulation.itemSelected].mesh.children) {
+                    switch (simulation.objects[simulation.itemSelected].mesh.children[i].name) {
+                        case "resultantForceVector":
+                            document.getElementById("force-vectors-single").checked = true;
+                            break;
+                        case "forceVectorX":
+                        case "forceVectorY":
+                        case "forceVectorX":
+                            document.getElementById("force-vectors-all").checked = true;
+                            break;
+                        case "resultantVelocityVector":
+                            document.getElementById("velocity-vectors-single").checked = true;
+                            break;
+                        case "velocityVectorX":
+                        case "velocityVectorY":
+                        case "velocityVectorX":
+                            document.getElementById("velocity-vectors-all").checked = true;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+    } else {
+        document.getElementById("item-color-picker").value = "#000000";
+        document.getElementById("width-input").value = '';
+        document.getElementById("height-input").value = '';
+        document.getElementById("depth-input").value = '';
+        document.getElementById("mass-input").value = '';
+        document.getElementById("force-vectors-single").checked = false;
+        document.getElementById("force-vectors-all").checked = false;
+        document.getElementById("velocity-vectors-single").checked = false;
+        document.getElementById("velocity-vectors-all").checked = false;
+        document.getElementById("wireframe-toggle").checked = false;
+        document.getElementById("collisionResponse-toggle").checked = false;
+        document.getElementById("object-name").innerText = false;
+    }
+
+}
+
+function updateVarValues(bool) {
+    if (bool) {
+        if (simulation.itemSelected > -1) {
+            document.getElementById("position.x-input").value = simulation.objects[simulation.itemSelected].mesh.position.x;
+            document.getElementById("position.y-input").value = simulation.objects[simulation.itemSelected].mesh.position.y;
+            document.getElementById("position.z-input").value = simulation.objects[simulation.itemSelected].mesh.position.z;
+            document.getElementById("rotation.x-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.x;
+            document.getElementById("rotation.y-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.y;
+            document.getElementById("rotation.z-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.z;
+            document.getElementById("velocity.x-input").value = simulation.objects[simulation.itemSelected].body.velocity.x;
+            document.getElementById("velocity.y-input").value = simulation.objects[simulation.itemSelected].body.velocity.y;
+            document.getElementById("velocity.z-input").value = simulation.objects[simulation.itemSelected].body.velocity.z;
+            document.getElementById("angularVelocity.x-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.x;
+            document.getElementById("angularVelocity.y-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.y;
+            document.getElementById("angularVelocity.z-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.z;
+            document.getElementById("force.x-input").value = simulation.objects[simulation.itemSelected].body.force.x;
+            document.getElementById("force.y-input").value = simulation.objects[simulation.itemSelected].body.force.y;
+            document.getElementById("force.z-input").value = simulation.objects[simulation.itemSelected].body.force.z;
+        }
+    } else {
+        document.getElementById("position.x-input").value = "";
+        document.getElementById("position.y-input").value = "";
+        document.getElementById("position.z-input").value = "";
+        document.getElementById("rotation.x-input").value = "";
+        document.getElementById("rotation.y-input").value = "";
+        document.getElementById("rotation.z-input").value = "";
+        document.getElementById("velocity.x-input").value = "";
+        document.getElementById("velocity.y-input").value = "";
+        document.getElementById("velocity.z-input").value = "";
+        document.getElementById("angularVelocity.x-input").value = "";
+        document.getElementById("angularVelocity.y-input").value = "";
+        document.getElementById("angularVelocity.z-input").value = "";
+        document.getElementById("force.x-input").value = "";
+        document.getElementById("force.y-input").value = "";
+        document.getElementById("force.z-input").value = "";
+    }
+}
+
+function setSizesForShape() {
+    if (simulation.itemSelected > -1) {
+        switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
+            case "SphereGeometry":
+                document.getElementById("width-text").innerText = "R:";
+                document.getElementById("height-container").style.visibility = "hidden";
+                document.getElementById("depth-container").style.visibility = "hidden";
+                break;
+            case "CylinderGeometry":
+                document.getElementById("width-text").innerText = "R:";
+                document.getElementById("height-container").style.visibility = "inherit";
+                document.getElementById("depth-container").style.visibility = "hidden";
+                break;
+            default:
+                document.getElementById("width-text").innerText = "W:";
+                document.getElementById("height-container").style.visibility = "inherit";
+                document.getElementById("depth-container").style.visibility = "inherit";
+                break;
+        }
+    }
+}
+
+function toggleValues(bool) {
+    updateStaticValues(bool);
+    updateVarValues(bool);
+    setSizesForShape();
+}
+
+function updateValuesWhileRunning(bool) {
+    updateVarValues(bool);
+}
+
 //Init Functions
 
-function initControls(){
-    orbitControls = new OrbitControls( camera, renderer.domElement );
+function initControls() {
+    orbitControls = new OrbitControls(camera, renderer.domElement);
     transformControls = new TransformControls(camera, renderer.domElement);
-    transformControls.addEventListener('change', render);
+    let temp = new flyControls(perspectiveCamera, renderer.domElement);
+    // transformControls.addEventListener('change', render);
+    transformControls.enabled = false;
     scene.add(transformControls);
 }
 
 function initThree() {
     scene = new THREE.Scene();
 
-    orthographicCamera = new THREE.OrthographicCamera( frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 1000 );
-    perspectiveCamera = new THREE.PerspectiveCamera( 45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
+    orthographicCamera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 1000);
+    perspectiveCamera = new THREE.PerspectiveCamera(45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
     orthographicCamera.position.z = 50;
     perspectiveCamera.position.z = 50;
     scene.add(orthographicCamera);
     scene.add(perspectiveCamera);
     camera = orthographicCamera
 
-    renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true});
-    renderer.setClearColor( 0xffffff, 1);
+    renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true });
+    renderer.setClearColor(0xffffff, 1);
     renderer.setSize(parseInt(window.getComputedStyle(canvas).width), parseInt(window.getComputedStyle(canvas).height));
     stats = Stats();
 }
@@ -73,8 +262,8 @@ function initCannon() {
 
 //Timed Functions
 
-function attemptPrintPerStep(){
-    if (simulation.logPerSteps != 0 && ((world.time / world.dt) % simulation.logPerSteps < world.dt || Math.abs(simulation.logPerSteps - (world.time / world.dt) % simulation.logPerSteps) < world.dt) && previousLogedTime != world.time){
+function attemptPrintPerStep() {
+    if (simulation.logPerSteps != 0 && ((world.time / world.dt) % simulation.logPerSteps < world.dt || Math.abs(simulation.logPerSteps - (world.time / world.dt) % simulation.logPerSteps) < world.dt) && previousLogedTime != world.time) {
         printToLog();
         previousLogedTime = world.time;
     }
@@ -87,7 +276,7 @@ function updatePhysics() {
         element.mesh.position.copy(element.body.position);
         element.mesh.quaternion.copy(element.body.quaternion);
     });
-    updateValues();
+    updateVarValues(true);
 }
 
 function render() {
@@ -97,16 +286,16 @@ function render() {
 
 function animate() {
     requestAnimationFrame(animate);
-    if (!simulation.isPaused){
+    if (!simulation.isPaused) {
         updatePhysics();
     }
     render();
 
-    if (statsOn){
+    if (statsOn) {
         stats.update();
     }
-    for (let i in simulation.objects){
-        if (simulation.objects[i].mesh.userData.hasVectors){
+    for (let i in simulation.objects) {
+        if (simulation.objects[i].mesh.userData.hasVectors) {
             updateVectors(simulation.objects[i]);
         }
     }
@@ -114,8 +303,8 @@ function animate() {
 
 //General Functions
 
-function toggleStats(bool){
-    if (bool){
+function toggleStats(bool) {
+    if (bool) {
         document.body.appendChild(stats.dom);
     } else {
         document.body.removeChild(stats.dom);
@@ -123,64 +312,31 @@ function toggleStats(bool){
     statsOn = bool;
 }
 
-function updateValues(){
-    if (simulation.itemSelected > -1){
-        switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
-            case "SphereGeometry":
-                document.getElementById("width-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radius * simulation.objects[simulation.itemSelected].mesh.scale.x;
-                break;
-            case "BoxGeometry":
-                document.getElementById("width-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.width * simulation.objects[simulation.itemSelected].mesh.scale.x;
-                document.getElementById("height-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.height * simulation.objects[simulation.itemSelected].mesh.scale.y;
-                document.getElementById("depth-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.depth * simulation.objects[simulation.itemSelected].mesh.scale.z;
-                break;
-            case "CylinderGeometry":
-                document.getElementById("width-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radiusTop * simulation.objects[simulation.itemSelected].mesh.scale.x;
-                document.getElementById("height-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.height * simulation.objects[simulation.itemSelected].mesh.scale.y;
-                break;
-        }
-        document.getElementById("position.x-input").value = simulation.objects[simulation.itemSelected].mesh.position.x;
-        document.getElementById("position.y-input").value = simulation.objects[simulation.itemSelected].mesh.position.y;
-        document.getElementById("position.z-input").value = simulation.objects[simulation.itemSelected].mesh.position.z;
-        document.getElementById("rotation.x-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.x;
-        document.getElementById("rotation.y-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.y;
-        document.getElementById("rotation.z-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.z;
-        document.getElementById("velocity.x-input").value = simulation.objects[simulation.itemSelected].body.velocity.x;
-        document.getElementById("velocity.y-input").value = simulation.objects[simulation.itemSelected].body.velocity.y;
-        document.getElementById("velocity.z-input").value = simulation.objects[simulation.itemSelected].body.velocity.z;
-        document.getElementById("angularVelocity.x-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.x;
-        document.getElementById("angularVelocity.y-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.y;
-        document.getElementById("angularVelocity.z-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.z;
-        document.getElementById("force.x-input").value = simulation.objects[simulation.itemSelected].body.force.x;
-        document.getElementById("force.y-input").value = simulation.objects[simulation.itemSelected].body.force.y;
-        document.getElementById("force.z-input").value = simulation.objects[simulation.itemSelected].body.force.z;
-    }
-}
 
-
-function rewindobjects(){
+function rewindobjects() {
     simulation.removeAllObjects();
     simulation.objects = savedobjects;
     savedobjects = [];
     simulation.addAllObjects();
+    refreshListOfObjects();
 }
 
-function generateJSON(){
+function generateJSON() {
     let logObj = {};
     let timeLine = {}
     simulation.objects.forEach((item) => {
-        timeLine[item.mesh.uuid] = {name: item.mesh.name, mass: item.body.mass, position: {x: item.body.position.x, y: item.body.position.y, z: item.body.position.z}, velocity: {x: item.body.velocity.x, y: item.body.velocity.y, z: item.body.velocity.z}, rotation: {x: item.mesh.rotation.x, y: item.mesh.rotation.y, z: item.mesh.rotation.z}, angularVelocity: {x: item.body.angularVelocity.x, y: item.body.angularVelocity.y, z: item.body.angularVelocity.z}, force: {x: item.body.force.x, y: item.body.force.y, z: item.body.force.z}};
+        timeLine[item.mesh.uuid] = { name: item.mesh.name, mass: item.body.mass, position: { x: item.body.position.x, y: item.body.position.y, z: item.body.position.z }, velocity: { x: item.body.velocity.x, y: item.body.velocity.y, z: item.body.velocity.z }, rotation: { x: item.mesh.rotation.x, y: item.mesh.rotation.y, z: item.mesh.rotation.z }, angularVelocity: { x: item.body.angularVelocity.x, y: item.body.angularVelocity.y, z: item.body.angularVelocity.z }, force: { x: item.body.force.x, y: item.body.force.y, z: item.body.force.z } };
         switch (item.mesh.geometry.type) {
             case "SphereGeometry":
-                timeLine[item.mesh.uuid].dimensions = {radius: item.mesh.geometry.parameters.radius * item.mesh.scale.x};
+                timeLine[item.mesh.uuid].dimensions = { radius: item.mesh.geometry.parameters.radius * item.mesh.scale.x };
                 timeLine[item.mesh.uuid].geometryType = "SphereGeometry";
                 break;
             case "BoxGeometry":
-                timeLine[item.mesh.uuid].dimensions = {x: item.mesh.geometry.parameters.width * item.mesh.scale.x, y: item.mesh.geometry.parameters.height * item.mesh.scale.y, z: item.mesh.geometry.parameters.depth * item.mesh.scale.z};
+                timeLine[item.mesh.uuid].dimensions = { x: item.mesh.geometry.parameters.width * item.mesh.scale.x, y: item.mesh.geometry.parameters.height * item.mesh.scale.y, z: item.mesh.geometry.parameters.depth * item.mesh.scale.z };
                 timeLine[item.mesh.uuid].geometryType = "BoxGeometry";
                 break;
             case "CylinderGeometry":
-                timeLine[item.mesh.uuid].dimensions = {radius: item.mesh.geometry.parameters.radiusTop * item.mesh.scale.x, height: item.mesh.geometry.parameters.height * item.mesh.scale.y};
+                timeLine[item.mesh.uuid].dimensions = { radius: item.mesh.geometry.parameters.radiusTop * item.mesh.scale.x, height: item.mesh.geometry.parameters.height * item.mesh.scale.y };
                 timeLine[item.mesh.uuid].geometryType = "CylinderGeometry";
                 break;
         }
@@ -189,18 +345,18 @@ function generateJSON(){
     return logObj;
 }
 
-function printToLog(){
+function printToLog() {
     let log = document.getElementById("log");
-    if (!simulation.savedLog){
+    if (!simulation.savedLog) {
         simulation.savedLog = generateJSON();
     } else {
         let line = generateJSON();
-        for (const index in line){
+        for (const index in line) {
             simulation.savedLog[index] = line[index];
         }
     }
     log.innerHTML += `At time ${parseFloat(world.time).toFixed(3)}:`;
-    if (simulation.objects.length){
+    if (simulation.objects.length) {
         log.innerHTML += "<br>";
         log.innerHTML += "Name - Mass - Position - Velocity - Rotation - Angular Velocity - Force";
         log.innerHTML += "<br>";
@@ -218,14 +374,61 @@ function printToLog(){
     }
 }
 
-function addItemToList(index){
+function addItemToList(index) {
     let node = document.createElement("DIV");
+    let selectButtonNode = document.createElement('input');
     let textNode = document.createElement("input");
     let editButtonNode = document.createElement('input');
     let deleteButtonNode = document.createElement('input');
     let lockButtonNode = document.createElement('input');
 
     node.classList.add("item-list-field");
+    node.setAttribute("id", simulation.objects[index].mesh.uuid)
+
+    selectButtonNode.type = 'checkbox';
+    selectButtonNode.classList.add("simple-checkmark");
+    selectButtonNode.classList.add("small-inline-checkmark");
+    selectButtonNode.addEventListener('click', (event) => {
+        if (event.target.checked) {
+            if (currentlyCheckedBox) {
+                currentlyCheckedBox.checked = false;
+            }
+            simulation.itemSelected = index;
+            document.getElementById("object-name").innerText = simulation.objects[simulation.itemSelected].mesh.name;
+            switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
+                case "SphereGeometry":
+                    document.getElementById("width-text").innerText = "R:";
+                    document.getElementById("height-container").style.visibility = "hidden";
+                    document.getElementById("depth-container").style.visibility = "hidden";
+                    break;
+                case "CylinderGeometry":
+                    document.getElementById("width-text").innerText = "R:";
+                    document.getElementById("height-container").style.visibility = "inherit";
+                    document.getElementById("depth-container").style.visibility = "hidden";
+                    break;
+                default:
+                    document.getElementById("width-text").innerText = "W:";
+                    document.getElementById("height-container").style.visibility = "inherit";
+                    document.getElementById("depth-container").style.visibility = "inherit";
+                    break;
+            }
+            toggleValues(true);
+            setDisabledVisual(false);
+            if (!simulation.isRunning){
+                switchControls('transform');
+                setDisabledPhysical(false);
+            }
+            currentlyCheckedBox = event.target;
+        } else {
+            switchControls('orbit')
+            toggleValues(false);
+            setDisabledPhysical(true);
+            setDisabledVisual(true);
+            simulation.itemSelected = -1;
+            currentlyCheckedBox = null;
+        }
+    })
+
     textNode.type = 'text';
     textNode.value = simulation.objects[index].mesh.name;
     textNode.setAttribute('required', "");
@@ -256,7 +459,7 @@ function addItemToList(index){
         simulation.objects[index].mesh.userData.selectable = !simulation.objects[index].mesh.userData.selectable;
         if (!simulation.objects[index].mesh.userData.selectable) {
             lockButtonNode.style.backgroundColor = 'orange';
-            if (index == simulation.itemSelected){
+            if (index == simulation.itemSelected) {
                 canvas.click();
             }
         } else {
@@ -273,10 +476,11 @@ function addItemToList(index){
         }
     });
     textNode.addEventListener("keydown", (event) => {
-        if (event.key === 'Enter' && document.activeElement.value.length != 0){
+        if (event.key === 'Enter' && document.activeElement.value.length != 0) {
             document.activeElement.blur();
         }
     });
+    node.appendChild(selectButtonNode);
     node.appendChild(textNode);
     node.appendChild(deleteButtonNode);
     node.appendChild(editButtonNode);
@@ -285,8 +489,8 @@ function addItemToList(index){
 }
 
 function deleteObjectFromList(index) {
-    if (transformControls.object.uuid == simulation.objects[index].mesh.uuid){
-        transformControls.detach();
+    if (transformControls.object && transformControls.object.uuid == simulation.objects[index].mesh.uuid) {
+        switchControls('orbit')
     }
     scene.remove(simulation.objects[index].mesh);
     world.remove(simulation.objects[index].body);
@@ -294,11 +498,11 @@ function deleteObjectFromList(index) {
     refreshListOfObjects();
 }
 
-function refreshListOfObjects(){
-    while(document.getElementById("right-ui-item-container").firstChild){
+function refreshListOfObjects() {
+    while (document.getElementById("right-ui-item-container").firstChild) {
         document.getElementById("right-ui-item-container").removeChild(document.getElementById("right-ui-item-container").firstChild);
     }
-    for (let index in simulation.objects){
+    for (let index in simulation.objects) {
         addItemToList(index);
     }
 }
@@ -320,7 +524,7 @@ function updateVectors(object) {
                 }
                 break;
             case "forceVectorX":
-                if (object.body.force.x != 0){
+                if (object.body.force.x != 0) {
                     object.mesh.children[index].visible = true;
                     direction = new THREE.Vector3(object.body.force.x, 0, 0);
                     length = object.body.force.x;
@@ -331,7 +535,7 @@ function updateVectors(object) {
                 }
                 break;
             case "forceVectorY":
-                if (object.body.force.y != 0){
+                if (object.body.force.y != 0) {
                     object.mesh.children[index].visible = true;
                     direction = new THREE.Vector3(0, object.body.force.y, 0);
                     length = object.body.force.y;
@@ -342,7 +546,7 @@ function updateVectors(object) {
                 }
                 break;
             case "forceVectorZ":
-                if (object.body.force.z != 0){
+                if (object.body.force.z != 0) {
                     object.mesh.children[index].visible = true;
                     direction = new THREE.Vector3(0, 0, object.body.force.z);
                     length = object.body.force.z;
@@ -366,7 +570,7 @@ function updateVectors(object) {
                 }
                 break;
             case "velocityVectorX":
-                if (object.body.velocity.x != 0){
+                if (object.body.velocity.x != 0) {
                     object.mesh.children[index].visible = true;
                     direction = new THREE.Vector3(object.body.velocity.x, 0, 0);
                     length = object.body.velocity.x;
@@ -377,7 +581,7 @@ function updateVectors(object) {
                 }
                 break;
             case "velocityVectorY":
-                if (object.body.velocity.y != 0){
+                if (object.body.velocity.y != 0) {
                     object.mesh.children[index].visible = true;
                     direction = new THREE.Vector3(0, object.body.velocity.y, 0);
                     length = object.body.velocity.y;
@@ -388,7 +592,7 @@ function updateVectors(object) {
                 }
                 break;
             case "velocityVectorZ":
-                if (object.body.velocity.z != 0){
+                if (object.body.velocity.z != 0) {
                     object.mesh.children[index].visible = true;
                     direction = new THREE.Vector3(0, 0, object.body.velocity.z);
                     length = object.body.velocity.z;
@@ -404,9 +608,9 @@ function updateVectors(object) {
     }
 }
 
-function toggleResultantForceVector(object){
-    for (const index in object.mesh.children){
-        if (object.mesh.children[index].name == "resultantForceVector"){
+function toggleResultantForceVector(object) {
+    for (const index in object.mesh.children) {
+        if (object.mesh.children[index].name == "resultantForceVector") {
             object.mesh.remove(object.mesh.children[index]);
             object.mesh.userData.hasVectors = false;
             return true;
@@ -419,7 +623,7 @@ function toggleResultantForceVector(object){
     let length;
     const hex = 0xff0000;
     let visible = true;
-    if (V != 0){
+    if (V != 0) {
         length = V;
     } else {
         length = 10;
@@ -435,9 +639,9 @@ function toggleResultantForceVector(object){
     object.mesh.add(arrowHelper);
 }
 
-function toggleComponentForcesVectors(object){
+function toggleComponentForcesVectors(object) {
     let vectorsFound = false;
-    for (let index = 0; index < object.mesh.children.length; index++){
+    for (let index = 0; index < object.mesh.children.length; index++) {
         switch (object.mesh.children[index].name) {
             case "forceVectorX":
             case "forceVectorY":
@@ -450,7 +654,7 @@ function toggleComponentForcesVectors(object){
                 break;
         }
     }
-    if (!vectorsFound){
+    if (!vectorsFound) {
         let visible, length, direction, color;
         const origin = object.mesh.position;
 
@@ -458,7 +662,7 @@ function toggleComponentForcesVectors(object){
 
         visible = true;
         direction = ((new THREE.Vector3(object.body.force.x, 0, 0)).add(origin)).normalize();
-        if (object.body.force.x != 0){
+        if (object.body.force.x != 0) {
             length = object.body.force.x;
         } else {
             length = 10;
@@ -476,7 +680,7 @@ function toggleComponentForcesVectors(object){
 
         visible = true;
         direction = ((new THREE.Vector3(0, object.body.force.y, 0)).add(origin)).normalize();
-        if (object.body.force.x != 0){
+        if (object.body.force.x != 0) {
             length = object.body.force.x;
         } else {
             length = 10;
@@ -494,7 +698,7 @@ function toggleComponentForcesVectors(object){
 
         visible = true;
         direction = ((new THREE.Vector3(0, 0, object.body.force.z)).add(origin)).normalize();
-        if (object.body.force.x != 0){
+        if (object.body.force.x != 0) {
             length = object.body.force.x;
         } else {
             length = 10;
@@ -512,9 +716,9 @@ function toggleComponentForcesVectors(object){
     }
 }
 
-function toggleResultantVelocityVector(object){
-    for (const index in object.mesh.children){
-        if (object.mesh.children[index].name == "resultantVelocityVector"){
+function toggleResultantVelocityVector(object) {
+    for (const index in object.mesh.children) {
+        if (object.mesh.children[index].name == "resultantVelocityVector") {
             object.mesh.remove(object.mesh.children[index]);
             object.mesh.userData.hasVectors = false;
             return true;
@@ -527,7 +731,7 @@ function toggleResultantVelocityVector(object){
     let length;
     const hex = 0x0000ff;
     let visible = true;
-    if (V != 0){
+    if (V != 0) {
         length = V;
     } else {
         length = 10;
@@ -543,9 +747,9 @@ function toggleResultantVelocityVector(object){
     object.mesh.add(arrowHelper);
 }
 
-function toggleComponentVelocityVectors(object){
+function toggleComponentVelocityVectors(object) {
     let vectorsFound = false;
-    for (let index = 0; index < object.mesh.children.length; index++){
+    for (let index = 0; index < object.mesh.children.length; index++) {
         switch (object.mesh.children[index].name) {
             case "velocityVectorX":
             case "velocityVectorY":
@@ -559,14 +763,14 @@ function toggleComponentVelocityVectors(object){
                 break;
         }
     }
-    if (!vectorsFound){
+    if (!vectorsFound) {
         let visible, length, direction, color;
         const origin = object.mesh.position;
 
         object.mesh.userData.hasVectors = true;
 
         visible = true;
-        if (object.body.velocity.x != 0){
+        if (object.body.velocity.x != 0) {
             direction = ((new THREE.Vector3(object.body.velocity.x, 0, 0)).add(origin)).normalize();
             length = object.body.velocity.x;
         } else {
@@ -585,7 +789,7 @@ function toggleComponentVelocityVectors(object){
         object.mesh.add(arrowHelperX);
 
         visible = true;
-        if (object.body.velocity.y != 0){
+        if (object.body.velocity.y != 0) {
             direction = ((new THREE.Vector3(0, object.body.velocity.y, 0)).add(origin)).normalize();
             length = object.body.velocity.y;
         } else {
@@ -604,7 +808,7 @@ function toggleComponentVelocityVectors(object){
         object.mesh.add(arrowHelperY);
 
         visible = true;
-        if (object.body.velocity.z != 0){
+        if (object.body.velocity.z != 0) {
             direction = ((new THREE.Vector3(0, 0, object.body.velocity.z)).add(origin)).normalize();
             length = object.body.velocity.z;
         } else {
@@ -624,22 +828,22 @@ function toggleComponentVelocityVectors(object){
     }
 }
 
-function isObject(item){
+function isObject(item) {
     return (typeof item === "object" && !Array.isArray(item) && item !== null);
 }
 
-async function copyobjects(){
-    for (let i = 0; i < simulation.objects.length; i++){
+async function copyobjects() {
+    for (let i = 0; i < simulation.objects.length; i++) {
         let copyBody = {}, copyMesh, copyName;
         //Deep copy of the cannonjs body
-        for (const key in simulation.objects[i].body){
-            if (simulation.objects[i].body){
-                if (isObject(simulation.objects[i].body[key])){
-                    if (key === "world"){
+        for (const key in simulation.objects[i].body) {
+            if (simulation.objects[i].body) {
+                if (isObject(simulation.objects[i].body[key])) {
+                    if (key === "world") {
                         copyBody[key] = world;
-                    } else if (key === "invInertiaWorld"){
+                    } else if (key === "invInertiaWorld") {
                         copyBody[key] = simulation.objects[i].body[key];
-                    } else if (key === "invInertiaWorldSolve"){
+                    } else if (key === "invInertiaWorldSolve") {
                         copyBody[key] = simulation.objects[i].body[key];
                     } else {
                         copyBody[key] = simulation.objects[i].body[key].clone();
@@ -659,19 +863,40 @@ async function copyobjects(){
         }
         savedobjects.push(box);
     }
-    
+
+}
+
+function generateName(type) {
+    let count = -1;
+    for (let index in simulation.objects) {
+        if (simulation.objects[index].mesh.name.length >= type.length + 2 && simulation.objects[index].mesh.name.substring(0, type.length + 1) == type + '-') {
+            let nString = simulation.objects[index].mesh.name.substring(type.length + 1);
+            if (!isNaN(nString)) {
+                if (count + 1 < parseInt(nString)) {
+                    count++;
+                    return type + '-' + count;
+                } else {
+                    count = parseInt(nString);
+                }
+            }
+        }
+    }
+    count++;
+    return type + '-' + count;
 }
 
 //Simulation Object
 
 let simulation = {
     objects: [],
-    shapesForChanges: [],
     isPaused: true,
     logPerSteps: 0,
     savedLog: null,
     itemSelected: -1,
-    createBox(x, y, z, width, height, depth){
+    isRunning: false,
+    placingObject: false,
+    objectPlaceDist: 50,
+    createBox(x, y, z, width, height, depth) {
         let shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
         let tempBody = new CANNON.Body({
             mass: 4
@@ -680,8 +905,8 @@ let simulation = {
         tempBody.position.set(x, y, z);
         world.addBody(tempBody);
 
-        let geometry = new THREE.BoxGeometry( width, height, depth);
-        let material = new THREE.MeshBasicMaterial( {color: 0xff0000, wireframe: true} );
+        let geometry = new THREE.BoxGeometry(width, height, depth);
+        let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
         let tempMesh = new THREE.Mesh(geometry, material);
         tempMesh.position.set(x, y, z);
         tempMesh.userData.createsGravity = true;
@@ -689,15 +914,16 @@ let simulation = {
         tempMesh.userData.hasVectors = false;
         scene.add(tempMesh);
 
-        tempMesh.name = `Cube-${this.objects.length}`;
+        tempMesh.name = generateName('Cube');
         let box = {
             body: tempBody,
             mesh: tempMesh
         }
         this.objects.push(box);
         addItemToList(this.objects.length - 1);
+        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
     },
-    createSphere(x, y, z, radius){
+    createSphere(x, y, z, radius) {
         let shape = new CANNON.Sphere(radius);
         let tempBody = new CANNON.Body({
             mass: 4
@@ -705,24 +931,25 @@ let simulation = {
         tempBody.addShape(shape);
         tempBody.position.set(x, y, z);
         world.addBody(tempBody);
-        let geometry = new THREE.SphereGeometry( radius, Math.ceil(radius / 10) * 16, Math.ceil(radius / 10) * 8);
-        let material = new THREE.MeshBasicMaterial( {color: 0xff0000, wireframe: true} );
+        let geometry = new THREE.SphereGeometry(radius, Math.ceil(radius / 10) * 16, Math.ceil(radius / 10) * 8);
+        let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
         let tempMesh = new THREE.Mesh(geometry, material);
         tempMesh.position.set(x, y, z);
         tempMesh.userData.createsGravity = true;
         tempMesh.userData.selectable = true;
         tempMesh.userData.hasVectors = false;
         scene.add(tempMesh);
-        
-        tempMesh.name = `Sphere-${this.objects.length}`;
+
+        tempMesh.name = generateName('Sphere');
         let sphere = {
             body: tempBody,
             mesh: tempMesh
         }
         this.objects.push(sphere);
         addItemToList(this.objects.length - 1);
+        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
     },
-    createCylinder(x, y, z, radius, height){
+    createCylinder(x, y, z, radius, height) {
         let shape = new CANNON.Cylinder(radius, radius, height, Math.ceil(radius / 10) * 8);
         let tempBody = new CANNON.Body({
             mass: 4
@@ -730,65 +957,128 @@ let simulation = {
 
         //Align three js to cannon js rotation
         var quat = new CANNON.Quaternion();
-        quat.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
-        var translation = new CANNON.Vec3(0,0,0);
-        shape.transformAllPoints(translation,quat);
+        quat.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+        var translation = new CANNON.Vec3(0, 0, 0);
+        shape.transformAllPoints(translation, quat);
 
         tempBody.addShape(shape);
         tempBody.position.set(x, y, z);
         world.addBody(tempBody);
-        let geometry = new THREE.CylinderGeometry( radius, radius, height, Math.ceil(radius / 10) * 16);
-        let material = new THREE.MeshBasicMaterial( {color: 0xff0000, wireframe: true} );
+        let geometry = new THREE.CylinderGeometry(radius, radius, height, Math.ceil(radius / 10) * 16);
+        let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
         let tempMesh = new THREE.Mesh(geometry, material);
         tempMesh.position.set(x, y, z);
         tempMesh.userData.createsGravity = true;
         tempMesh.userData.selectable = true;
         tempMesh.userData.hasVectors = false;
-        tempMesh.userData.previousScale = {x: 1, z: 1};
+        tempMesh.userData.previousScale = { x: 1, z: 1 };
         scene.add(tempMesh);
-        
-        tempMesh.name = `Cylinder-${this.objects.length}`;
+
+        tempMesh.name = generateName('Cylinder');
         let cylinder = {
             body: tempBody,
             mesh: tempMesh
         }
         this.objects.push(cylinder);
         addItemToList(this.objects.length - 1);
+        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
+        this.placeObject(cylinder.mesh);
     },
-    checkForObject(event){
+    placeObject(object){
+        this.placingObject = true;
+        let orbitControlsWereEnabled;
+        function findPosition(event){
+            let mouseVector = new THREE.Vector2();
+            let rayCaster = new THREE.Raycaster();
+
+            mouseVector.x = (event.offsetX / parseInt(window.getComputedStyle(canvas).width)) * 2 - 1;
+            mouseVector.y = -(event.offsetY / parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
+
+            rayCaster.setFromCamera(mouseVector, camera);
+            let tempVector = new THREE.Vector3();
+            rayCaster.ray.at(simulation.objectPlaceDist, tempVector);
+            object.position.set(tempVector.x, tempVector.y, tempVector.z);
+        }
+
+        function handleWheel(event){
+            console.log(transformControls.enabled)
+            if (event.wheelDeltaY < 0){
+                if (simulation.objectPlaceDist > 5){
+                    simulation.objectPlaceDist -= 5;
+                    findPosition(event);
+                }
+            } else {
+                simulation.objectPlaceDist += 5;
+                findPosition(event);
+            }
+        }
+
+        function handleShiftDown(event){
+            if (event.code == 'ShiftLeft') {
+                if (orbitControls.enabled){
+                    console.log("stopping orbit controls");
+                    orbitControls.enabled = false;
+                    orbitControlsWereEnabled = true;
+                }
+                canvas.addEventListener("wheel", handleWheel )
+            }
+        }
+
+        function stopShift(){
+            if (orbitControlsWereEnabled){
+                console.log("starting orbit controls")
+                orbitControls.enabled = true;
+            }
+            canvas.removeEventListener("wheel", handleWheel);
+            document.removeEventListener("keydown", handleShiftDown);
+            document.removeEventListener("keyup", stopShift);
+        }
+
+        document.addEventListener("keydown", handleShiftDown);
+        document.addEventListener("keyup", stopShift);
+        canvas.addEventListener("mousemove", findPosition);
+
+        function removeEventListeners(){
+            canvas.removeEventListener("mousemove", findPosition);
+            canvas.removeEventListener("click", removeEventListeners);
+            simulation.placingObject = false;
+        }
+        canvas.addEventListener("click", removeEventListeners)
+    },
+    checkForObject(event) {
         let mouseVector = new THREE.Vector2();
         let rayCaster = new THREE.Raycaster();
-    
-        mouseVector.x = (event.offsetX /  parseInt(window.getComputedStyle(canvas).width)) * 2 - 1;
-        mouseVector.y = -(event.offsetY /  parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
-    
+
+        mouseVector.x = (event.offsetX / parseInt(window.getComputedStyle(canvas).width)) * 2 - 1;
+        mouseVector.y = -(event.offsetY / parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
+
         rayCaster.setFromCamera(mouseVector, camera);
         rayDirection = rayCaster.ray.direction;
 
         return rayCaster.intersectObjects(scene.children);
     },
-    removeAllObjects(){
+    removeAllObjects() {
         world.time = 0;
         //Remove all Meshes from scene
-        for (let i = 0; i < scene.children.length; i++){
-            if(scene.children[i].type === "Mesh"){
+        for (let i = 0; i < scene.children.length; i++) {
+            if (scene.children[i].type === "Mesh") {
                 scene.remove(scene.children[i]);
                 i--;
             }
         }
         //Remove all Bodies from world
-        while (world.bodies.length > 0){
+        while (world.bodies.length > 0) {
             world.removeBody(world.bodies[0]);
         }
     },
-    addAllObjects(){
+    addAllObjects() {
         //Adds all Bodies to the world and Meshes to the scene
-        for (let i = 0; i < this.objects.length; i++){
+        for (let i = 0; i < this.objects.length; i++) {
             scene.add(this.objects[i].mesh);
             world.addBody(this.objects[i].body);
         }
     },
-    
+
 }
 
 //Function Call and Export
@@ -798,4 +1088,6 @@ initCannon();
 initControls();
 
 animate();
-export {simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, updateValues, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors};
+
+
+export { simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning };

@@ -1,8 +1,8 @@
-import {simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, changeTimeStep, updateValues, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors} from './main.js';
+import {simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning} from './main.js';
 
 import {notificationList} from './notifications.js';
 
-let mode = "setup", selectedCursor = "none", rightUIisCollapsed = true, storedTheme = 'dark', timeStepStr = '1/60', showNotifications = true, doTutorial = true, canClickCanvas = true;
+let mode = "setup", selectedCursor = "none", rightUIisCollapsed = true, storedTheme = 'dark', timeStepStr = '1/60', showNotifications = true, doTutorial = true, canClickCanvas = true, invalidClicksCanvas = 0;
 
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
@@ -359,15 +359,18 @@ function setTheme(theme) {
 
 function toggleSettings() {
     function toggleVisibility() { settingsOverlay.style.visibility = 'hidden'; }
+    let socialContainer = document.getElementById("socials-container");
     if (window.getComputedStyle(settingsOverlay).visibility == 'hidden') {
         let timeline = gsap.timeline();
         settingsOverlay.style.visibility = 'visible';
         timeline.to(settingsOverlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)', duration: 0.15 })
-            .to(settingsBox, { opacity: 1, duration: 0.15 }, '-=0.16');
+            .to(settingsBox, { opacity: 1, duration: 0.15 }, '-=0.15')
+            .to(socialContainer, { opacity: 1, duration: 0.15 }, '-=0.30');
     } else {
         let timeline = gsap.timeline();
         timeline.to(settingsOverlay, { backgroundColor: 'rgba(0, 0, 0, 0)', duration: 0.15, onComplete: toggleVisibility })
-            .to(settingsBox, { opacity: 0, duration: 0.15 }, '-=0.15');;
+            .to(settingsBox, { opacity: 0, duration: 0.15 }, '-=0.15')
+            .to(socialContainer, { opacity: 0, duration: 0.15 }, '-=0.15');
     }
 }
 
@@ -397,62 +400,59 @@ function handleCameraButton(type){
 document.getElementById("perspective-button").onclick = handleCameraButton.bind(this, "PerspectiveCamera");
 document.getElementById("orthographic-button").onclick = handleCameraButton.bind(this, "OrthographicCamera");
 
-document.getElementById("top-select").onclick = function selectCursorMove(){
-    if (selectedCursor != "translate") {
+function selectCursorMove(){
+    if (transformControls.mode != 'translate' || !transformControls.enabled) {
         document.getElementById("top-select").style.backgroundColor = "orange";
         document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
         document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
         transformControls.setMode('translate');
         transformControls.enabled = true;
         orbitControls.enabled = false;
-        selectedCursor = "translate";
     } else {
         transformControls.detach();
-        document.getElementById("object-name").innerText = "No item is Selected";
         document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
         transformControls.enabled = false;
         orbitControls.enabled = true;
-        selectedCursor = "none";
     }
 }
 
-document.getElementById("top-resize").onclick = function selectCursorScale(){
-    if (selectedCursor != "scale") {
+document.getElementById("top-select").onclick = selectCursorMove;
+
+function selectCursorScale(){
+    if (transformControls.mode != 'scale' || !transformControls.enabled) {
         document.getElementById("top-resize").style.backgroundColor = "orange";
         document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
         document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
         transformControls.setMode('scale');
         transformControls.enabled = true;
         orbitControls.enabled = false;
-        selectedCursor = "scale";
     } else {
         transformControls.detach();
-        document.getElementById("object-name").innerText = "No item is Selected";
         document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
         transformControls.enabled = false;
         orbitControls.enabled = true;
-        selectedCursor = "none";
     }
 }
 
-document.getElementById("top-rotate").onclick = function selectCursorRotate(){
-    if (selectedCursor != "rotate") {
+document.getElementById("top-resize").onclick = selectCursorScale;
+
+function selectCursorRotate(){
+    if (transformControls.mode != 'rotate' || !transformControls.enabled) {
         document.getElementById("top-rotate").style.backgroundColor = "orange";
         document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
         document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
         transformControls.setMode('rotate');
         transformControls.enabled = true;
         orbitControls.enabled = false;
-        selectedCursor = "rotate";
     } else {
         transformControls.detach();
-        document.getElementById("object-name").innerText = "No item is Selected";
         document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
         transformControls.enabled = false;
         orbitControls.enabled = true;
-        selectedCursor = "none";
     }
 }
+
+document.getElementById("top-rotate").onclick = selectCursorRotate;
 
 document.getElementById("collapse-right-ui-button").onclick = function toggleRightUI() {
     if (rightUIisCollapsed) {
@@ -502,18 +502,30 @@ document.getElementById("custom-theme-button").onclick = toggleCustomTheme;
 
 document.getElementById("top-play").onclick = function togglePause(){
     if (mode == "setup"){
-        transformControls.detach();
+        simulation.isRunning = true;
+        if (transformControls.enabled){
+            switch (transformControls.mode) {
+                case 'translate':
+                    selectCursorMove();
+                    break;
+                case 'scale':
+                    selectCursorScale();
+                    break;
+                case 'rotate':
+                    selectCursorRotate();
+                    break;
+                default:
+                    break;
+            }
+        }
         copyobjects();
         mode = "simulation";
         topMode.innerHTML = "<b>Mode:</b> Simulation";
-        if (simulation.shapesForChanges.length > 0){
-            simulation.removeAllArrows();
-        }
         simulation.objects.forEach(element => {
             element.body.position.copy(element.mesh.position);
             element.body.quaternion.copy(element.mesh.quaternion);
         });
-        setDisabled(true);
+        setDisabledPhysical(true);
         // synchronizePositions();
     }
     if (simulation.isPaused){
@@ -528,11 +540,13 @@ document.getElementById("top-replay").onclick = async function toggleMode(){
         clearLog();
         pauseSimulation();
         mode = "setup";
+        simulation.isRunning = false;
         rewindobjects();
         topMode.innerHTML = "<b>Mode:</b> Setup";
         if (simulation.itemSelected > -1){
-            transformControls.attach(simulation.objects[simulation.itemSelected].mesh);
-            setAllAttributes(false);
+            setDisabledPhysical(false);
+            updateValuesWhileRunning(true);
+            switchControls('transform');
         }
     }
 }
@@ -594,152 +608,73 @@ fovText.addEventListener("blur", () => {
     }
 });
 
-function setDisabled(bool){
-    document.getElementById("item-color-picker").disabled = bool;
-    document.getElementById("wireframe-toggle").disabled = bool;
-    document.getElementById("width-input").disabled = bool;
-    document.getElementById("height-input").disabled = bool;
-    document.getElementById("depth-input").disabled = bool;
-    document.getElementById("position.x-input").disabled = bool;
-    document.getElementById("position.y-input").disabled = bool;
-    document.getElementById("position.z-input").disabled = bool;
-    document.getElementById("rotation.x-input").disabled = bool;
-    document.getElementById("rotation.y-input").disabled = bool;
-    document.getElementById("rotation.z-input").disabled = bool;
-    document.getElementById("velocity.x-input").disabled = bool;
-    document.getElementById("velocity.y-input").disabled = bool;
-    document.getElementById("velocity.z-input").disabled = bool;
-    document.getElementById("angularVelocity.x-input").disabled = bool;
-    document.getElementById("angularVelocity.y-input").disabled = bool;
-    document.getElementById("angularVelocity.z-input").disabled = bool;
-    document.getElementById("force.x-input").disabled = bool;
-    document.getElementById("force.y-input").disabled = bool;
-    document.getElementById("force.z-input").disabled = bool;
-    document.getElementById("mass-input").disabled = bool;
-    document.getElementById("force-vectors-all").disabled = bool;
-    document.getElementById("force-vectors-single").disabled = bool;
-    document.getElementById("velocity-vectors-all").disabled = bool;
-    document.getElementById("velocity-vectors-single").disabled = bool;
-    document.getElementById("collisionResponse-toggle").disabled = bool;
-}
-
-function setAllAttributes(bool){
-    setDisabled(bool);
-    if (!bool){
-        updateValues();
-        if (simulation.objects[simulation.itemSelected].mesh.userData.hasVectors){
-            for (let i in simulation.objects[simulation.itemSelected].mesh.children){
-                switch (simulation.objects[simulation.itemSelected].mesh.children[i].name) {
-                    case "resultantForceVector":
-                        document.getElementById("force-vectors-single").checked = true;
-                        break;
-                    case "forceVectorX":
-                    case "forceVectorY":
-                    case "forceVectorX":
-                        document.getElementById("force-vectors-all").checked = true;
-                        break;
-                    case "resultantVelocityVector":
-                        document.getElementById("velocity-vectors-single").checked = true;
-                        break;
-                    case "velocityVectorX":
-                    case "velocityVectorY":
-                    case "velocityVectorX":
-                        document.getElementById("velocity-vectors-all").checked = true;
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-        colorPicker.value = `#${simulation.objects[simulation.itemSelected].mesh.material.color.getHexString()}`;
-        document.getElementById("mass-input").value = simulation.objects[simulation.itemSelected].body.mass;
-        switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
-            case "SphereGeometry":
-                document.getElementById("width-text").innerText = "R:";
-                document.getElementById("height-container").style.visibility = "hidden";
-                document.getElementById("depth-container").style.visibility = "hidden";
-                break;
-            case "CylinderGeometry":
-                document.getElementById("width-text").innerText = "R:";
-                document.getElementById("height-container").style.visibility = "inherit";
-                document.getElementById("depth-container").style.visibility = "hidden";
-                break;
-            default:
-                document.getElementById("width-text").innerText = "W:";
-                document.getElementById("height-container").style.visibility = "inherit";
-                document.getElementById("depth-container").style.visibility = "inherit";
-                break;
-        }
+function handleTransformControlsMouse(mouseUp){
+    if (mouseUp){
+        canClickCanvas = true;
+        switchControls('transform')
     } else {
-        document.getElementById("width-input").value = "";
-        document.getElementById("height-input").value = "";
-        document.getElementById("depth-input").value = "";
-        document.getElementById("position.x-input").value = "";
-        document.getElementById("position.y-input").value = "";
-        document.getElementById("position.z-input").value = "";
-        document.getElementById("rotation.x-input").value = "";
-        document.getElementById("rotation.y-input").value = "";
-        document.getElementById("rotation.z-input").value = "";
-        document.getElementById("velocity.x-input").value = "";
-        document.getElementById("velocity.y-input").value = "";
-        document.getElementById("velocity.z-input").value = "";
-        document.getElementById("angularVelocity.x-input").value = "";
-        document.getElementById("angularVelocity.y-input").value = "";
-        document.getElementById("angularVelocity.z-input").value = "";
-        document.getElementById("force.x-input").value = "";
-        document.getElementById("force.y-input").value = "";
-        document.getElementById("force.z-input").value = "";
-        document.getElementById("mass-input").value = "";
-        document.getElementById("force-vectors-single").checked = false;
-        document.getElementById("force-vectors-all").checked = false;
-        document.getElementById("velocity-vectors-single").checked = false;
-        document.getElementById("velocity-vectors-all").checked = false;
-        document.getElementById("wireframe-toggle").checked = false;
-        document.getElementById("collisionResponse-toggle").checked = false;
-        colorPicker.value = "#000000";
+        canClickCanvas = false;
     }
 }
 
-function setRightParameters(){
-    if (simulation.itemSelected > -1){
-        transformControls.detach();
-        transformControls.attach(simulation.objects[simulation.itemSelected].mesh);
-        document.getElementById("wireframe-toggle").checked = simulation.objects[simulation.itemSelected].mesh.material.wireframe;
-        document.getElementById("collisionResponse-toggle").checked = simulation.objects[simulation.itemSelected].body.collisionResponse;
-        document.getElementById("object-name").innerText = simulation.objects[simulation.itemSelected].mesh.name;
-
-        setAllAttributes(false);
-    } else {
-        document.getElementById("object-name").innerText = "No item is Selected";
-        
-        setAllAttributes(true);
-    }
-}
+let doubleClick = null;
 
 function handleCanvasClick(event, bool){
-    if (mode == "setup" ){
+    if (mode == "setup"  && !simulation.placingObject){
         let intersectedObjects;
         if (bool){
             intersectedObjects = simulation.checkForObject(event);
         } else {intersectedObjects = []};
-        if (intersectedObjects.length > 0 && intersectedObjects[0].object.userData.selectable && canClickCanvas && (simulation.itemSelected == -1 || (simulation.itemSelected > -1 && simulation.objects[simulation.itemSelected].mesh.uuid != intersectedObjects[0].object.uuid))) {
+        if (intersectedObjects.length > 0 && intersectedObjects[0].object.userData.selectable && canClickCanvas && (simulation.itemSelected == -1 || (simulation.itemSelected > -1 && simulation.objects[simulation.itemSelected].mesh.uuid == intersectedObjects[0].object.uuid))) {
             transformControls.attach(intersectedObjects[0].object);
             for (const index in simulation.objects) {
                 if (simulation.objects[index].mesh.uuid == intersectedObjects[0].object.uuid) {
-                    simulation.itemSelected = index;
+                    simulation.itemSelected = parseInt(index);
                     transformControls.attach(simulation.objects[index].mesh);
                     canClickCanvas = true;
-                    setRightParameters();
+                    invalidClicksCanvas = 0;
+                    document.getElementById(intersectedObjects[0].object.uuid).childNodes[0].checked = true;
+                    setDisabledVisual(false);
+                    setDisabledPhysical(false);
+                    toggleValues(true);
                     break;
                 }
             }
         } else {
+            invalidClicksCanvas++;
+            if (simulation.itemSelected > -1){
+                document.getElementById(simulation.objects[simulation.itemSelected].mesh.uuid).childNodes[0].checked = false;
+            }
             if (transformControls.object && !transformControls.dragging) {
                 document.activeElement.blur();
                 transformControls.detach();
                 simulation.itemSelected = -1;
                 canClickCanvas = true;
-                setRightParameters();
+                setDisabledVisual(true);
+                setDisabledPhysical(true);
+                toggleValues(false);
+            }
+            if (invalidClicksCanvas > 1){
+                if (transformControls.enabled){
+                    switch (transformControls.mode) {
+                        case 'translate':
+                            selectCursorMove();
+                            break;
+                        case 'scale':
+                            selectCursorScale();
+                            break;
+                        case 'rotate':
+                            selectCursorRotate();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                invalidClicksCanvas = 0;
+                clearTimeout(doubleClick);
+                doubleClick = null;
+            } else {
+                doubleClick = setTimeout(() => {invalidClicksCanvas = 0}, 500);
             }
         }
     }
@@ -1085,8 +1020,8 @@ transformControls.addEventListener("change", (event) => {
     }
 });
 
-transformControls.addEventListener("mouseUp", () => {canClickCanvas = true; setRightParameters();});
-transformControls.addEventListener("mouseDown", () => {canClickCanvas = false});
+transformControls.addEventListener("mouseUp", () => {handleTransformControlsMouse(true)});
+transformControls.addEventListener("mouseDown", () => {handleTransformControlsMouse(false)});
 
 document.getElementById("time-step-editable").addEventListener("keypress", (event) => {
     if (['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '/', '*', '%', '+', '-'].indexOf(event.key) === -1) {
@@ -1101,13 +1036,6 @@ document.getElementById("time-step-editable").addEventListener("blur", (event) =
         changeTimeStep(eval(timeStepStr));
     }
 })
-
-// class Notification {
-//     constructor(type, msg) {
-//         this.type = type;
-//         this.msg = msg;
-//     }
-// }
 
 let notifications = [];
 
@@ -1386,3 +1314,29 @@ function handleAllForceToggle(){
 }
 
 document.getElementById("force-vectors-all").onclick = handleAllForceToggle;
+
+let wasTransformControls;
+
+document.addEventListener('keydown', (event) => {
+    if (!simulation.placingObject && document.activeElement == document.body && event.code == 'ShiftLeft' && transformControls.enabled) {
+        switchControls('orbit');
+        wasTransformControls = true;
+    } 
+});
+
+canvas.addEventListener("keydown", ()=> {
+    console.log("hellothere")
+})
+
+document.addEventListener('keyup', (event) => {
+    if (wasTransformControls){
+        switchControls('transform');
+    }
+});
+
+document.getElementById('email-button').addEventListener('click', () => {
+    navigator.clipboard.writeText('konstantinos.prasinos@gmail.com');
+    if (showNotifications){
+        createNotification(notificationList.copyEmail, false);
+    }
+})
