@@ -25,6 +25,9 @@ canvas {
 button {
     cursor: pointer;
 }
+a {
+    color: var(--secondary-color);
+}
 /* Random Universal */
 
 /* Basic UI Elements */
@@ -141,6 +144,33 @@ button {
     -webkit-mask-image:  url(/assets/edit.svg);
     mask-image: url(assets/edit.svg);
     float: right;
+}
+#socials-container {
+    position: fixed;
+    bottom: 0.5em;
+    right: 0.5em;
+    background-color: var(--primary-color);
+    padding: 0.5em;
+    padding-left: 1.25em;
+    border-radius: 0.75em;
+    opacity: inherit;
+}
+#email-button {
+    vertical-align: middle;
+    height: 2.5em;
+    width: 2.5em;
+    -webkit-mask-image:  url(/assets/email.svg);
+    mask-image: url(assets/email.svg);
+    position: relative;
+}
+#github-button{
+    padding: 0;
+    vertical-align: middle;
+    height: 4em;
+    width: 4em;
+    -webkit-mask-image:  url(/assets/github-logo.svg);
+    mask-image: url(assets/github-logo.svg);
+    position: relative;
 }
 .item-list-field-delete-button {
     -webkit-mask-image:  url(/assets/delete.svg);
