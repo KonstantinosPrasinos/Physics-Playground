@@ -1,8 +1,9 @@
-import {simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, changeTimeStep, updateValues, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors} from './main.js';
+import {simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors} from './main.js';
 
 import {notificationList} from './notifications.js';
+import {updateValuesOnce} from './objectParametersUIHandlers.js';
 
-let mode = "setup", selectedCursor = "none", rightUIisCollapsed = true, storedTheme = 'dark', timeStepStr = '1/60', showNotifications = true, doTutorial = true, canClickCanvas = true;
+let mode = "setup", selectedCursor = "none", rightUIisCollapsed = true, storedTheme = 'dark', timeStepStr = '1/60', showNotifications = true, doTutorial = true, canClickCanvas = true, invalidClicksCanvas = 0;
 
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
@@ -397,7 +398,7 @@ function handleCameraButton(type){
 document.getElementById("perspective-button").onclick = handleCameraButton.bind(this, "PerspectiveCamera");
 document.getElementById("orthographic-button").onclick = handleCameraButton.bind(this, "OrthographicCamera");
 
-document.getElementById("top-select").onclick = function selectCursorMove(){
+function selectCursorMove(){
     if (selectedCursor != "translate") {
         document.getElementById("top-select").style.backgroundColor = "orange";
         document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
@@ -416,7 +417,9 @@ document.getElementById("top-select").onclick = function selectCursorMove(){
     }
 }
 
-document.getElementById("top-resize").onclick = function selectCursorScale(){
+document.getElementById("top-select").onclick = selectCursorMove;
+
+function selectCursorScale(){
     if (selectedCursor != "scale") {
         document.getElementById("top-resize").style.backgroundColor = "orange";
         document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
@@ -435,7 +438,9 @@ document.getElementById("top-resize").onclick = function selectCursorScale(){
     }
 }
 
-document.getElementById("top-rotate").onclick = function selectCursorRotate(){
+document.getElementById("top-resize").onclick = selectCursorScale;
+
+function selectCursorRotate(){
     if (selectedCursor != "rotate") {
         document.getElementById("top-rotate").style.backgroundColor = "orange";
         document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
@@ -453,6 +458,8 @@ document.getElementById("top-rotate").onclick = function selectCursorRotate(){
         selectedCursor = "none";
     }
 }
+
+document.getElementById("top-rotate").onclick = selectCursorRotate;
 
 document.getElementById("collapse-right-ui-button").onclick = function toggleRightUI() {
     if (rightUIisCollapsed) {
@@ -532,7 +539,7 @@ document.getElementById("top-replay").onclick = async function toggleMode(){
         topMode.innerHTML = "<b>Mode:</b> Setup";
         if (simulation.itemSelected > -1){
             transformControls.attach(simulation.objects[simulation.itemSelected].mesh);
-            setAllAttributes(false);
+            updateValuesOnce(false);
         }
     }
 }
@@ -623,83 +630,6 @@ function setDisabled(bool){
     document.getElementById("collisionResponse-toggle").disabled = bool;
 }
 
-function setAllAttributes(bool){
-    setDisabled(bool);
-    if (!bool){
-        updateValues();
-        if (simulation.objects[simulation.itemSelected].mesh.userData.hasVectors){
-            for (let i in simulation.objects[simulation.itemSelected].mesh.children){
-                switch (simulation.objects[simulation.itemSelected].mesh.children[i].name) {
-                    case "resultantForceVector":
-                        document.getElementById("force-vectors-single").checked = true;
-                        break;
-                    case "forceVectorX":
-                    case "forceVectorY":
-                    case "forceVectorX":
-                        document.getElementById("force-vectors-all").checked = true;
-                        break;
-                    case "resultantVelocityVector":
-                        document.getElementById("velocity-vectors-single").checked = true;
-                        break;
-                    case "velocityVectorX":
-                    case "velocityVectorY":
-                    case "velocityVectorX":
-                        document.getElementById("velocity-vectors-all").checked = true;
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-        colorPicker.value = `#${simulation.objects[simulation.itemSelected].mesh.material.color.getHexString()}`;
-        document.getElementById("mass-input").value = simulation.objects[simulation.itemSelected].body.mass;
-        switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
-            case "SphereGeometry":
-                document.getElementById("width-text").innerText = "R:";
-                document.getElementById("height-container").style.visibility = "hidden";
-                document.getElementById("depth-container").style.visibility = "hidden";
-                break;
-            case "CylinderGeometry":
-                document.getElementById("width-text").innerText = "R:";
-                document.getElementById("height-container").style.visibility = "inherit";
-                document.getElementById("depth-container").style.visibility = "hidden";
-                break;
-            default:
-                document.getElementById("width-text").innerText = "W:";
-                document.getElementById("height-container").style.visibility = "inherit";
-                document.getElementById("depth-container").style.visibility = "inherit";
-                break;
-        }
-    } else {
-        document.getElementById("width-input").value = "";
-        document.getElementById("height-input").value = "";
-        document.getElementById("depth-input").value = "";
-        document.getElementById("position.x-input").value = "";
-        document.getElementById("position.y-input").value = "";
-        document.getElementById("position.z-input").value = "";
-        document.getElementById("rotation.x-input").value = "";
-        document.getElementById("rotation.y-input").value = "";
-        document.getElementById("rotation.z-input").value = "";
-        document.getElementById("velocity.x-input").value = "";
-        document.getElementById("velocity.y-input").value = "";
-        document.getElementById("velocity.z-input").value = "";
-        document.getElementById("angularVelocity.x-input").value = "";
-        document.getElementById("angularVelocity.y-input").value = "";
-        document.getElementById("angularVelocity.z-input").value = "";
-        document.getElementById("force.x-input").value = "";
-        document.getElementById("force.y-input").value = "";
-        document.getElementById("force.z-input").value = "";
-        document.getElementById("mass-input").value = "";
-        document.getElementById("force-vectors-single").checked = false;
-        document.getElementById("force-vectors-all").checked = false;
-        document.getElementById("velocity-vectors-single").checked = false;
-        document.getElementById("velocity-vectors-all").checked = false;
-        document.getElementById("wireframe-toggle").checked = false;
-        document.getElementById("collisionResponse-toggle").checked = false;
-        colorPicker.value = "#000000";
-    }
-}
-
 function setRightParameters(){
     if (simulation.itemSelected > -1){
         transformControls.detach();
@@ -708,13 +638,15 @@ function setRightParameters(){
         document.getElementById("collisionResponse-toggle").checked = simulation.objects[simulation.itemSelected].body.collisionResponse;
         document.getElementById("object-name").innerText = simulation.objects[simulation.itemSelected].mesh.name;
 
-        setAllAttributes(false);
+        updateValuesOnce(false);
     } else {
         document.getElementById("object-name").innerText = "No item is Selected";
         
-        setAllAttributes(true);
+        updateValuesOnce(true);
     }
 }
+
+let doubleClick = null;
 
 function handleCanvasClick(event, bool){
     if (mode == "setup" ){
@@ -722,24 +654,48 @@ function handleCanvasClick(event, bool){
         if (bool){
             intersectedObjects = simulation.checkForObject(event);
         } else {intersectedObjects = []};
-        if (intersectedObjects.length > 0 && intersectedObjects[0].object.userData.selectable && canClickCanvas && (simulation.itemSelected == -1 || (simulation.itemSelected > -1 && simulation.objects[simulation.itemSelected].mesh.uuid != intersectedObjects[0].object.uuid))) {
+        console.log(simulation.objects[simulation.itemSelected].mesh.uuid, intersectedObjects[0].object.uuid, simulation.itemSelected);
+        if (intersectedObjects.length > 0 && intersectedObjects[0].object.userData.selectable && (canClickCanvas || (document.getElementById("width-input").value && !transformControls.object)) && (simulation.itemSelected == -1 || (simulation.itemSelected > -1 && simulation.objects[simulation.itemSelected].mesh.uuid != intersectedObjects[0].object.uuid))) {
+            console.log("hello");
             transformControls.attach(intersectedObjects[0].object);
             for (const index in simulation.objects) {
                 if (simulation.objects[index].mesh.uuid == intersectedObjects[0].object.uuid) {
                     simulation.itemSelected = index;
                     transformControls.attach(simulation.objects[index].mesh);
                     canClickCanvas = true;
+                    invalidClicksCanvas = 0;
                     setRightParameters();
                     break;
                 }
             }
         } else {
+            invalidClicksCanvas++;
             if (transformControls.object && !transformControls.dragging) {
                 document.activeElement.blur();
                 transformControls.detach();
                 simulation.itemSelected = -1;
                 canClickCanvas = true;
                 setRightParameters();
+            }
+            if (invalidClicksCanvas > 1){
+                switch (selectedCursor) {
+                    case "translate":
+                        selectCursorMove();
+                        break;
+                    case "scale":
+                        selectCursorScale();
+                        break;
+                    case "rotate":
+                        selectCursorRotate();
+                        break;
+                    default:
+                        break;
+                }
+                invalidClicksCanvas = 0;
+                clearTimeout(doubleClick);
+                doubleClick = null;
+            } else {
+                doubleClick = setTimeout(() => {invalidClicksCanvas = 0}, 500);
             }
         }
     }

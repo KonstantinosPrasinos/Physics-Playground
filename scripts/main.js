@@ -3,11 +3,12 @@ import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
 import Stats from 'https://unpkg.com/three@0.126.1/examples/jsm/libs/stats.module.js';
+import {updateValuesPerTick} from './objectParametersUIHandlers.js';
 
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
 
-let rayDirection, savedobjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats;
+let rayDirection, savedobjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
 let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
 
 function changeTimeStep(temp){
@@ -87,7 +88,7 @@ function updatePhysics() {
         element.mesh.position.copy(element.body.position);
         element.mesh.quaternion.copy(element.body.quaternion);
     });
-    updateValues();
+    updateValuesPerTick();
 }
 
 function render() {
@@ -121,40 +122,6 @@ function toggleStats(bool){
         document.body.removeChild(stats.dom);
     }
     statsOn = bool;
-}
-
-function updateValues(){
-    if (simulation.itemSelected > -1){
-        switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
-            case "SphereGeometry":
-                document.getElementById("width-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radius * simulation.objects[simulation.itemSelected].mesh.scale.x;
-                break;
-            case "BoxGeometry":
-                document.getElementById("width-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.width * simulation.objects[simulation.itemSelected].mesh.scale.x;
-                document.getElementById("height-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.height * simulation.objects[simulation.itemSelected].mesh.scale.y;
-                document.getElementById("depth-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.depth * simulation.objects[simulation.itemSelected].mesh.scale.z;
-                break;
-            case "CylinderGeometry":
-                document.getElementById("width-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radiusTop * simulation.objects[simulation.itemSelected].mesh.scale.x;
-                document.getElementById("height-input").value = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.height * simulation.objects[simulation.itemSelected].mesh.scale.y;
-                break;
-        }
-        document.getElementById("position.x-input").value = simulation.objects[simulation.itemSelected].mesh.position.x;
-        document.getElementById("position.y-input").value = simulation.objects[simulation.itemSelected].mesh.position.y;
-        document.getElementById("position.z-input").value = simulation.objects[simulation.itemSelected].mesh.position.z;
-        document.getElementById("rotation.x-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.x;
-        document.getElementById("rotation.y-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.y;
-        document.getElementById("rotation.z-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.z;
-        document.getElementById("velocity.x-input").value = simulation.objects[simulation.itemSelected].body.velocity.x;
-        document.getElementById("velocity.y-input").value = simulation.objects[simulation.itemSelected].body.velocity.y;
-        document.getElementById("velocity.z-input").value = simulation.objects[simulation.itemSelected].body.velocity.z;
-        document.getElementById("angularVelocity.x-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.x;
-        document.getElementById("angularVelocity.y-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.y;
-        document.getElementById("angularVelocity.z-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.z;
-        document.getElementById("force.x-input").value = simulation.objects[simulation.itemSelected].body.force.x;
-        document.getElementById("force.y-input").value = simulation.objects[simulation.itemSelected].body.force.y;
-        document.getElementById("force.z-input").value = simulation.objects[simulation.itemSelected].body.force.z;
-    }
 }
 
 
@@ -220,12 +187,51 @@ function printToLog(){
 
 function addItemToList(index){
     let node = document.createElement("DIV");
+    let selectButtonNode = document.createElement('input');
     let textNode = document.createElement("input");
     let editButtonNode = document.createElement('input');
     let deleteButtonNode = document.createElement('input');
     let lockButtonNode = document.createElement('input');
 
     node.classList.add("item-list-field");
+    
+    selectButtonNode.type = 'checkbox';
+    selectButtonNode.classList.add("simple-checkmark");
+    selectButtonNode.classList.add("small-inline-checkmark");
+    selectButtonNode.addEventListener('click', (event) => {
+        if (event.target.checked){
+            if (currentlyCheckedBox){
+                currentlyCheckedBox.checked = false;
+            }
+            simulation.itemSelected = index;
+            document.getElementById("object-name").innerText = simulation.objects[simulation.itemSelected].mesh.name;
+            switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
+                case "SphereGeometry":
+                    document.getElementById("width-text").innerText = "R:";
+                    document.getElementById("height-container").style.visibility = "hidden";
+                    document.getElementById("depth-container").style.visibility = "hidden";
+                    break;
+                case "CylinderGeometry":
+                    document.getElementById("width-text").innerText = "R:";
+                    document.getElementById("height-container").style.visibility = "inherit";
+                    document.getElementById("depth-container").style.visibility = "hidden";
+                    break;
+                default:
+                    document.getElementById("width-text").innerText = "W:";
+                    document.getElementById("height-container").style.visibility = "inherit";
+                    document.getElementById("depth-container").style.visibility = "inherit";
+                    break;
+            }
+            updateValuesPerTick();
+            currentlyCheckedBox = event.target;
+        } else {
+            simulation.itemSelected = -1;
+            document.getElementById("object-name").innerText = "No item is Selected";
+            updateValuesPerTick(true);
+            currentlyCheckedBox = null;
+        }
+    })
+
     textNode.type = 'text';
     textNode.value = simulation.objects[index].mesh.name;
     textNode.setAttribute('required', "");
@@ -277,6 +283,7 @@ function addItemToList(index){
             document.activeElement.blur();
         }
     });
+    node.appendChild(selectButtonNode);
     node.appendChild(textNode);
     node.appendChild(deleteButtonNode);
     node.appendChild(editButtonNode);
@@ -285,7 +292,7 @@ function addItemToList(index){
 }
 
 function deleteObjectFromList(index) {
-    if (transformControls.object.uuid == simulation.objects[index].mesh.uuid){
+    if (transformControls.object && transformControls.object.uuid == simulation.objects[index].mesh.uuid){
         transformControls.detach();
     }
     scene.remove(simulation.objects[index].mesh);
@@ -664,6 +671,25 @@ async function copyobjects(){
 
 //Simulation Object
 
+function generateName(type){
+    let count = -1;
+    for (let index in simulation.objects){
+        if (simulation.objects[index].mesh.name.length >= type.length + 2 && simulation.objects[index].mesh.name.substring(0, type.length + 1) == type + '-'){
+            let nString = simulation.objects[index].mesh.name.substring(type.length + 1);
+            if (!isNaN(nString)){
+                if (count + 1 < parseInt(nString)){
+                    count++;
+                    return type + '-' + count;
+                } else {
+                    count = parseInt(nString);
+                }
+            }
+        }
+    }
+    count++;
+    return type + '-' + count;
+}
+
 let simulation = {
     objects: [],
     shapesForChanges: [],
@@ -689,13 +715,14 @@ let simulation = {
         tempMesh.userData.hasVectors = false;
         scene.add(tempMesh);
 
-        tempMesh.name = `Cube-${this.objects.length}`;
+        tempMesh.name = generateName('Cube');
         let box = {
             body: tempBody,
             mesh: tempMesh
         }
         this.objects.push(box);
         addItemToList(this.objects.length - 1);
+        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
     },
     createSphere(x, y, z, radius){
         let shape = new CANNON.Sphere(radius);
@@ -714,13 +741,14 @@ let simulation = {
         tempMesh.userData.hasVectors = false;
         scene.add(tempMesh);
         
-        tempMesh.name = `Sphere-${this.objects.length}`;
+        tempMesh.name = generateName('Sphere');
         let sphere = {
             body: tempBody,
             mesh: tempMesh
         }
         this.objects.push(sphere);
         addItemToList(this.objects.length - 1);
+        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
     },
     createCylinder(x, y, z, radius, height){
         let shape = new CANNON.Cylinder(radius, radius, height, Math.ceil(radius / 10) * 8);
@@ -747,7 +775,7 @@ let simulation = {
         tempMesh.userData.previousScale = {x: 1, z: 1};
         scene.add(tempMesh);
         
-        tempMesh.name = `Cylinder-${this.objects.length}`;
+        tempMesh.name = generateName('Cylinder');
         let cylinder = {
             body: tempBody,
             mesh: tempMesh
@@ -798,4 +826,4 @@ initCannon();
 initControls();
 
 animate();
-export {simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, updateValues, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors};
+export {simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors};

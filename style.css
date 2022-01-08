@@ -292,7 +292,7 @@ input:disabled{
 }
 .item-list-editable {
     opacity: inherit;
-    width: 50%;
+    width: 45%;
     display: inline;
     background-color: inherit;
     border: none;
@@ -744,4 +744,9 @@ input {
 }
 #collidable-checklist {
     display: inline;
+}
+.small-inline-checkmark {
+    height: 1.5em;
+    width: 1.5em;
+    margin-right: 0.25em
 }
