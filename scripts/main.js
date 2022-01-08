@@ -3,12 +3,13 @@ import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
 import Stats from 'https://unpkg.com/three@0.126.1/examples/jsm/libs/stats.module.js';
+import {PointerLockControls} from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/PointerLockControls.js'
 import {flyControls} from './controls.js';
 
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
 
-let rayDirection, savedobjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
+let savedobjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
 let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
 
 function changeTimeStep(temp) {
@@ -262,14 +263,26 @@ function updateValuesWhileRunning(bool) {
 
 //Init Functions
 
+let controls;
+
 function initControls() {
     orbitControls = new OrbitControls(camera, renderer.domElement);
     transformControls = new TransformControls(camera, renderer.domElement);
     let temp = new flyControls(perspectiveCamera, renderer.domElement);
     // transformControls.addEventListener('change', render);
     transformControls.enabled = false;
+    orbitControls.enabled = false;
+    controls = new PointerLockControls(camera, renderer.domElement);
     scene.add(transformControls);
+    canvas.addEventListener( 'click', function () {
+
+        controls.lock();
+
+    } );
+    scene.add(controls.getObject());
+
 }
+
 
 function initThree() {
     scene = new THREE.Scene();
@@ -1089,7 +1102,6 @@ let simulation = {
         mouseVector.y = -(event.offsetY / parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
 
         rayCaster.setFromCamera(mouseVector, camera);
-        rayDirection = rayCaster.ray.direction;
 
         return rayCaster.intersectObjects(scene.children);
     },
