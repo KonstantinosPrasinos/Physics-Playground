@@ -1,4 +1,4 @@
-import {simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning} from './main.js';
+import {simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls} from './main.js';
 
 import {notificationList} from './notifications.js';
 
@@ -407,12 +407,16 @@ function selectCursorMove(){
         document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
         transformControls.setMode('translate');
         transformControls.enabled = true;
-        orbitControls.enabled = false;
+        if (camera.type != "PerspectiveCamera"){
+            orbitControls.enabled = false;
+        }
     } else {
         transformControls.detach();
         document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
         transformControls.enabled = false;
-        orbitControls.enabled = true;
+        if (camera.type != "PerspectiveCamera"){
+            orbitControls.enabled = true;
+        }
     }
 }
 
@@ -425,12 +429,16 @@ function selectCursorScale(){
         document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
         transformControls.setMode('scale');
         transformControls.enabled = true;
-        orbitControls.enabled = false;
+        if (camera.type != "PerspectiveCamera"){
+            orbitControls.enabled = false;
+        }
     } else {
         transformControls.detach();
         document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
         transformControls.enabled = false;
-        orbitControls.enabled = true;
+        if (camera.type != "PerspectiveCamera"){
+            orbitControls.enabled = true;
+        }
     }
 }
 
@@ -443,12 +451,16 @@ function selectCursorRotate(){
         document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
         transformControls.setMode('rotate');
         transformControls.enabled = true;
-        orbitControls.enabled = false;
+        if (camera.type != "PerspectiveCamera"){
+            orbitControls.enabled = false;
+        }
     } else {
         transformControls.detach();
         document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
         transformControls.enabled = false;
-        orbitControls.enabled = true;
+        if (camera.type != "PerspectiveCamera"){
+            orbitControls.enabled = true;
+        }
     }
 }
 
@@ -601,7 +613,7 @@ fovText.addEventListener("blur", () => {
         } else {
             fovText.placeholder = fovText.value;
             camera.fov = parseInt(fovText.value);
-            locaStorage.cameraFov = parseInt(fovText.value);
+            localStorage.cameraFov = parseInt(fovText.value);
         }
         fovText.value = "";
         fovSlider.value = camera.fov;
@@ -611,7 +623,6 @@ fovText.addEventListener("blur", () => {
 function handleTransformControlsMouse(mouseUp){
     if (mouseUp){
         canClickCanvas = true;
-        switchControls('transform')
     } else {
         canClickCanvas = false;
     }
@@ -625,7 +636,7 @@ function handleCanvasClick(event, bool){
         if (bool){
             intersectedObjects = simulation.checkForObject(event);
         } else {intersectedObjects = []};
-        if (intersectedObjects.length > 0 && intersectedObjects[0].object.userData.selectable && canClickCanvas && (simulation.itemSelected == -1 || (simulation.itemSelected > -1 && simulation.objects[simulation.itemSelected].mesh.uuid == intersectedObjects[0].object.uuid))) {
+        if (transformControls.enabled  && !transformControls.dragging && intersectedObjects.length > 0 && intersectedObjects[0].object.userData.selectable && canClickCanvas && (simulation.itemSelected == -1 || (simulation.itemSelected > -1 && simulation.objects[simulation.itemSelected].mesh.uuid == intersectedObjects[0].object.uuid))) {
             transformControls.attach(intersectedObjects[0].object);
             for (const index in simulation.objects) {
                 if (simulation.objects[index].mesh.uuid == intersectedObjects[0].object.uuid) {
@@ -673,6 +684,9 @@ function handleCanvasClick(event, bool){
                 invalidClicksCanvas = 0;
                 clearTimeout(doubleClick);
                 doubleClick = null;
+                if (camera.type == "PerspectiveCamera"){
+                    flyControls.canLockOn = true;
+                }
             } else {
                 doubleClick = setTimeout(() => {invalidClicksCanvas = 0}, 500);
             }
@@ -1314,25 +1328,6 @@ function handleAllForceToggle(){
 }
 
 document.getElementById("force-vectors-all").onclick = handleAllForceToggle;
-
-let wasTransformControls;
-
-document.addEventListener('keydown', (event) => {
-    if (!simulation.placingObject && document.activeElement == document.body && event.code == 'ShiftLeft' && transformControls.enabled) {
-        switchControls('orbit');
-        wasTransformControls = true;
-    } 
-});
-
-canvas.addEventListener("keydown", ()=> {
-    console.log("hellothere")
-})
-
-document.addEventListener('keyup', (event) => {
-    if (wasTransformControls){
-        switchControls('transform');
-    }
-});
 
 document.getElementById('email-button').addEventListener('click', () => {
     navigator.clipboard.writeText('konstantinos.prasinos@gmail.com');

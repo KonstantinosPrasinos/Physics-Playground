@@ -3,13 +3,13 @@ import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
 import Stats from 'https://unpkg.com/three@0.126.1/examples/jsm/libs/stats.module.js';
-import {PointerLockControls} from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/PointerLockControls.js'
-import {flyControls} from './controls.js';
+import {PointerLockControls} from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/PointerLockControls.js';
+import {FlyControls} from './controls.js';
 
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
 
-let savedobjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
+let flyControls, savedobjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
 let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
 
 function changeTimeStep(temp) {
@@ -17,54 +17,64 @@ function changeTimeStep(temp) {
 }
 
 function setCamera(cameraType) {
+    
     if (camera.type != cameraType) {
+        let transformControlsWereAttached = !(!transformControls.object);
+        // if (transformControlsWereAttached){
+        //     transformControls.detach()
+        // }
         switch (cameraType) {
             case "PerspectiveCamera":
+                flyControls.canLockOn = true;
                 camera = perspectiveCamera;
-                orbitControls.object = camera;
-                orbitControls.reset();
+                orbitControls.enabled = false;
+                transformControls.camera = camera;
+                transformControls.enabled = false;
+                
                 camera.updateMatrixWorld();
                 camera.updateProjectionMatrix();
+                console.log(perspectiveCamera, orthographicCamera.projectionMatrix.elements[0])
                 break;
             case "OrthographicCamera":
+                flyControls.canLockOn = false;
                 camera = orthographicCamera;
                 orbitControls.object = camera;
                 orbitControls.reset();
+                orbitControls.enabled = true;
                 camera.updateMatrixWorld();
                 camera.updateProjectionMatrix();
                 break;
             default:
                 break;
         }
+        // if (transformControlsWereAttached){
+        //     transformControls.attach(simulation.objects[simulation.itemSelected].mesh)
+        // }
+        
     }
 }
-
-
-
-
-
-
-
-
-
-
 
 const canvasHandlerParams = {
     canClickCanvas: true
 }
 
 function switchControls(controlsType) {
-    console.log("test");
     if (controlsType == 'transform') {
         if (simulation.itemSelected > -1) {
-            orbitControls.enabled = false;
+            flyControls.canLockOn = false;
+            if (camera.type != "PerspectiveCamera"){
+                orbitControls.enabled = false;
+            }
             transformControls.enabled = true;
             transformControls.attach(simulation.objects[simulation.itemSelected].mesh);
         }
     } else {
+        flyControls.canLockOn = true;
         transformControls.detach();
         transformControls.enabled = false;
-        orbitControls.enabled = true;
+        if (camera.type != "PerspectiveCamera"){
+            orbitControls.enabled = true;
+        }
     }
 }
 
@@ -235,52 +245,15 @@ function updateValuesWhileRunning(bool) {
     updateVarValues(bool);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //Init Functions
-
-let controls;
 
 function initControls() {
     orbitControls = new OrbitControls(camera, renderer.domElement);
     transformControls = new TransformControls(camera, renderer.domElement);
-    let temp = new flyControls(perspectiveCamera, renderer.domElement);
-    // transformControls.addEventListener('change', render);
+    flyControls = new FlyControls(perspectiveCamera, renderer.domElement, scene, transformControls);
     transformControls.enabled = false;
-    orbitControls.enabled = false;
-    controls = new PointerLockControls(camera, renderer.domElement);
+    orbitControls.enabled = true;
     scene.add(transformControls);
-    canvas.addEventListener( 'click', function () {
-
-        controls.lock();
-
-    } );
-    scene.add(controls.getObject());
-
 }
 
 
@@ -293,7 +266,7 @@ function initThree() {
     perspectiveCamera.position.z = 50;
     scene.add(orthographicCamera);
     scene.add(perspectiveCamera);
-    camera = orthographicCamera
+    camera = orthographicCamera;
 
     renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true });
     renderer.setClearColor(0xffffff, 1);
@@ -343,6 +316,11 @@ function animate() {
     if (statsOn) {
         stats.update();
     }
+
+    if (flyControls.pointerLock.isLocked){
+        flyControls.move();
+    }
+
     for (let i in simulation.objects) {
         if (simulation.objects[i].mesh.userData.hasVectors) {
             updateVectors(simulation.objects[i]);
@@ -790,9 +768,9 @@ function toggleResultantVelocityVector(object) {
     arrowHelper.visible = visible;
     arrowHelper.name = "resultantVelocityVector";
     arrowHelper.line.material.depthTest = false;
-    arrowHelper.line.renderOrder = Infinity;
+    arrowHelper.line.renderOrder = 10;
     arrowHelper.cone.material.depthTest = false;
-    arrowHelper.cone.renderOrder = Infinity;
+    arrowHelper.cone.renderOrder = 10;
     object.mesh.add(arrowHelper);
 }
 
@@ -952,6 +930,8 @@ let simulation = {
         });
         tempBody.addShape(shape);
         tempBody.position.set(x, y, z);
+        tempBody.linerDamping = 0;
+        tempBody.angularDamping = 0;
         world.addBody(tempBody);
 
         let geometry = new THREE.BoxGeometry(width, height, depth);
@@ -963,7 +943,7 @@ let simulation = {
         tempMesh.userData.hasVectors = false;
         scene.add(tempMesh);
 
-        tempMesh.name = generateName('Cube');
+        tempMesh.name = generateName('Box');
         let box = {
             body: tempBody,
             mesh: tempMesh
@@ -971,6 +951,7 @@ let simulation = {
         this.objects.push(box);
         addItemToList(this.objects.length - 1);
         this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
+        this.placeObject(box.mesh);
     },
     createSphere(x, y, z, radius) {
         let shape = new CANNON.Sphere(radius);
@@ -979,7 +960,10 @@ let simulation = {
         });
         tempBody.addShape(shape);
         tempBody.position.set(x, y, z);
+        tempBody.linerDamping = 0;
+        tempBody.angularDamping = 0;
         world.addBody(tempBody);
+
         let geometry = new THREE.SphereGeometry(radius, Math.ceil(radius / 10) * 16, Math.ceil(radius / 10) * 8);
         let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
         let tempMesh = new THREE.Mesh(geometry, material);
@@ -997,6 +981,7 @@ let simulation = {
         this.objects.push(sphere);
         addItemToList(this.objects.length - 1);
         this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
+        this.placeObject(sphere.mesh);
     },
     createCylinder(x, y, z, radius, height) {
         let shape = new CANNON.Cylinder(radius, radius, height, Math.ceil(radius / 10) * 8);
@@ -1012,7 +997,10 @@ let simulation = {
 
         tempBody.addShape(shape);
         tempBody.position.set(x, y, z);
+        tempBody.linerDamping = 0;
+        tempBody.angularDamping = 0;
         world.addBody(tempBody);
+
         let geometry = new THREE.CylinderGeometry(radius, radius, height, Math.ceil(radius / 10) * 16);
         let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
         let tempMesh = new THREE.Mesh(geometry, material);
@@ -1036,6 +1024,8 @@ let simulation = {
     placeObject(object){
         this.placingObject = true;
         let orbitControlsWereEnabled;
+        let wasAbleToLock = flyControls.canLockOn;
+        flyControls.canLockOn = false;
         function findPosition(event){
             let mouseVector = new THREE.Vector2();
             let rayCaster = new THREE.Raycaster();
@@ -1050,7 +1040,6 @@ let simulation = {
         }
 
         function handleWheel(event){
-            console.log(transformControls.enabled)
             if (event.wheelDeltaY < 0){
                 if (simulation.objectPlaceDist > 5){
                     simulation.objectPlaceDist -= 5;
@@ -1065,7 +1054,6 @@ let simulation = {
         function handleShiftDown(event){
             if (event.code == 'ShiftLeft') {
                 if (orbitControls.enabled){
-                    console.log("stopping orbit controls");
                     orbitControls.enabled = false;
                     orbitControlsWereEnabled = true;
                 }
@@ -1075,7 +1063,6 @@ let simulation = {
 
         function stopShift(){
             if (orbitControlsWereEnabled){
-                console.log("starting orbit controls")
                 orbitControls.enabled = true;
             }
             canvas.removeEventListener("wheel", handleWheel);
@@ -1091,6 +1078,9 @@ let simulation = {
             canvas.removeEventListener("mousemove", findPosition);
             canvas.removeEventListener("click", removeEventListeners);
             simulation.placingObject = false;
+            if (wasAbleToLock){
+                flyControls.canLockOn = true;
+            }
         }
         canvas.addEventListener("click", removeEventListeners)
     },
@@ -1099,7 +1089,7 @@ let simulation = {
         let rayCaster = new THREE.Raycaster();
 
         mouseVector.x = (event.offsetX / parseInt(window.getComputedStyle(canvas).width)) * 2 - 1;
-        mouseVector.y = -(event.offsetY / parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
+            mouseVector.y = -(event.offsetY / parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
 
         rayCaster.setFromCamera(mouseVector, camera);
 
@@ -1137,5 +1127,4 @@ initControls();
 
 animate();
 
-
-export { simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning };
+export { simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls};
