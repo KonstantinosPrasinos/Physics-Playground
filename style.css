@@ -3,20 +3,155 @@
     --secondary-color: #EEEEEE;
     --theme: 'dark';
 }
-html {
-    min-width: 800px;
-    min-height: 920px;
+
+/* Media */
+@media only screen and (max-width: 686px){
+    #top-ui {
+        height: 5em;
+    }
+    #right-ui {
+        top: 5em;
+        height: calc(100% - 5em);
+    }
+    canvas {
+        top: 5em;
+        height: calc(100% - 5em);
+    }
+    #settings-box {
+        width: 60%;
+    }
 }
+
+@media only screen and (min-width: 686px){
+    #top-ui {
+        height: 2.5em;
+    }
+    #right-ui {
+        top: 2.5em;
+        height: calc(100% - 2.5em);
+    }
+    canvas {
+        top: 2.5em;
+        height: calc(100% - 2.5em);
+    }
+    #settings-box {
+        width: 50%;
+    }
+
+}
+@media only screen and (max-width: 1050px){
+    #custom-grid-container {
+        left: 0;
+        top: calc(50% - 2em);
+    }
+    #fov-grid-container {
+        height: 2em;
+        top: calc(50% - 1em);
+        max-width: 20em;
+        margin-left: 0;
+    }
+    #settings-box {
+        overflow: auto;
+        display: grid; 
+        grid-template-columns: 100%; 
+        grid-template-rows: 10% 15% 15% 15% 15% 15% 15% 15% 15% 15% 50% 50%; 
+        gap: 0px; 
+        grid-template-areas: 
+          "Title"
+          "."
+          "."
+          "."
+          "."
+          "."
+          "."
+          "."
+          "."
+          "."
+          "Log"
+          "Log";
+    }
+    #log {
+        height: calc(100% - 7em);
+    }
+}
+
+@media only screen and (min-width: 1050px) and (max-width: 1469px){
+    #custom-grid-container {
+        top: calc(50% - 3em);
+        left: 2em;
+    }
+    #fov-grid-container {
+        height: 4em;
+        top: calc(50% - 2em);
+        max-width: infinite;
+        margin-left: 10px;
+    }
+    #settings-box {
+        overflow: hidden;
+        display: grid; 
+        grid-template-columns: 50% 50%; 
+        grid-template-rows: 10% 10% 10% 10% 10% 10% 15% 20%; 
+        gap: 0px 0px; 
+        grid-template-areas: 
+          "Title Title"
+          ". ."
+          ". ."
+          ". ."
+          ". ."
+          ". ."
+          "Log Log"
+          "Log Log";
+    }
+    #log {
+        height: calc(100% - 4em);
+    }
+}
+
+@media only screen and (min-width: 1469px){
+    #custom-grid-container {
+        top: calc(50% - 3em);
+        left: 2em;
+    }
+    #fov-grid-container {
+        height: 4em;
+        top: calc(50% - 2em);
+        max-width: infinite;
+        margin-left: 10px;
+    }
+    #settings-box {
+        overflow: hidden;
+        display: grid; 
+        grid-template-columns: 25% 37.5% 37.5%; 
+        grid-template-rows: 10% 15% 15% 15% 20% 25%; 
+        gap: 0px 0px; 
+        grid-template-areas: 
+          "Title Title Title"
+          ". . ."
+          ". . ."
+          ". . ."
+          "Log Log Log"
+          "Log Log Log";
+    }
+    #log {
+        height: calc(100% - 4em);
+    }
+}
+
+/* General Stuff */
 body {
     font-family: 'Roboto', sans-serif;
     margin: 0;
     color: var(--secondary-color);
 }
+
+#top-left-container {
+    left: 0;
+    padding-right: 180px;
+    position: absolute;
+}
 canvas {
-    top: 40px;
-    left: 60px;
-    width: calc(100% - 60px);
-    height: calc(100% - 40px);
+    left: 3.6em;
+    width: calc(100% - 3.6em);
     position: fixed;
     z-index: 0;
 }
@@ -35,8 +170,18 @@ a {
 /* Random Universal */
 
 /* Basic UI Elements */
+
+#top-ui {
+    width: calc(100% - 3.6em);
+    top: 0;
+    left: 3.6em;
+    background: var(--primary-color);
+    margin: 0;
+    position: fixed;
+    z-index: 3;
+}
 #left-ui {
-    width: 60px;
+    width: 3.6em;
     height: 100%;
     background: var(--primary-color);
     margin: 0;
@@ -45,26 +190,15 @@ a {
     position: fixed;
 }
 #right-ui {
-    top: 40px;
     right: 0;
     width: 0px; /* This is for when it's hidden */
-    height: calc(100% - 40px);
     background: var(--primary-color);
     margin: 0;
     position: fixed;
     z-index: 2;
     visibility: hidden;
 }
-#top-ui {
-    width: calc(100% - 60px);
-    height: 40px;
-    top: 0;
-    left: 60px;
-    background: var(--primary-color);
-    margin: 0;
-    position: fixed;
-    z-index: 3;
-}
+
 
 /* Buttons */
 #top-select {
@@ -102,10 +236,6 @@ a {
     -webkit-mask-image:  url(/assets/replay.svg);
     mask-image: url(assets/resize.svg);
     position: relative;
-    height: 28px;
-    width: 28px;
-    background-size: 28px;
-    top: -2px;
 }
 #collapse-right-ui-button {
     -webkit-mask-image:  url(/assets/collapse.svg);
@@ -199,9 +329,9 @@ a {
     border: none;
 }
 .big-icon-buttons{
-    height: 32px;
-    width: 32px;
-    background-size: 32px;
+    height: 2.2em;
+    width: 2.2em;
+    background-size: 2.2em;
     position: absolute;
 }
 .small-icon-buttons{
@@ -223,6 +353,7 @@ a {
     margin-right: 15px;
     top: 4px;
     height: 40px;
+    vertical-align: top;
     /* right: 190px;
     top: 4px */
 }
@@ -240,6 +371,7 @@ a {
     position: absolute;
     width: 100%;
     height: 77%;
+    overflow: auto;
 }
 #right-ui-items-list {
     opacity: 0;
@@ -247,6 +379,7 @@ a {
     width: 100%;
     height: 23%;
     top: 77%;
+    padding-top: 1em;
 }
 input[type=color]{
     opacity: inherit;
@@ -254,7 +387,6 @@ input[type=color]{
     border: hidden;
     background-color: rgba(255, 255, 255, 0);
     top: 0px;
-    margin-left: 15px;
     border: 1px solid var(--secondary-color);
     border-radius: 0.5em;
 }
@@ -281,7 +413,7 @@ input:disabled{
     position: absolute;
     left: 5px;
     width: calc(100% - 10px);
-    height: 85%;
+    height: calc(85% - 1.7em);
     border-radius: 8px;
     overflow: auto;
 }
@@ -296,6 +428,9 @@ input:disabled{
     border-width:0;
     color:var(--primary-color);
     background-color:#2a3346;
+}
+#item-color-picker {
+    margin-left: 15px;
 }
 .right-ui-text {
     opacity: inherit;
@@ -326,7 +461,7 @@ input:disabled{
 }
 .item-list-editable {
     opacity: inherit;
-    width: 45%;
+    width: 40%;
     display: inline;
     background-color: inherit;
     border: none;
@@ -390,6 +525,10 @@ input:disabled{
 }
 
 /* Settings */
+
+#settings-title {
+    grid-area: Title;
+}
 #settings-overlay {
     background-color: rgba(0, 0, 0, 0);
     width: 100%;
@@ -402,20 +541,20 @@ input:disabled{
     visibility: hidden;
 }
 #settings-box {
-    min-width: 635px;
+    /* min-width: 635px; */
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     height: 70%;
-    width: 50%;
     background-color: var(--primary-color);
     border-radius: 8px;
     padding: 20px;
-    display: grid;
-    grid-template-rows: 5% 5% 5% 5% 5% calc(75% - 160px);
-    grid-template-columns: 100%;
-    row-gap: 30px;
+    padding-top: 0;
+    /* display: grid;
+    grid-template-rows: auto auto auto;
+    grid-template-columns: 100% 33% 33% 33%;
+    row-gap: 30px; */
 }
 .radio-button{
     left: 0;
@@ -560,7 +699,8 @@ input {
 }
 
 #log {
-    height: 80%;
+    width: 100%;
+    display: inline-block;
     border: 1px solid var(--secondary-color);
     border-radius: 10px;
     margin: 10px 0 10px 0;
@@ -590,9 +730,8 @@ input {
     filter: brightness(0.85);
 }
 .chapter {
-    font-size: 20px;
+    font-size: 18px;
     margin-right: 10px;
-    margin-left: 10px;
 }
 .chapter-medium{
     margin-right: 0.5em;
@@ -636,8 +775,10 @@ input {
     );
 }
 #custom-grid-container {
+    height: 4em;
+    width: 12em;
     font-size: 12px;
-    display: inline-grid;
+    display: grid;
     grid-template-columns: auto auto;
     column-gap: 1em;
     text-align: center;
@@ -647,6 +788,7 @@ input {
     padding: 5px;
     opacity: 0;
     visibility: hidden;
+    position: relative;
 }
 #custom-grid-container * {
     margin: auto;
@@ -663,6 +805,7 @@ input {
 }
 
 #fov-grid-container {
+    position: relative;
     display: inline-grid;
     grid-template-columns: auto auto auto;
     column-gap: 1em;
@@ -670,7 +813,6 @@ input {
     border: 1px solid var(--secondary-color);
     border-radius: 5px;
     padding: 5px;
-    margin-left: 10px;
     visibility: hidden;
 }
 
@@ -755,12 +897,13 @@ input {
     top: 15px;
     right: calc(50% - 260px);
 }
-.settings-row {
+.settings-item {
     display: flex;
     align-items: center;
 }
 #log-container {
     display: block;
+    grid-area: Log;
 }
 #json-input{
     display: none;
@@ -773,6 +916,9 @@ input {
 }
 #upload-button:hover{
     cursor: pointer;
+}
+#upload-container {
+    display: inline;
 }
 
 #grid-container {

@@ -33,7 +33,6 @@ function setCamera(cameraType) {
                 
                 camera.updateMatrixWorld();
                 camera.updateProjectionMatrix();
-                console.log(perspectiveCamera, orthographicCamera.projectionMatrix.elements[0])
                 break;
             case "OrthographicCamera":
                 flyControls.canLockOn = false;
@@ -1089,7 +1088,7 @@ let simulation = {
         let rayCaster = new THREE.Raycaster();
 
         mouseVector.x = (event.offsetX / parseInt(window.getComputedStyle(canvas).width)) * 2 - 1;
-            mouseVector.y = -(event.offsetY / parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
+        mouseVector.y = -(event.offsetY / parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
 
         rayCaster.setFromCamera(mouseVector, camera);
 
