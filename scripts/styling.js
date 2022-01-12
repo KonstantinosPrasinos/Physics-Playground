@@ -1,4 +1,4 @@
-import {simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls} from './main.js';
+import {simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world} from './main.js';
 
 import {notificationList} from './notifications.js';
 
@@ -27,6 +27,7 @@ let topMode = document.getElementById("top-mode");
 let canvas = document.getElementById("viewportCanvas");
 let fovSlider = document.getElementById("fov-slider");
 let fovText = document.getElementById("fov-text");
+let libraryUi = document.getElementById("library-ui");
 
 //Local Storage Stuff
 
@@ -121,6 +122,27 @@ function initStyling(){
         document.getElementById("fps-toggle").checked = (fps === 'true');
     }
 
+    if (!localStorage.gravityX){
+        localStorage.setItem("gravityX", 0);
+    } else {
+        world.gravity.x = localStorage.getItem("gravityX");
+        document.getElementById("gravity-x-editable").placeholder = world.gravity.x;
+    }
+
+    if (!localStorage.gravityY){
+        localStorage.setItem("gravityY", 0);
+    } else {
+        world.gravity.y = localStorage.getItem("gravityY");
+        document.getElementById("gravity-y-editable").placeholder = world.gravity.y;
+    }
+
+    if (!localStorage.gravityZ){
+        localStorage.setItem("gravityZ", 0);
+    } else {
+        world.gravity.z = localStorage.getItem("gravityZ");
+        document.getElementById("gravity-z-editable").placeholder = world.gravity.z;
+    }
+
     if (!localStorage.showNotifications){
         localStorage.setItem("showNotifications", showNotifications);
     } else {
@@ -145,6 +167,55 @@ function initStyling(){
         simulation.logPerSteps = perTimeStep;
         document.getElementById("print-timestep").placeholder = perTimeStep;
     }
+
+    fetch("../data/contentLibrary.json")
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            data.forEach(element => {
+                createHTMLElement(element);
+            });
+        });
+}
+
+const library = document.getElementById('library-contents-container');
+
+function createHTMLElement(element) {
+    let node = document.createElement('div');
+    node.classList.add('library-item');
+
+    let title = document.createElement('div');
+    title.innerText = element.title;
+    title.classList.add('content-title')
+
+    let img = document.createElement('img');
+    img.classList.add('content-image')
+    img.src = `assets/content-library/${element.thumbnail}`;
+
+    let loadButton = document.createElement('button');
+    loadButton.classList.add('load-content-button');
+    loadButton.classList.add('simple-button');
+    loadButton.innerText = 'Load';
+    loadButton.onclick = function () {
+        console.log(`../data/${element.data}`)
+        fetch(`../data/${element.data}`)
+        .then(response => {
+            console.log(response)
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+            loadfromJson(data);
+        });
+        
+        createNotification(notificationList.itemLoading, true);
+    }
+    node.appendChild(img);
+    node.appendChild(title);
+    node.appendChild(loadButton);
+    
+    library.appendChild(node);
 }
 
 
@@ -491,6 +562,24 @@ document.getElementById("collapse-right-ui-button").onclick = function toggleRig
     }
 }
 
+let libraryContainer = document.getElementById('library-container');
+
+function toggleLibrary(){
+    function toggleVisibility() { libraryUi.style.visibility = 'hidden'; }
+    if (window.getComputedStyle(libraryUi).visibility == 'hidden'){
+        let timeline = gsap.timeline();
+        libraryUi.style.visibility = 'visible';
+        timeline.to(libraryUi, {duration: 0.2, width: '20em'})
+        .to(libraryContainer, {duration: 0.2, opacity: 1});
+    } else {
+        let timeline = gsap.timeline();
+        timeline.to(libraryContainer, {duration: 0.2, opacity: 0})
+        .to(libraryUi, {duration: 0.2, width: '0px', onComplete: toggleVisibility});
+    }
+}
+
+document.getElementById('library-button').onclick = document.getElementById('close-library').onclick = toggleLibrary;
+
 function handleSettingsOpen(){
     if (showNotifications && doTutorial && window.getComputedStyle(document.getElementById("settings-box")).visibility == "hidden"){
         createNotification(notificationList.tutSettings, false);
@@ -589,7 +678,7 @@ function handleEnter(event){
     }
 }
 
-document.getElementById("right-ui-features").addEventListener("keydown", handleEnter);
+document.addEventListener("keydown", handleEnter);
 
 fovSlider.oninput = function (){
     if (camera.type == "PerspectiveCamera"){
@@ -993,9 +1082,9 @@ document.getElementById("background-color-picker").addEventListener("change", (e
 })
 
 //Temp
-document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation, 0, 0, 0, 2, 2, 2);
-document.getElementById("add-sphere-button").onclick = simulation.createSphere.bind(simulation, 5, 0, 0, 1);
-document.getElementById("add-cylinder-button").onclick = simulation.createCylinder.bind(simulation, 5, 0, 0, 1, 5);
+document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation, 'none', 0, 0, 2, 2, 2);
+document.getElementById("add-sphere-button").onclick = simulation.createSphere.bind(simulation, 'none', 0, 0, 1);
+document.getElementById("add-cylinder-button").onclick = simulation.createCylinder.bind(simulation, 'none', 0, 0, 1, 5);
 
 function handleWireFrameToggle(){
     if (document.getElementById("wireframe-toggle").checked && simulation.itemSelected > -1){
@@ -1335,3 +1424,48 @@ document.getElementById('email-button').addEventListener('click', () => {
         createNotification(notificationList.copyEmail, false);
     }
 })
+
+document.getElementById('gravity-x-editable').addEventListener('blur', (event) => {
+    if (!isNaN(event.target.value) && !simulation.isRunning){
+        world.gravity.x = event.target.value;
+        localStorage.setItem("gravityX", event.target.value);
+    } else {
+        if (isNaN(event.target.value)){
+            createNotification(notificationList.inputNan, true);
+        } else {
+            createNotification(notificationList.simulationRunning, true)
+        }
+        event.target.focus();
+        event.target.value = '';
+    }
+});
+
+document.getElementById('gravity-y-editable').addEventListener('blur', (event) => {
+    if (!isNaN(event.target.value) && !simulation.isRunning){
+        world.gravity.y = event.target.value;
+        localStorage.setItem("gravityY", event.target.value);
+    } else {
+        if (isNaN(event.target.value)){
+            createNotification(notificationList.inputNan, true);
+        } else {
+            createNotification(notificationList.simulationRunning)
+        }
+        event.target.focus();
+        event.target.value = '';
+    }
+});
+
+document.getElementById('gravity-z-editable').addEventListener('blur', (event) => {
+    if (!isNaN(event.target.value) && !simulation.isRunning){
+        world.gravity.z = event.target.value;
+        localStorage.setItem("gravityZ", event.target.value);
+    } else {
+        if (isNaN(event.target.value)){
+            createNotification(notificationList.inputNan, true);
+        } else {
+            createNotification(notificationList.simulationRunning, true)
+        }
+        event.target.focus();
+        event.target.value = '';
+    }
+});

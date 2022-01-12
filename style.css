@@ -9,6 +9,10 @@
     #top-ui {
         height: 5em;
     }
+    #library-ui {
+        height: calc(100% - 5em);
+        top: 5em;
+    }
     #right-ui {
         top: 5em;
         height: calc(100% - 5em);
@@ -26,6 +30,10 @@
     #top-ui {
         height: 2.5em;
     }
+    #library-ui {
+        height: calc(100% - 2.5em);
+        top: 2.5em;
+    }
     #right-ui {
         top: 2.5em;
         height: calc(100% - 2.5em);
@@ -40,38 +48,24 @@
 
 }
 @media only screen and (max-width: 1050px){
-    #custom-grid-container {
-        left: 0;
-        top: calc(50% - 2em);
-    }
-    #fov-grid-container {
-        height: 2em;
-        top: calc(50% - 1em);
-        max-width: 20em;
-        margin-left: 0;
-    }
     #settings-box {
         overflow: auto;
         display: grid; 
         grid-template-columns: 100%; 
-        grid-template-rows: 10% 15% 15% 15% 15% 15% 15% 15% 15% 15% 50% 50%; 
-        gap: 0px; 
-        grid-template-areas: 
+        grid-template-rows: auto; 
+        gap: 0px 0px; 
+        grid-template-areas:
           "Title"
-          "."
-          "."
-          "."
-          "."
-          "."
           "."
           "."
           "."
           "."
           "Log"
           "Log";
+        overflow-wrap: break-word;
     }
     #log {
-        height: calc(100% - 7em);
+        height: calc(100% - 4em);
     }
 }
 
@@ -89,21 +83,20 @@
     #settings-box {
         overflow: hidden;
         display: grid; 
-        grid-template-columns: 50% 50%; 
-        grid-template-rows: 10% 10% 10% 10% 10% 10% 15% 20%; 
+        grid-template-columns: 100%; 
+        grid-template-rows: 10% 15% 15% 10% 10% 40%; 
         gap: 0px 0px; 
-        grid-template-areas: 
-          "Title Title"
-          ". ."
-          ". ."
-          ". ."
-          ". ."
-          ". ."
-          "Log Log"
-          "Log Log";
+        grid-template-areas:
+          "Title"
+          "."
+          "."
+          "."
+          "."
+          "Log"
+          "Log";
     }
-    #log {
-        height: calc(100% - 4em);
+    .settings-chapter {
+        grid-template-columns: 100%;
     }
 }
 
@@ -121,20 +114,44 @@
     #settings-box {
         overflow: hidden;
         display: grid; 
-        grid-template-columns: 25% 37.5% 37.5%; 
-        grid-template-rows: 10% 15% 15% 15% 20% 25%; 
+        grid-template-columns: 100%; 
+        grid-template-rows: 10% 15% 15% 10% 10% 40%;
         gap: 0px 0px; 
-        grid-template-areas: 
-          "Title Title Title"
-          ". . ."
-          ". . ."
-          ". . ."
-          "Log Log Log"
-          "Log Log Log";
+        grid-template-areas:
+          "Title"
+          "."
+          "."
+          "."
+          "."
+          "Log"
+          "Log";
     }
-    #log {
-        height: calc(100% - 4em);
+    .settings-chapter {
+        grid-template-columns: 33% 33% 33%;
     }
+}
+
+.settings-item {
+    position: relative;
+    margin-left: 1em;
+    vertical-align: bottom;
+}
+.settings-chapter {
+    padding-top: 1.5em;
+    position: relative;
+    display: flex;
+    margin-top: 0.5em;
+    align-items: center;
+    display: grid;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+}
+
+.floating-title {
+    position: absolute;
+    top: 0;
+    grid-column-start: 1;
+    grid-column-end: 4;
 }
 
 /* General Stuff */
@@ -249,6 +266,11 @@ a {
     bottom: 1vh;
     -webkit-mask-image:  url(/assets/settings.svg);
     mask-image: url(assets/settings.svg);
+}
+#library-button {
+    bottom: 5vh;
+    -webkit-mask-image:  url(/assets/collection.svg);
+    mask-image: url(assets/collection.svg);
 }
 #add-cube-button {
     -webkit-mask-image:  url(/assets/cube.svg);
@@ -699,6 +721,8 @@ input {
 }
 
 #log {
+    height: 11em;
+    overflow: auto;
     width: 100%;
     display: inline-block;
     border: 1px solid var(--secondary-color);
@@ -731,7 +755,8 @@ input {
 }
 .chapter {
     font-size: 18px;
-    margin-right: 10px;
+    margin-left: 0.5em;
+    margin-right: 0.5em
 }
 .chapter-medium{
     margin-right: 0.5em;
@@ -745,6 +770,10 @@ input {
     grid-template-columns: auto auto auto auto;
     column-gap: 1em;
     text-align: center;
+}
+#theme-chapter {
+    grid-column-start: 1;
+    grid-column-end: 5;
 }
 #theme-container *{
     margin: auto;
@@ -788,24 +817,27 @@ input {
     padding: 5px;
     opacity: 0;
     visibility: hidden;
-    position: relative;
 }
 #custom-grid-container * {
     margin: auto;
 }
 
 #camera-grid-container{
+    height: 120%;
     display: inline-grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: auto auto auto;
     column-gap: 1em;
     text-align: center;
 }
 #camera-grid-container *{
     margin: auto;
 }
+#camera-chapter {
+    grid-row-start: 1;
+    grid-row-end: 3;
+}
 
 #fov-grid-container {
-    position: relative;
     display: inline-grid;
     grid-template-columns: auto auto auto;
     column-gap: 1em;
@@ -897,10 +929,6 @@ input {
     top: 15px;
     right: calc(50% - 260px);
 }
-.settings-item {
-    display: flex;
-    align-items: center;
-}
 #log-container {
     display: block;
     grid-area: Log;
@@ -931,4 +959,43 @@ input {
     height: 1.5em;
     width: 1.5em;
     margin-right: 0.25em
+}
+
+#library-ui {
+    overflow: auto;
+    visibility: hidden;
+    width: 0;
+    background-color: var(--primary-color);
+    position: fixed;
+    left: 3.6em;
+    border-right: 2px solid var(--primary-color);
+}
+
+#library-title {
+    margin-top: 1em;
+}
+
+#library-container {
+    opacity: 0;
+}
+
+.content-image {
+    position: relative;
+    width: 80%;
+    border: 1px solid var(--secondary-color);
+    left: 10%;
+}
+.load-content-button {
+    position: relative;
+}
+.library-item {
+    padding: 1em;
+    margin: 1em;
+    width: 80%;
+    position: relative;
+    border: 1px solid var(--secondary-color);
+    border-radius: 0.5em;
+}
+.content-title {
+    display: inline-block;
 }

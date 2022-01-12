@@ -25,6 +25,7 @@
         </div>
         <div id="left-ui">
             <button class="left-ui-buttons icon-buttons big-icon-buttons" id="settings-button"></button>
+            <button class="left-ui-buttons icon-buttons big-icon-buttons" id="library-button"></button>
             <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-cube-button"></button>
             <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-sphere-button"></button>
             <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-cylinder-button"></button>
@@ -48,10 +49,7 @@
                     <div class="top-field top-field-text" id="time">0</div>
                 </div>
             </div>
-            
-            
             <button id="collapse-right-ui-button" class="icon-buttons big-icon-buttons"></button>
-            
         </div>
         <div id="right-ui">
             <div id="right-ui-features">
@@ -227,82 +225,110 @@
             </div>
         </div>
         <canvas id="viewportCanvas"></canvas>
+        <div id="library-ui">
+            <div id="library-container">
+                <div id="library-title">
+                    <span class="title">Library</span>
+                    <button class="close-button icon-buttons big-icon-buttons" style="visibility: inherit;" id="close-library"></button>
+                </div>
+                <div id="library-contents-container"></div>
+            </div>
+        </div>
         <div id="settings-overlay">
             <div id="settings-box">
-                <div class="settings-item" id="settings-title">
-                    <span class="title">Settings:</span>
-                    <button class="close-button icon-buttons big-icon-buttons" style="visibility: inherit;"
-                        id="close-settings"></button>
+                <div class="settings-chapter" id="settings-title">
+                    <span class="title">Settings</span>
+                    <button class="close-button icon-buttons big-icon-buttons" style="visibility: inherit;" id="close-settings"></button>
                 </div>
-                <div class="settings-item">
-                    <span class="chapter">Background Color:</span>
-                    <input type="color" value="#ffffff" id="background-color-picker" class="color-picker">
-        
-                </div>
-                <div class="settings-item">
-                    <span class="chapter">Theme:</span>
-                    <div id="theme-container">
-                        <input type="radio" id="light-theme-button" class="simple-radio block-editable radio-surround"
-                            value="light" name="theme-radio">
-                        <input type="radio" id="dark-theme-button" class="simple-radio block-editable radio-surround"
-                            value="dark" name="theme-radio">
-                        <input type="radio" id="midnight-theme-button" class="simple-radio block-editable radio-surround"
-                            value="midnight" name="theme-radio">
-                        <input type="radio" id="custom-theme-button" class="simple-radio block-editable radio-surround"
-                            value="custom" name="theme-radio">
-                        <span>Light</span>
-                        <span>Dark</span>
-                        <span>Midnight</span>
-                        <span>Custom</span>
+                <div class="settings-chapter" id="appearance-box">
+                    <div class="floating-title">Appearance:</div>
+                    <div class="settings-item">
+                        <span class="chapter">Background Color:</span>
+                        <input type="color" value="#ffffff" id="background-color-picker" class="color-picker">
+                    </div>
+                    <div class="settings-item">
+                        <div id="theme-container">
+                            <span class="chapter" id="theme-chapter">Theme:</span>
+                            <input type="radio" id="light-theme-button" class="simple-radio block-editable radio-surround"
+                                value="light" name="theme-radio">
+                            <input type="radio" id="dark-theme-button" class="simple-radio block-editable radio-surround"
+                                value="dark" name="theme-radio">
+                            <input type="radio" id="midnight-theme-button" class="simple-radio block-editable radio-surround"
+                                value="midnight" name="theme-radio">
+                            <input type="radio" id="custom-theme-button" class="simple-radio block-editable radio-surround"
+                                value="custom" name="theme-radio">
+                            <span>Light</span>
+                            <span>Dark</span>
+                            <span>Midnight</span>
+                            <span>Custom</span>
+                        </div>
+                    </div>
+                    <div id="custom-grid-container">
+                        <input type="color" id="custom-primary-color-picker" class="color-picker" value="#ff0000">
+                        <input type="color" id="custom-secondary-color-picker" class="color-picker" value="#00ff00">
+                        <span>Primary</span>
+                        <span>Secondary</span>
                     </div>
                 </div>
-                <div id="custom-grid-container" class="settings-item">
-                    <input type="color" id="custom-primary-color-picker" class="color-picker" value="#ff0000">
-                    <input type="color" id="custom-secondary-color-picker" class="color-picker" value="#00ff00">
-                    <span>Primary</span>
-                    <span>Secondary</span>
-                </div>
-                <div class="settings-item">
-                    <div id="time-step-container">
-                        <span class="chapter">Time Step:</span>
-                        <input type="text" class="text-editable" id="time-step-editable">
+                <div class="settings-chapter" id="camera-box">
+                    <div class="floating-title">Camera:</div>
+                    <div class="settings-item">
+                        <div id="camera-grid-container">
+                            <span class="chapter" id="camera-chapter">Camera Type:</span>
+                            <input type="radio" id="orthographic-button" class="simple-radio block-editable radio-filled"
+                                value="orthographic" name="camera-radio" checked>
+                            <input type="radio" id="perspective-button" class="simple-radio block-editable radio-filled"
+                                value="perspective" name="camera-radio">
+                            <span>Orthographic</span>
+                            <span>Perpective</span>
+                        </div>
+                    </div>
+                    <div id="fov-grid-container">
+                        <span class="chapter" id="fov-chapter">Fov:</span>
+                        <input type="range" name="fov-slider" id="fov-slider" min="20" max="110" style="width: 100px;" value="45">
+                        <span>Field of View</span>
+                        <input type="text" placeholder="45" class="text-editable" id="fov-text">
                     </div>
                 </div>
-                <div class="settings-item">
-                    <span class="chapter">Camera Type:</span>
-                    <div id="camera-grid-container">
-                        <input type="radio" id="orthographic-button" class="simple-radio block-editable radio-filled"
-                            value="orthographic" name="camera-radio" checked>
-                        <input type="radio" id="perspective-button" class="simple-radio block-editable radio-filled"
-                            value="perspective" name="camera-radio">
-                        <span>Orthographic</span>
-                        <span>Perpective</span>
+                <div class="settings-chapter" id="simulation-settings-box">
+                    <div class="floating-title">Simulation:</div>
+                    <div class="settings-item">
+                        <div id="time-step-container">
+                            <span class="chapter">Time Step:</span>
+                            <input type="text" class="text-editable" id="time-step-editable">
+                        </div>
+                    </div>
+                    <div class="checklist settings-item" id="fps-container">
+                        <span class="chapter">Show Framerate:</span>
+                        <input type="checkbox" class="simple-checkmark" id="fps-toggle">
+                    </div>
+                    <div id="gravity-container">
+                        <span class="chapter">Gravity:</span>
+                        <span>X:</span>
+                        <input type="text" class="text-editable" id="gravity-x-editable">
+                        <span>Y:</span>
+                        <input type="text" class="text-editable" id="gravity-y-editable">
+                        <span>Z:</span>
+                        <input type="text" class="text-editable" id="gravity-z-editable">
                     </div>
                 </div>
-                <div id="fov-grid-container" class="settings-item">
-                    <span class="chapter" id="fov-chapter">Fov:</span>
-                    <input type="range" name="fov-slider" id="fov-slider" min="20" max="110" style="width: 100px;" value="45">
-                    <span>Field of View</span>
-                    <input type="text" placeholder="45" class="text-editable" id="fov-text">
+                <div class="settings-chapter" id="general-settings-box">
+                    <div class="floating-title">General:</div>
+                    <div class="checklist settings-item" id="notifications-container">
+                        <span class="chapter">Show Notifications:</span>
+                        <input type="checkbox" class="simple-checkmark" id="notification-toggle" checked>
+                    </div>
+                    <div class="checklist settings-item" id="tutorial-container">
+                        <span class="chapter">Do Tutorial:</span>
+                        <input type="checkbox" class="simple-checkmark" id="tutorial-toggle" checked>
+                    </div>
                 </div>
-                <div class="checklist settings-item" id="fps-container">
-                    <span class="chapter">Show Framerate:</span>
-                    <input type="checkbox" class="simple-checkmark" id="fps-toggle">
-                </div>
-                <div class="checklist settings-item" id="notifications-container">
-                    <span class="chapter">Show Notifications:</span>
-                    <input type="checkbox" class="simple-checkmark" id="notification-toggle" checked>
-                </div>
-                <div class="checklist settings-item" id="tutorial-container">
-                    <span class="chapter">Do Tutorial:</span>
-                    <input type="checkbox" class="simple-checkmark" id="tutorial-toggle" checked>
-                </div>
-                <div class="settings-item" id="log-container">
+                <div class="settings-chapter" id="log-container">
                     <a id="download-log" style="display:none"></a>
                     <span class="chapter">Log</span>
                     <div id="upload-container">
                         <input type="file" id="json-input">
-                        <span>Upload from json: <label for="json-input" class="icon-buttons small-icon-buttons"
+                        <span>Upload json: <label for="json-input" class="icon-buttons small-icon-buttons"
                                 id="upload-button">Load from json</label></span>
                     </div>
                     <button id="print-log" class="simple-button">Print</button>
@@ -323,7 +349,6 @@
                 <button class="icon-buttons big-icon-buttons" id="email-button" type="button"></button>
                 <button class="icon-buttons big-icon-buttons" id="github-button" onclick="location.href='konstantinos.prasinos@gmail.com'" type="button"></button>
             </div>
-
         </div>
     </div>
     <script src="scripts/main.js" type="module"></script>

@@ -928,7 +928,6 @@ let simulation = {
             mass: 4
         });
         tempBody.addShape(shape);
-        tempBody.position.set(x, y, z);
         tempBody.linerDamping = 0;
         tempBody.angularDamping = 0;
         world.addBody(tempBody);
@@ -936,7 +935,6 @@ let simulation = {
         let geometry = new THREE.BoxGeometry(width, height, depth);
         let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
         let tempMesh = new THREE.Mesh(geometry, material);
-        tempMesh.position.set(x, y, z);
         tempMesh.userData.createsGravity = true;
         tempMesh.userData.selectable = true;
         tempMesh.userData.hasVectors = false;
@@ -950,7 +948,16 @@ let simulation = {
         this.objects.push(box);
         addItemToList(this.objects.length - 1);
         this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
-        this.placeObject(box.mesh);
+
+        if (isNaN(x)){
+            tempBody.position.set(0, 0, 0);
+            tempMesh.position.set(0, 0, 0);
+            this.placeObject(box.mesh);
+        } else {
+            tempBody.position.set(x, y, z);
+            tempMesh.position.set(x, y, z);
+        }
+        
     },
     createSphere(x, y, z, radius) {
         let shape = new CANNON.Sphere(radius);
@@ -958,7 +965,6 @@ let simulation = {
             mass: 4
         });
         tempBody.addShape(shape);
-        tempBody.position.set(x, y, z);
         tempBody.linerDamping = 0;
         tempBody.angularDamping = 0;
         world.addBody(tempBody);
@@ -966,7 +972,6 @@ let simulation = {
         let geometry = new THREE.SphereGeometry(radius, Math.ceil(radius / 10) * 16, Math.ceil(radius / 10) * 8);
         let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
         let tempMesh = new THREE.Mesh(geometry, material);
-        tempMesh.position.set(x, y, z);
         tempMesh.userData.createsGravity = true;
         tempMesh.userData.selectable = true;
         tempMesh.userData.hasVectors = false;
@@ -980,7 +985,15 @@ let simulation = {
         this.objects.push(sphere);
         addItemToList(this.objects.length - 1);
         this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
-        this.placeObject(sphere.mesh);
+
+        if (isNaN(x)){
+            tempBody.position.set(0, 0, 0);
+            tempMesh.position.set(0, 0, 0);
+            this.placeObject(sphere.mesh);
+        } else {
+            tempBody.position.set(x, y, z);
+            tempMesh.position.set(x, y, z);
+        }
     },
     createCylinder(x, y, z, radius, height) {
         let shape = new CANNON.Cylinder(radius, radius, height, Math.ceil(radius / 10) * 8);
@@ -995,7 +1008,6 @@ let simulation = {
         shape.transformAllPoints(translation, quat);
 
         tempBody.addShape(shape);
-        tempBody.position.set(x, y, z);
         tempBody.linerDamping = 0;
         tempBody.angularDamping = 0;
         world.addBody(tempBody);
@@ -1003,7 +1015,6 @@ let simulation = {
         let geometry = new THREE.CylinderGeometry(radius, radius, height, Math.ceil(radius / 10) * 16);
         let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
         let tempMesh = new THREE.Mesh(geometry, material);
-        tempMesh.position.set(x, y, z);
         tempMesh.userData.createsGravity = true;
         tempMesh.userData.selectable = true;
         tempMesh.userData.hasVectors = false;
@@ -1018,7 +1029,15 @@ let simulation = {
         this.objects.push(cylinder);
         addItemToList(this.objects.length - 1);
         this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
-        this.placeObject(cylinder.mesh);
+
+        if (isNaN(x)){
+            tempBody.position.set(0, 0, 0);
+            tempMesh.position.set(0, 0, 0);
+            this.placeObject(cylinder.mesh);
+        } else {
+            tempBody.position.set(x, y, z);
+            tempMesh.position.set(x, y, z);
+        }
     },
     placeObject(object){
         this.placingObject = true;
@@ -1126,4 +1145,4 @@ initControls();
 
 animate();
 
-export { simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls};
+export { simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world};
