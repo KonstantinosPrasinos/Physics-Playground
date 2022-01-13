@@ -125,21 +125,21 @@ function initStyling(){
     if (!localStorage.gravityX){
         localStorage.setItem("gravityX", 0);
     } else {
-        world.gravity.x = localStorage.getItem("gravityX");
+        world.gravity.x = parseInt(localStorage.getItem("gravityX"));
         document.getElementById("gravity-x-editable").placeholder = world.gravity.x;
     }
 
     if (!localStorage.gravityY){
         localStorage.setItem("gravityY", 0);
     } else {
-        world.gravity.y = localStorage.getItem("gravityY");
+        world.gravity.y = parseInt(localStorage.getItem("gravityY"));
         document.getElementById("gravity-y-editable").placeholder = world.gravity.y;
     }
 
     if (!localStorage.gravityZ){
         localStorage.setItem("gravityZ", 0);
     } else {
-        world.gravity.z = localStorage.getItem("gravityZ");
+        world.gravity.z = parseInt(localStorage.getItem("gravityZ"));
         document.getElementById("gravity-z-editable").placeholder = world.gravity.z;
     }
 
@@ -198,14 +198,11 @@ function createHTMLElement(element) {
     loadButton.classList.add('simple-button');
     loadButton.innerText = 'Load';
     loadButton.onclick = function () {
-        console.log(`../data/${element.data}`)
         fetch(`../data/${element.data}`)
         .then(response => {
-            console.log(response)
             return response.json();
         })
         .then(data => {
-            console.log(data);
             loadfromJson(data);
         });
         
@@ -220,12 +217,13 @@ function createHTMLElement(element) {
 
 
 //General Functions
-document.getElementById("print-timestep").addEventListener("blur", () => {
-    if (document.getElementById("print-timestep").value){
+document.getElementById("print-timestep").addEventListener("blur", (event) => {
+    if (event.target.value.length > 0 && !isNaN(event.target.value)){
         let value = parseInt(document.getElementById("print-timestep").value);
         simulation.logPerSteps = value;
         localStorage.setItem("printTimestep", value);
     } else {
+        event.target.focus();
         simulation.logPerSteps = 0;
     }
 })
@@ -663,7 +661,7 @@ document.getElementById("settings-overlay").addEventListener('click', (event) =>
 //Other Event Listeners
 
 function blurFocusedElement(event){
-    if (isNaN(document.activeElement.value)) {
+    if (isNaN(document.activeElement.value) && !event.target.classList.contains('item-list-editable')) {
         createNotification(notificationList.inputNan, true);
     } else if (document.activeElement.value.length == 0) {
         createNotification(notificationList.inputEmpty, true);
@@ -674,7 +672,7 @@ function blurFocusedElement(event){
 
 function handleEnter(event){
     if (event.key === 'Enter'){
-        blurFocusedElement();
+        blurFocusedElement(event);
     }
 }
 
@@ -725,7 +723,7 @@ function handleCanvasClick(event, bool){
         if (bool){
             intersectedObjects = simulation.checkForObject(event);
         } else {intersectedObjects = []};
-        if (transformControls.enabled  && !transformControls.dragging && intersectedObjects.length > 0 && intersectedObjects[0].object.userData.selectable && canClickCanvas && (simulation.itemSelected == -1 || (simulation.itemSelected > -1 && simulation.objects[simulation.itemSelected].mesh.uuid == intersectedObjects[0].object.uuid))) {
+        if (transformControls.enabled  && !transformControls.dragging && intersectedObjects.length > 0 && intersectedObjects[0].object.userData.selectable && canClickCanvas) {
             transformControls.attach(intersectedObjects[0].object);
             for (const index in simulation.objects) {
                 if (simulation.objects[index].mesh.uuid == intersectedObjects[0].object.uuid) {
@@ -1223,9 +1221,9 @@ document.getElementById("notification-toggle").addEventListener("click", (event)
 initStyling();
 
 function loadfromJson(json) {
+    simulation.removeAllObjects();
     let data = json[0];
     let nValid = 0;
-    console.log();
     if (json.hasOwnProperty('camera')){
         setCamera(json.camera.type);
         camera.position.x = json.camera.position.x;
@@ -1237,7 +1235,14 @@ function loadfromJson(json) {
         camera.zoom = json.camera.zoom;
         camera.updateMatrixWorld();
         camera.updateProjectionMatrix();
-        console.log(camera);
+    }
+    if (json.hasOwnProperty('world')){
+        world.gravity.x = json.world.gravity.x;
+        document.getElementById("gravity-x-editable").placeholder = world.gravity.x;
+        world.gravity.y = json.world.gravity.y;
+        document.getElementById("gravity-y-editable").placeholder = world.gravity.y;
+        world.gravity.z = json.world.gravity.z;
+        document.getElementById("gravity-z-editable").placeholder = world.gravity.z;
     }
     for (let i in data){
         if (data[i].hasOwnProperty('position') && data[i].hasOwnProperty('dimensions') && data[i].hasOwnProperty('geometryType')){
@@ -1443,8 +1448,8 @@ document.getElementById('email-button').addEventListener('click', () => {
 
 document.getElementById('gravity-x-editable').addEventListener('blur', (event) => {
     if (!isNaN(event.target.value) && !simulation.isRunning){
-        world.gravity.x = event.target.value;
-        localStorage.setItem("gravityX", event.target.value);
+        world.gravity.x = parseInt(event.target.value);
+        localStorage.setItem("gravityX", parseInt(event.target.value));
     } else {
         if (isNaN(event.target.value)){
             createNotification(notificationList.inputNan, true);
@@ -1458,8 +1463,8 @@ document.getElementById('gravity-x-editable').addEventListener('blur', (event) =
 
 document.getElementById('gravity-y-editable').addEventListener('blur', (event) => {
     if (!isNaN(event.target.value) && !simulation.isRunning){
-        world.gravity.y = event.target.value;
-        localStorage.setItem("gravityY", event.target.value);
+        world.gravity.y = parseInt(event.target.value);
+        localStorage.setItem("gravityY", parseInt(event.target.value));
     } else {
         if (isNaN(event.target.value)){
             createNotification(notificationList.inputNan, true);
@@ -1473,8 +1478,8 @@ document.getElementById('gravity-y-editable').addEventListener('blur', (event) =
 
 document.getElementById('gravity-z-editable').addEventListener('blur', (event) => {
     if (!isNaN(event.target.value) && !simulation.isRunning){
-        world.gravity.z = event.target.value;
-        localStorage.setItem("gravityZ", event.target.value);
+        world.gravity.z = parseInt(event.target.value);
+        localStorage.setItem("gravityZ", parseInt(event.target.value));
     } else {
         if (isNaN(event.target.value)){
             createNotification(notificationList.inputNan, true);

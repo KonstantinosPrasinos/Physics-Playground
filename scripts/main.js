@@ -3,7 +3,7 @@ import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
 import Stats from 'https://unpkg.com/three@0.126.1/examples/jsm/libs/stats.module.js';
-import {PointerLockControls} from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/PointerLockControls.js';
+
 import {FlyControls} from './controls.js';
 
 let canvas = document.getElementById("viewportCanvas");
@@ -51,10 +51,6 @@ function setCamera(cameraType) {
         // }
         
     }
-}
-
-const canvasHandlerParams = {
-    canClickCanvas: true
 }
 
 function switchControls(controlsType) {
@@ -169,29 +165,33 @@ function updateStaticValues(bool) {
         document.getElementById("velocity-vectors-all").checked = false;
         document.getElementById("wireframe-toggle").checked = false;
         document.getElementById("collisionResponse-toggle").checked = false;
-        document.getElementById("object-name").innerText = false;
+        document.getElementById("object-name").innerText = "No item is selected";
     }
 
+}
+
+function roundToTwo(numb){
+    return Math.round((numb + Number.EPSILON) * 100) / 100;
 }
 
 function updateVarValues(bool) {
     if (bool) {
         if (simulation.itemSelected > -1) {
-            document.getElementById("position.x-input").value = simulation.objects[simulation.itemSelected].mesh.position.x;
-            document.getElementById("position.y-input").value = simulation.objects[simulation.itemSelected].mesh.position.y;
-            document.getElementById("position.z-input").value = simulation.objects[simulation.itemSelected].mesh.position.z;
-            document.getElementById("rotation.x-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.x;
-            document.getElementById("rotation.y-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.y;
-            document.getElementById("rotation.z-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.z;
-            document.getElementById("velocity.x-input").value = simulation.objects[simulation.itemSelected].body.velocity.x;
-            document.getElementById("velocity.y-input").value = simulation.objects[simulation.itemSelected].body.velocity.y;
-            document.getElementById("velocity.z-input").value = simulation.objects[simulation.itemSelected].body.velocity.z;
-            document.getElementById("angularVelocity.x-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.x;
-            document.getElementById("angularVelocity.y-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.y;
-            document.getElementById("angularVelocity.z-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.z;
-            document.getElementById("force.x-input").value = simulation.objects[simulation.itemSelected].body.force.x;
-            document.getElementById("force.y-input").value = simulation.objects[simulation.itemSelected].body.force.y;
-            document.getElementById("force.z-input").value = simulation.objects[simulation.itemSelected].body.force.z;
+            document.getElementById("position.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.position.x);
+            document.getElementById("position.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.position.y);
+            document.getElementById("position.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.position.z);
+            document.getElementById("rotation.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.rotation.x);
+            document.getElementById("rotation.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.rotation.y);
+            document.getElementById("rotation.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.rotation.z);
+            document.getElementById("velocity.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.velocity.x);
+            document.getElementById("velocity.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.velocity.y);
+            document.getElementById("velocity.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.velocity.z);
+            document.getElementById("angularVelocity.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.angularVelocity.x);
+            document.getElementById("angularVelocity.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.angularVelocity.y);
+            document.getElementById("angularVelocity.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.angularVelocity.z);
+            document.getElementById("force.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.force.x);
+            document.getElementById("force.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.force.y);
+            document.getElementById("force.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.force.z);
         }
     } else {
         document.getElementById("position.x-input").value = "";
@@ -259,7 +259,7 @@ function initControls() {
 function initThree() {
     scene = new THREE.Scene();
 
-    orthographicCamera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 1000);
+    orthographicCamera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 10000);
     perspectiveCamera = new THREE.PerspectiveCamera(45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
     orthographicCamera.position.z = 50;
     perspectiveCamera.position.z = 50;
@@ -271,7 +271,6 @@ function initThree() {
     renderer.setClearColor(0xffffff, 1);
     renderer.setSize(parseInt(window.getComputedStyle(canvas).width), parseInt(window.getComputedStyle(canvas).height));
     stats = Stats();
-    console.log(camera);
 }
 
 function initCannon() {
@@ -280,6 +279,10 @@ function initCannon() {
     world.broadphase = new CANNON.NaiveBroadphase();
     world.solver.iterations = 10;
     world.dt = timeStep / 2;
+    world.defaultContactMaterial.contactEquationStiffness = 1e7;
+    world.defaultContactMaterial.contactEquationRelaxation = 8;
+    world.defaultContactMaterial.friction = 0;
+    world.defaultContactMaterial.restitution = 0;
 }
 
 //Timed Functions
@@ -370,6 +373,7 @@ function generateJSON() {
     });
     logObj[parseInt(world.time)] = timeLine;
     logObj['camera'] = {type: camera.type, position: {x: camera.position.x, y: camera.position.y, z: camera.position.z}, rotation: {x: camera.rotation.x, y: camera.rotation.y, z: camera.rotation.z}, zoom: camera.zoom};
+    logObj['world'] = {gravity: {x: world.gravity.x, y: world.gravity.y, z: world.gravity.z}}
     return logObj;
 }
 
@@ -925,120 +929,125 @@ let simulation = {
     placingObject: false,
     objectPlaceDist: 50,
     createBox(x, y, z, width, height, depth) {
-        let shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
-        let tempBody = new CANNON.Body({
-            mass: 4
-        });
-        tempBody.addShape(shape);
-        tempBody.linerDamping = 0;
-        tempBody.angularDamping = 0;
-        world.addBody(tempBody);
+        if (!this.placingObject) {
+            let shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
+            let tempBody = new CANNON.Body({
+                mass: 4
+            });
+            tempBody.addShape(shape);
+            tempBody.linearDamping = 0;
+            tempBody.angularDamping = 0;
+            world.addBody(tempBody);
 
-        let geometry = new THREE.BoxGeometry(width, height, depth);
-        let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-        let tempMesh = new THREE.Mesh(geometry, material);
-        tempMesh.userData.createsGravity = true;
-        tempMesh.userData.selectable = true;
-        tempMesh.userData.hasVectors = false;
-        scene.add(tempMesh);
+            let geometry = new THREE.BoxGeometry(width, height, depth);
+            let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+            let tempMesh = new THREE.Mesh(geometry, material);
+            tempMesh.userData.createsGravity = true;
+            tempMesh.userData.selectable = true;
+            tempMesh.userData.hasVectors = false;
+            scene.add(tempMesh);
 
-        tempMesh.name = generateName('Box');
-        let box = {
-            body: tempBody,
-            mesh: tempMesh
+            tempMesh.name = generateName('Box');
+            let box = {
+                body: tempBody,
+                mesh: tempMesh
+            }
+            this.objects.push(box);
+            addItemToList(this.objects.length - 1);
+            this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
+
+            if (isNaN(x)) {
+                tempBody.position.set(0, 0, 0);
+                tempMesh.position.set(0, 0, 0);
+                this.placeObject(box.mesh);
+            } else {
+                tempBody.position.set(x, y, z);
+                tempMesh.position.set(x, y, z);
+            }
         }
-        this.objects.push(box);
-        addItemToList(this.objects.length - 1);
-        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
-
-        if (isNaN(x)){
-            tempBody.position.set(0, 0, 0);
-            tempMesh.position.set(0, 0, 0);
-            this.placeObject(box.mesh);
-        } else {
-            tempBody.position.set(x, y, z);
-            tempMesh.position.set(x, y, z);
-        }
-        
     },
     createSphere(x, y, z, radius) {
-        let shape = new CANNON.Sphere(radius);
-        let tempBody = new CANNON.Body({
-            mass: 4
-        });
-        tempBody.addShape(shape);
-        tempBody.linerDamping = 0;
-        tempBody.angularDamping = 0;
-        world.addBody(tempBody);
+        if (!this.placingObject) {
+            let shape = new CANNON.Sphere(radius);
+            let tempBody = new CANNON.Body({
+                mass: 4
+            });
+            tempBody.addShape(shape);
+            tempBody.linearDamping = 0;
+            tempBody.angularDamping = 0;
+            world.addBody(tempBody);
 
-        let geometry = new THREE.SphereGeometry(radius, Math.ceil(radius / 10) * 16, Math.ceil(radius / 10) * 8);
-        let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-        let tempMesh = new THREE.Mesh(geometry, material);
-        tempMesh.userData.createsGravity = true;
-        tempMesh.userData.selectable = true;
-        tempMesh.userData.hasVectors = false;
-        scene.add(tempMesh);
+            let geometry = new THREE.SphereGeometry(radius, Math.ceil(radius / 10) * 16, Math.ceil(radius / 10) * 8);
+            let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+            let tempMesh = new THREE.Mesh(geometry, material);
+            tempMesh.userData.createsGravity = true;
+            tempMesh.userData.selectable = true;
+            tempMesh.userData.hasVectors = false;
+            scene.add(tempMesh);
 
-        tempMesh.name = generateName('Sphere');
-        let sphere = {
-            body: tempBody,
-            mesh: tempMesh
-        }
-        this.objects.push(sphere);
-        addItemToList(this.objects.length - 1);
-        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
+            tempMesh.name = generateName('Sphere');
+            let sphere = {
+                body: tempBody,
+                mesh: tempMesh
+            }
+            this.objects.push(sphere);
+            addItemToList(this.objects.length - 1);
+            this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
 
-        if (isNaN(x)){
-            tempBody.position.set(0, 0, 0);
-            tempMesh.position.set(0, 0, 0);
-            this.placeObject(sphere.mesh);
-        } else {
-            tempBody.position.set(x, y, z);
-            tempMesh.position.set(x, y, z);
+            if (isNaN(x)) {
+                tempBody.position.set(0, 0, 0);
+                tempMesh.position.set(0, 0, 0);
+                this.placeObject(sphere.mesh);
+            } else {
+                tempBody.position.set(x, y, z);
+                tempMesh.position.set(x, y, z);
+            }
         }
     },
     createCylinder(x, y, z, radius, height) {
-        let shape = new CANNON.Cylinder(radius, radius, height, Math.ceil(radius / 10) * 8);
-        let tempBody = new CANNON.Body({
-            mass: 4
-        });
+        if (!this.placingObject){
+            let shape = new CANNON.Cylinder(radius, radius, height, Math.ceil(radius / 10) * 8);
+            let tempBody = new CANNON.Body({
+                mass: 4
+            });
 
-        //Align three js to cannon js rotation
-        var quat = new CANNON.Quaternion();
-        quat.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
-        var translation = new CANNON.Vec3(0, 0, 0);
-        shape.transformAllPoints(translation, quat);
+            //Align three js to cannon js rotation
+            var quat = new CANNON.Quaternion();
+            quat.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+            var translation = new CANNON.Vec3(0, 0, 0);
+            shape.transformAllPoints(translation, quat);
 
-        tempBody.addShape(shape);
-        tempBody.linerDamping = 0;
-        tempBody.angularDamping = 0;
-        world.addBody(tempBody);
+            tempBody.addShape(shape);
+            tempBody.linearDamping = 0;
+            tempBody.angularDamping = 0;
+            world.addBody(tempBody);
 
-        let geometry = new THREE.CylinderGeometry(radius, radius, height, Math.ceil(radius / 10) * 16);
-        let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-        let tempMesh = new THREE.Mesh(geometry, material);
-        tempMesh.userData.createsGravity = true;
-        tempMesh.userData.selectable = true;
-        tempMesh.userData.hasVectors = false;
-        tempMesh.userData.previousScale = { x: 1, z: 1 };
-        scene.add(tempMesh);
+            let geometry = new THREE.CylinderGeometry(radius, radius, height, Math.ceil(radius / 10) * 16);
+            let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+            let tempMesh = new THREE.Mesh(geometry, material);
+            tempMesh.userData.createsGravity = true;
+            tempMesh.userData.selectable = true;
+            tempMesh.userData.hasVectors = false;
+            tempMesh.userData.previousScale = { x: 1, z: 1 };
+            scene.add(tempMesh);
 
-        tempMesh.name = generateName('Cylinder');
-        let cylinder = {
-            body: tempBody,
-            mesh: tempMesh
-        }
-        this.objects.push(cylinder);
-        addItemToList(this.objects.length - 1);
-        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
+            tempMesh.name = generateName('Cylinder');
+            let cylinder = {
+                body: tempBody,
+                mesh: tempMesh
+            }
+            this.objects.push(cylinder);
+            addItemToList(this.objects.length - 1);
+            this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
 
-        if (isNaN(x)){
-            tempBody.position.set(0, 0, 0);
-            tempMesh.position.set(0, 0, 0);
-            this.placeObject(cylinder.mesh);
-        } else {
-            tempBody.position.set(x, y, z);
-            tempMesh.position.set(x, y, z);
+            if (isNaN(x)) {
+                tempBody.position.set(0, 0, 0);
+                tempMesh.position.set(0, 0, 0);
+                this.placeObject(cylinder.mesh);
+            } else {
+                tempBody.position.set(x, y, z);
+                tempMesh.position.set(x, y, z);
+            }
         }
     },
     placeObject(object){

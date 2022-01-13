@@ -963,6 +963,7 @@ input {
 
 #library-ui {
     overflow: auto;
+    overflow-x: hidden;
     visibility: hidden;
     width: 0;
     background-color: var(--primary-color);
