@@ -1225,6 +1225,20 @@ initStyling();
 function loadfromJson(json) {
     let data = json[0];
     let nValid = 0;
+    console.log();
+    if (json.hasOwnProperty('camera')){
+        setCamera(json.camera.type);
+        camera.position.x = json.camera.position.x;
+        camera.position.y = json.camera.position.y;
+        camera.position.z = json.camera.position.z;
+        camera.rotation.x = json.camera.rotation.x;
+        camera.rotation.y = json.camera.rotation.y;
+        camera.rotation.z = json.camera.rotation.z;
+        camera.zoom = json.camera.zoom;
+        camera.updateMatrixWorld();
+        camera.updateProjectionMatrix();
+        console.log(camera);
+    }
     for (let i in data){
         if (data[i].hasOwnProperty('position') && data[i].hasOwnProperty('dimensions') && data[i].hasOwnProperty('geometryType')){
             if (!isNaN(data[i].position.x) && !isNaN(data[i].position.y) && !isNaN(data[i].position.z) && ((!isNaN(data[i].dimensions.x) && !isNaN(data[i].dimensions.y) && !isNaN(data[i].dimensions.z)) || !isNaN(data[i].dimensions.radius))){
@@ -1241,6 +1255,8 @@ function loadfromJson(json) {
                 }
                 
                 simulation.itemSelected = simulation.objects.length - 1;
+                simulation.objects[simulation.itemSelected].mesh.material.wireframe = data[i].isWireframe;
+                simulation.objects[simulation.itemSelected].mesh.material.color.set(`#${data[i].color}`)
                 synchronizePositions();
                 synchronizeRotation();
                 synchronizeSize();

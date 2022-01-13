@@ -271,6 +271,7 @@ function initThree() {
     renderer.setClearColor(0xffffff, 1);
     renderer.setSize(parseInt(window.getComputedStyle(canvas).width), parseInt(window.getComputedStyle(canvas).height));
     stats = Stats();
+    console.log(camera);
 }
 
 function initCannon() {
@@ -351,7 +352,7 @@ function generateJSON() {
     let logObj = {};
     let timeLine = {}
     simulation.objects.forEach((item) => {
-        timeLine[item.mesh.uuid] = { name: item.mesh.name, mass: item.body.mass, position: { x: item.body.position.x, y: item.body.position.y, z: item.body.position.z }, velocity: { x: item.body.velocity.x, y: item.body.velocity.y, z: item.body.velocity.z }, rotation: { x: item.mesh.rotation.x, y: item.mesh.rotation.y, z: item.mesh.rotation.z }, angularVelocity: { x: item.body.angularVelocity.x, y: item.body.angularVelocity.y, z: item.body.angularVelocity.z }, force: { x: item.body.force.x, y: item.body.force.y, z: item.body.force.z } };
+        timeLine[item.mesh.uuid] = { name: item.mesh.name, mass: item.body.mass, position: { x: item.body.position.x, y: item.body.position.y, z: item.body.position.z }, velocity: { x: item.body.velocity.x, y: item.body.velocity.y, z: item.body.velocity.z }, rotation: { x: item.mesh.rotation.x, y: item.mesh.rotation.y, z: item.mesh.rotation.z }, angularVelocity: { x: item.body.angularVelocity.x, y: item.body.angularVelocity.y, z: item.body.angularVelocity.z }, force: { x: item.body.force.x, y: item.body.force.y, z: item.body.force.z }, isWireframe: item.mesh.material.wireframe, color: item.mesh.material.color.getHexString()};
         switch (item.mesh.geometry.type) {
             case "SphereGeometry":
                 timeLine[item.mesh.uuid].dimensions = { radius: item.mesh.geometry.parameters.radius * item.mesh.scale.x };
@@ -368,6 +369,7 @@ function generateJSON() {
         }
     });
     logObj[parseInt(world.time)] = timeLine;
+    logObj['camera'] = {type: camera.type, position: {x: camera.position.x, y: camera.position.y, z: camera.position.z}, rotation: {x: camera.rotation.x, y: camera.rotation.y, z: camera.rotation.z}, zoom: camera.zoom};
     return logObj;
 }
 
