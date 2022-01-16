@@ -28,6 +28,7 @@ let canvas = document.getElementById("viewportCanvas");
 let fovSlider = document.getElementById("fov-slider");
 let fovText = document.getElementById("fov-text");
 let libraryUi = document.getElementById("library-ui");
+let eventHandlerUi = document.getElementById("event-handler-ui");
 
 //Local Storage Stuff
 
@@ -125,21 +126,21 @@ function initStyling(){
     if (!localStorage.gravityX){
         localStorage.setItem("gravityX", 0);
     } else {
-        world.gravity.x = parseInt(localStorage.getItem("gravityX"));
+        world.gravity.x = parseFloat(localStorage.getItem("gravityX"));
         document.getElementById("gravity-x-editable").placeholder = world.gravity.x;
     }
 
     if (!localStorage.gravityY){
         localStorage.setItem("gravityY", 0);
     } else {
-        world.gravity.y = parseInt(localStorage.getItem("gravityY"));
+        world.gravity.y = parseFloat(localStorage.getItem("gravityY"));
         document.getElementById("gravity-y-editable").placeholder = world.gravity.y;
     }
 
     if (!localStorage.gravityZ){
         localStorage.setItem("gravityZ", 0);
     } else {
-        world.gravity.z = parseInt(localStorage.getItem("gravityZ"));
+        world.gravity.z = parseFloat(localStorage.getItem("gravityZ"));
         document.getElementById("gravity-z-editable").placeholder = world.gravity.z;
     }
 
@@ -577,6 +578,24 @@ function toggleLibrary(){
 }
 
 document.getElementById('library-button').onclick = document.getElementById('close-library').onclick = toggleLibrary;
+
+let eventHandlerContainer = document.getElementById('event-handler-container');
+
+function toggleEventsUi(){
+    function toggleVisibility() { eventHandlerUi.style.visibility = 'hidden'; }
+    if (window.getComputedStyle(eventHandlerUi).visibility == 'hidden'){
+        let timeline = gsap.timeline();
+        eventHandlerUi.style.visibility = 'visible';
+        timeline.to(eventHandlerUi, {duration: 0.2, width: '20em'})
+        .to(eventHandlerContainer, {duration: 0.2, opacity: 1});
+    } else {
+        let timeline = gsap.timeline();
+        timeline.to(eventHandlerContainer, {duration: 0.2, opacity: 0})
+        .to(eventHandlerUi, {duration: 0.2, width: '0px', onComplete: toggleVisibility});
+    }
+}
+
+document.getElementById('events-button').onclick = document.getElementById('close-events-handler').onclick = toggleEventsUi;
 
 function handleSettingsOpen(){
     if (showNotifications && doTutorial && window.getComputedStyle(document.getElementById("settings-box")).visibility == "hidden"){
@@ -1448,8 +1467,8 @@ document.getElementById('email-button').addEventListener('click', () => {
 
 document.getElementById('gravity-x-editable').addEventListener('blur', (event) => {
     if (!isNaN(event.target.value) && !simulation.isRunning){
-        world.gravity.x = parseInt(event.target.value);
-        localStorage.setItem("gravityX", parseInt(event.target.value));
+        world.gravity.x = parseFloat(event.target.value);
+        localStorage.setItem("gravityX", parseFloat(event.target.value));
     } else {
         if (isNaN(event.target.value)){
             createNotification(notificationList.inputNan, true);
@@ -1463,8 +1482,8 @@ document.getElementById('gravity-x-editable').addEventListener('blur', (event) =
 
 document.getElementById('gravity-y-editable').addEventListener('blur', (event) => {
     if (!isNaN(event.target.value) && !simulation.isRunning){
-        world.gravity.y = parseInt(event.target.value);
-        localStorage.setItem("gravityY", parseInt(event.target.value));
+        world.gravity.y = parseFloat(event.target.value);
+        localStorage.setItem("gravityY", parseFloat(event.target.value));
     } else {
         if (isNaN(event.target.value)){
             createNotification(notificationList.inputNan, true);
@@ -1478,8 +1497,8 @@ document.getElementById('gravity-y-editable').addEventListener('blur', (event) =
 
 document.getElementById('gravity-z-editable').addEventListener('blur', (event) => {
     if (!isNaN(event.target.value) && !simulation.isRunning){
-        world.gravity.z = parseInt(event.target.value);
-        localStorage.setItem("gravityZ", parseInt(event.target.value));
+        world.gravity.z = parseFloat(event.target.value);
+        localStorage.setItem("gravityZ", parseFloat(event.target.value));
     } else {
         if (isNaN(event.target.value)){
             createNotification(notificationList.inputNan, true);
@@ -1490,3 +1509,267 @@ document.getElementById('gravity-z-editable').addEventListener('blur', (event) =
         event.target.value = '';
     }
 });
+
+class Event {
+    static eventsCreated = 0;
+    constructor() {
+        this.selection1;
+        this.selection2;
+        this.selection3;
+        this.selection4;
+        this.id = Event.eventsCreated;
+        Event.eventsCreated++;
+    }
+}
+
+let listOfEvents = [];
+
+function deleteLaterSelections(parent, n, id, eventListeners){
+    console.log(eventListeners)
+    // for (let i in Object.getOwnPropertyNames(eventListeners)){
+    //     console.log(i);
+    //     if (Object.getOwnPropertyNames(eventListeners)[i].substring(0, Object.getOwnPropertyNames(eventListeners)[i].indexOf('-')) > n){
+
+    //     }
+    // }
+    for (let i = 0; i < parent.children.length; i++) { 
+        if (parent.children[i].nodeName == 'DIV'){
+            for (let j = n+1; j < 6; j++) {
+                if (parent.children[i].id == `event-field-${id}-${j}`){
+                    parent.removeChild(parent.children[i]);
+                    i--;
+                }
+            }
+        }
+    }
+}
+
+function createSelections(type, selections, event, parent, fieldN, textLeft, textRight, eventListeners) {
+    let field = document.createElement('div');
+    let selection, container, node1, node2, parameters, inputText;
+    field.classList.add(`event-field`);
+    field.setAttribute('id', `event-field-${event.id}-${fieldN}`);
+    field.innerHTML += textLeft;
+
+    let eventListenersObj = {};
+
+    switch (type){
+        case 'dropdown':
+            selection = document.createElement('div');
+            selection.classList.add('dropdown-selector');
+            container = document.createElement('div');
+            container.classList.add('dropdown-container');
+            inputText = document.createElement('span');
+            
+            switch (selections) {
+                case 'target':
+                    inputText.setAttribute('id', `input-${event.id}-${fieldN}`);
+                    inputText.classList.add('event-input-text');
+                    inputText.innerHTML = 'target';
+                    selection.appendChild(inputText);
+                    node1 = document.createElement('div');
+                    node1.classList.add('dropdown-option');
+
+                    if (fieldN == 1){
+                        node1.setAttribute('id', `target-${event.id}-${fieldN}-time`);
+                        container.appendChild(node1);
+                        node1.textContent = 'time';
+                        eventListenersObj[`${fieldN}-${event.id}-time`] = function (e) {
+                            if (e.target && e.target.id == `target-${event.id}-${fieldN}-time`) {
+                                console.log(fieldN)
+                                document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = 'time';
+                                event[`selection${fieldN}`] = 'time';
+                                deleteLaterSelections(parent, fieldN, event.id, eventListeners);
+                                createSelections('text', 'seconds', event, parent, fieldN+1, ' is ', ' s', eventListeners);
+                            }
+                        }
+
+                        // eventListeners.push(eventListenersObj[`${fieldN}-${event.id}-time`]);
+                        // eventListeners[eventListeners.length - 1].name = `${fieldN}-${event.id}-time`;
+
+                        document.addEventListener('click', eventListenersObj[`${fieldN}-${event.id}-time`]);
+                    } else {
+                        node1.setAttribute('id', `target-${event.id}-${fieldN}-anything`);
+                        container.appendChild(node1);
+                        node1.textContent = 'anything';
+                        eventListenersObj[`${fieldN}-${event.id}-anything`] = function(e) {
+                            if (e.target && e.target.id == `target-${event.id}-${fieldN}-anything`){
+                                console.log('testing')
+                                document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = 'anything';
+                                event[`selection${fieldN}`] = 'anything';
+                                deleteLaterSelections(parent, fieldN, event.id, eventListeners);
+                                createSelections('dropdown', 'eventType', event, parent, fieldN+1, ' then ', '', eventListeners);
+                            }
+                        }
+
+                        eventListeners.push(eventListenersObj[`${fieldN}-${event.id}-anything`]);
+                        eventListeners[eventListeners.length - 1].name = `${fieldN}-${event.id}-anything`;
+
+                        document.addEventListener('click', eventListenersObj[`${fieldN}-${event.id}-anything`]);
+                    }
+        
+                    simulation.objects.forEach(object => {
+                        if (fieldN == 1 || event.selection1 != object.mesh.uuid){
+                            node2 = document.createElement('div');
+                            node2.innerText = object.mesh.name;
+                            node2.classList.add('dropdown-option');
+                            node2.setAttribute('id', `target-${event.id}-${fieldN}-${object.mesh.uuid}`);
+
+                            eventListenersObj[`${fieldN}-${event.id}-${object.mesh.uuid}`]  = function(e) {
+                                if (e.target && e.target.id == `target-${event.id}-${fieldN}-${object.mesh.uuid}`){
+                                    document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = object.mesh.name;
+                                    event[`selection${fieldN}`] = object.mesh.uuid;
+                                    deleteLaterSelections(parent, fieldN, event.id, eventListeners);
+                                    if (fieldN == 1){
+                                        createSelections('dropdown', 'parameters', event, parent, fieldN+1, '', '', eventListeners);
+                                    } else {
+                                        createSelections('dropdown', 'eventType', event, parent, fieldN+1, ' then ', '', eventListeners);
+                                    }
+                                }
+                            }
+
+                            // eventListeners.push(eventListenersObj[`${fieldN}-${event.id}-${object.mesh.uuid}`]);
+                            // eventListeners[eventListeners.length - 1].name = `${fieldN}-${event.id}-${object.mesh.uuid}`;
+            
+                            document.addEventListener('click', eventListenersObj[`${fieldN}-${event.id}-${object.mesh.uuid}`]);
+            
+                            container.appendChild(node2);
+                        }
+                    });
+                    break;
+                case 'parameters':
+                    parameters = ['collides', 'position x', 'position y', 'position z', 'rotation x', 'rotation y', 'rotation z', 'velocity x', 'velocity y', 'velocity z', 'angularVelocity x', 'angularVelocity y', 'angularVelocity z'];
+                    
+                    inputText.setAttribute('id', `input-${event.id}-${fieldN}`);
+                    inputText.classList.add('event-input-text');
+                    inputText.innerHTML = 'parameter';
+                    selection.appendChild(inputText);
+                    
+                    parameters.forEach(parameter => {
+                        node1 = document.createElement('div');
+                        node1.innerText = parameter;
+                        node1.classList.add('dropdown-option');
+                        node1.setAttribute('id', `target-${event.id}-${fieldN}-${parameter.replace(' ', '.')}`);
+
+                        eventListenersObj[`${fieldN}-${event.id}-${parameter}`] = function (e) {
+                            if (e.target && e.target.id == `target-${event.id}-${fieldN}-${parameter.replace(' ', '.')}`){
+                                if (parameter == 'collides'){
+                                    document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = parameter;
+                                    deleteLaterSelections(parent, fieldN, event.id, eventListeners);
+                                    createSelections('dropdown', 'target', event, parent, fieldN+1, ' with ', '');
+                                } else {
+                                    document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = `'s ${parameter}`;
+                                    deleteLaterSelections(parent, fieldN, event.id, eventListeners);
+                                    createSelections('text', 'm/s', event, parent, fieldN+1, '=', '', eventListeners);
+                                }
+                                event[`selection${fieldN}`] = parameter.replace(' ', '.');
+                            }
+                        }
+
+                        eventListeners.push(eventListenersObj[`${fieldN}-${event.id}-${parameter}`]);
+                        eventListeners[eventListeners.length - 1].name = `${fieldN}-${event.id}-${parameter}`;
+
+                        document.addEventListener('click', eventListenersObj[`${fieldN}-${event.id}-${parameter}`]);
+                        container.appendChild(node1);
+                    })
+
+                    break;
+                case 'eventType':
+                    parameters = ['print', 'pause', 'both'];
+
+                    inputText.setAttribute('id', `input-${event.id}-${fieldN}`);
+                    inputText.classList.add('event-input-text');
+                    inputText.innerHTML = 'action';
+                    selection.appendChild(inputText);
+                    
+                    parameters.forEach(parameter => {
+                        node1 = document.createElement('div');
+                        node1.classList.add('dropdown-option');
+                        node1.innerText = parameter;
+                        node1.setAttribute('id', `target-${event.id}-${fieldN}-${parameter}`);
+
+                        eventListenersObj[`${fieldN}-${event.id}-${parameter}`] = function(e) {
+                            if (e.target && e.target.id == `target-${event.id}-${fieldN}-${parameter}`){
+                                document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = parameter;
+                                event[`selection${fieldN}`] = parameter;
+                            }
+                        }
+                        console.log(eventListeners);
+                        eventListeners.push(eventListenersObj[`${fieldN}-${event.id}-${parameter}`]);
+                        eventListeners[eventListeners.length - 1].name = `${fieldN}-${event.id}-${parameter}`;
+
+                        document.addEventListener('click', eventListenersObj[`${fieldN}-${event.id}-${parameter}`]);
+                        container.appendChild(node1);
+                    });
+                    break;
+            }
+            selection.appendChild(container);
+            field.appendChild(selection);
+            break;
+        case 'text':
+            selection = document.createElement('input');
+            selection.type = 'text';
+            selection.placeholder = 0;
+            selection.classList.add('text-editable');
+            selection.setAttribute('id', `input-${event.id}-${fieldN}`)
+
+            eventListenersObj[`${fieldN}-${event.id}-text`] = function (e) {
+                if (e.target && e.target.id == `input-${event.id}-${fieldN}`){
+                    document.getElementById(`input-${event.id}-${fieldN}`).addEventListener('blur', function (e) {
+                        if (parseInt(e.target.value).length == 0) {
+                            event[`selection${fieldN}`] = 0;
+                            createNotification(notificationList.inputEmpty, false);
+                        } 
+                        // else if (!isNaN(event.target.value)){
+                        //    event.target.value = '';
+                        //    event[`selection${fieldN}`] = 0;
+                        //    createNotification(notificationList.inputNan, false);
+                        // } 
+                        else {
+                            event[`selection${fieldN}`] = parseInt(e.target.value);
+                            deleteLaterSelections(parent, fieldN, event.id, eventListeners);
+                            createSelections('dropdown', 'eventType', event, parent, fieldN+1, ' then ', '', eventListeners);
+                        }
+                    })
+                }
+            }
+            
+            eventListeners.push(eventListenersObj[`${fieldN}-${event.id}-text`]);
+
+            document.addEventListener('click', eventListenersObj[`${fieldN}-${event.id}-text`]);
+            field.appendChild(selection);
+            break;
+    }
+    field.innerHTML += textRight;
+    parent.appendChild(field);
+}
+
+function createEventField(){
+    let event = new Event();
+
+    let node = document.createElement('div');
+    node.classList.add('event-node');
+    node.innerHTML += 'When';
+
+    let eventListeners = [];
+
+    createSelections('dropdown', 'target', event, node, 1, '', '', eventListeners);
+    document.getElementById('events-container').appendChild(node);
+    listOfEvents.push(event);
+}
+
+document.getElementById('add-event').onclick = createEventField;
+
+
+// //use this to fix it
+// let t = [];
+// let o = function(){console.log("test")}
+// t.push(o);
+
+// let k = function(){console.log("ending")
+// document.removeEventListener('mouseover', t[0])};
+// t.push(k);
+
+// document.addEventListener('click', t[1]);
+
+// document.addEventListener('mouseover', t[0]);
