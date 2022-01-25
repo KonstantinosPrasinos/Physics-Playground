@@ -272,10 +272,10 @@ a {
     -webkit-mask-image:  url(/assets/collection.svg);
     mask-image: url(assets/collection.svg);
 }
-#events-button {
+#actions-button {
     bottom: 9vh;
-    -webkit-mask-image:  url(/assets/collection.svg);
-    mask-image: url(assets/collection.svg);
+    -webkit-mask-image:  url(/assets/actions.svg);
+    mask-image: url(assets/actions.svg);
 }
 #add-cube-button {
     -webkit-mask-image:  url(/assets/cube.svg);
@@ -1037,7 +1037,19 @@ input {
 .event-input-text {
     border-bottom: 2px solid var(--secondary-color);
 }
+.event-input-text:hover {
+    cursor: pointer;
+}
 .dropdown-option {
     width: 50px;
-    height: 50px;
+}
+.dropdown-option:hover {
+    cursor: pointer;
+}
+.event-delete-button {
+    margin-right: 1em;
+    display: none;
+}
+.event-node:hover .event-delete-button {
+    display: inline-block;
 }
