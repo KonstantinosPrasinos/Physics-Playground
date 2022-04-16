@@ -19,6 +19,7 @@ Saved log timestamps (from .json file) can be loaded into the simulation, in ord
 
 # Future Plans
 
+- User Interface remake
 - More shapes!
 - Add ability to write PI and simple mathematical operations in rotation
 - Grid and Grid Snapping
