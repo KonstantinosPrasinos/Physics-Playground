@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="tempStyles.css">
 </head>
 
 <body>
@@ -24,193 +26,253 @@
             <p id="notification-popup-text"></p>
         </div>
         <div id="left-ui">
-            <button class="left-ui-buttons icon-buttons big-icon-buttons" id="settings-button"></button>
-            <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-cube-button"></button>
-            <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-sphere-button"></button>
-            <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-cylinder-button"></button>
+<!--            <button class="left-ui-buttons icon-buttons big-icon-buttons" id="settings-button"></button>-->
+<!--            <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-cube-button"></button>-->
+<!--            <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-sphere-button"></button>-->
+<!--            <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-cylinder-button"></button>-->
+            <div class="left-bar-tools">
+                <button class="material-symbols-outlined">
+                    open_with
+                </button>
+                <button class="material-symbols-outlined">
+                    resize
+                </button>
+                <button class="material-symbols-outlined">
+                    rotate_right
+                </button>
+                <div class="horizontal-separator"></div>
+                <button class="material-symbols-outlined" id="add-cube-button">
+                    check_box_outline_blank
+                </button>
+                <button class="material-symbols-outlined" id="add-sphere-button">
+                    radio_button_unchecked
+                </button>
+            </div>
+            <button class="material-symbols-outlined" id="settings-button">
+                settings
+            </button>
         </div>
         <div id="top-ui">
-            <div class="top-field">
-                <button id="top-select" class="icon-buttons big-icon-buttons"></button>
-                <button id="top-resize" class="icon-buttons big-icon-buttons"></button>
-                <button id="top-rotate" class="icon-buttons big-icon-buttons"></button>
+<!--            <div class="top-field">-->
+<!--&lt;!&ndash;                <button id="top-select" class="icon-buttons big-icon-buttons"></button>&ndash;&gt;-->
+<!--&lt;!&ndash;                <button id="top-resize" class="icon-buttons big-icon-buttons"></button>&ndash;&gt;-->
+<!--&lt;!&ndash;                <button id="top-rotate" class="icon-buttons big-icon-buttons"></button>&ndash;&gt;-->
+<!--            </div>-->
+<!--            <div class="top-field">-->
+<!--                <button id="top-play" class="icon-buttons big-icon-buttons top-play"></button>-->
+<!--                <button id="top-replay" class="icon-buttons big-icon-buttons"></button>-->
+<!--            </div>-->
+            <button class="material-symbols-outlined" id="top-play">
+                play_arrow
+            </button>
+            <button class="material-symbols-outlined" id="top-replay">
+                fast_rewind
+            </button>
+            <div class="vertical-separator"></div>
+<!--            <div id="top-mode" class="top-field top-field-text"><b>Mode:</b> Setup</div>-->
+<!--            <button id="collapse-right-ui-button" class="icon-buttons big-icon-buttons"></button>-->
+            <button id="collapse-right-ui-button" class="material-symbols-outlined">
+                chevron_left
+            </button>
+            <div>
+                <span>Time:</span>
+                <span class="top-field top-field-text" id="time">0</span>
             </div>
-            <div class="top-field">
-                <button id="top-play" class="icon-buttons big-icon-buttons top-play"></button>
-                <button id="top-replay" class="icon-buttons big-icon-buttons"></button>
+            <div id="time-scale-container" class="Horizontal-Flex-Container">
+                <input type="range" min="0.25" max="3" step="0.25" value="1" id="time-scale-slider">
+                <div id="time-scale-slider-value">1 x</div>
+<!--                <label for="time-scale-slider" id="time-scale-slider-label"></label>-->
             </div>
-            <div id="top-mode" class="top-field top-field-text"><b>Mode:</b> Setup</div>
-            <button id="collapse-right-ui-button" class="icon-buttons big-icon-buttons"></button>
-            <div class="top-field top-field-text"><b>Time:</b></div>
-            <div class="top-field top-field-text" id="time">0</div>
         </div>
         <div id="right-ui">
             <div id="right-ui-features">
                 <div class="right-title title-medium" id="object-name">No item is Selected</div>
-                <div class="right-ui-grid-container">
-                    <div class="right-ui-grid-item">
-                        <span class="right-title title-small">Dimensions:</span>
-                    </div>
-                    <div class="right-ui-grid-item">
-                        <span class="right-title title-small">Colour:</span>
-                    </div>
-                    <div class="right-ui-grid-item" id="width-container">
-                        <span class="right-ui-grid-text" id="width-text">W:</span>
-                        <input type="text" class="text-editable block-editable" id="width-input" placeholder="-"
-                            disabled>
-                    </div>
-                    <div class="right-ui-grid-item">
-                        <input type="color" value="#ffffff" class="color-picker" id="item-color-picker" disabled>
-                    </div>
-                    <div class="right-ui-grid-item" id="height-container">
-                        <span class="right-ui-grid-text">H:</span>
-                        <input type="text" class="text-editable block-editable" id="height-input" placeholder="-"
-                            disabled>
-                    </div>
-                    <div class="right-ui-grid-item">
-                        <span class="right-title title-small">Is Wireframe:</span>
-                    </div>
-                    <div class="right-ui-grid-item" id="depth-container">
-                        <span class="right-ui-grid-text">D:</span>
-                        <input type="text" class="text-editable block-editable" id="depth-input" placeholder="-"
-                            disabled>
-                    </div>
-                    <div class="right-ui-grid-item">
-                        <div class="checklist">
-                            <input type="checkbox" class="simple-checkmark" id="wireframe-toggle" disabled>
+                <div class="Vertical-Flex-Container Max-Width">
+                    <span class="right-title title-small">Dimensions:</span>
+                    <div class="Horizontal-Flex-Container Space-Between Max-Width">
+                        <div class="right-ui-grid-item" id="width-container">
+                            <span class="right-ui-grid-text" id="width-text">W:</span>
+                            <input type="text" class="text-editable block-editable" id="width-input" placeholder="-"
+                                   disabled>
+                        </div>
+                        <div class="right-ui-grid-item" id="height-container">
+                            <span class="right-ui-grid-text">H:</span>
+                            <input type="text" class="text-editable block-editable" id="height-input" placeholder="-"
+                                   disabled>
+                        </div>
+                        <div class="right-ui-grid-item" id="depth-container">
+                            <span class="right-ui-grid-text">D:</span>
+                            <input type="text" class="text-editable block-editable" id="depth-input" placeholder="-"
+                                   disabled>
                         </div>
                     </div>
                 </div>
-                <div id="info-container">
-                    <div class="right-text-field">
-                        <div class="right-title title-small">Rotation:</div>
-                        <div class="right-input-field">
-                            <span>X:</span>
-                            <input type="text" class="text-editable block-editable" id="rotation.x-input"
-                                placeholder="-" disabled>
-                        </div>
-                        <div class="right-input-field">
-                            <span>Y:</span>
-                            <input type="text" class="text-editable block-editable" id="rotation.y-input"
-                                placeholder="-" disabled>
-                        </div>
-                        <div class="right-input-field">
-                            <span>Z:</span>
-                            <input type="text" class="text-editable block-editable" id="rotation.z-input"
-                                placeholder="-" disabled>
-                        </div>
-                    </div>
-                    <div class="right-text-field">
-                        <div class="right-title title-small">Angular Velocity:</div>
-                        <div class="right-input-field">
-                            <span>X:</span>
-                            <input type="text" class="text-editable block-editable" id="angularVelocity.x-input"
-                                placeholder="-" disabled>
-                        </div>
-                        <div class="right-input-field">
-                            <span>Y:</span>
-                            <input type="text" class="text-editable block-editable" id="angularVelocity.y-input"
-                                placeholder="-" disabled>
-                        </div>
-                        <div class="right-input-field">
-                            <span>Z:</span>
-                            <input type="text" class="text-editable block-editable" id="angularVelocity.z-input"
-                                placeholder="-" disabled>
-                        </div>
-                    </div>
-                    <div class="right-text-field">
-                        <div class="right-title title-small">Position:</div>
-                        <div class="right-input-field">
-                            <span>X:</span>
-                            <input type="text" class="text-editable block-editable" id="position.x-input"
-                                placeholder="-" disabled>
-                        </div>
-                        <div class="right-input-field">
-                            <span>Y:</span>
-                            <input type="text" class="text-editable block-editable" id="position.y-input"
-                                placeholder="-" disabled>
-                        </div>
-                        <div class="right-input-field">
-                            <span>Z:</span>
-                            <input type="text" class="text-editable block-editable" id="position.z-input"
-                                placeholder="-" disabled>
-                        </div>
-                    </div>
-                    <div class="right-text-field">
-                        <div class="right-title title-small">Velocity:</div>
-                        <div class="right-input-field">
-                            <span>X:</span>
-                            <input type="text" class="text-editable block-editable" id="velocity.x-input"
-                                placeholder="-" disabled>
-                        </div>
-                        <div class="right-input-field">
-                            <span>Y:</span>
-                            <input type="text" class="text-editable block-editable" id="velocity.y-input"
-                                placeholder="-" disabled>
-                        </div>
-                        <div class="right-input-field">
-                            <span>Z:</span>
-                            <input type="text" class="text-editable block-editable" id="velocity.z-input"
-                                placeholder="-" disabled>
-                        </div>
-                    </div>
-                    <div class="right-text-field">
-                        <div class="right-title title-small">Force:</div>
-                        <div class="right-input-field">
-                            <span>X:</span>
-                            <input type="text" class="text-editable block-editable" id="force.x-input" placeholder="-"
-                                disabled>
-                        </div>
-                        <div class="right-input-field">
-                            <span>Y:</span>
-                            <input type="text" class="text-editable block-editable" id="force.y-input" placeholder="-"
-                                disabled>
-                        </div>
-                        <div class="right-input-field">
-                            <span>Z:</span>
-                            <input type="text" class="text-editable block-editable" id="force.z-input" placeholder="-"
-                                disabled>
-                        </div>
-                    </div>
-                </div>
+<!--                <div class="right-title title-medium" id="object-name">No item is Selected</div>-->
+<!--                <div class="right-ui-grid-container">-->
+<!--                    <div class="right-ui-grid-item">-->
+<!--                        <span class="right-title title-small">Dimensions:</span>-->
+<!--                    </div>-->
+<!--                    <div class="right-ui-grid-item">-->
+<!--                        <span class="right-title title-small">Colour:</span>-->
+<!--                    </div>-->
+<!--                    <div class="right-ui-grid-item" id="width-container">-->
+<!--                        <span class="right-ui-grid-text" id="width-text">W:</span>-->
+<!--                        <input type="text" class="text-editable block-editable" id="width-input" placeholder="-"-->
+<!--                            disabled>-->
+<!--                    </div>-->
+<!--                    <div class="right-ui-grid-item">-->
+<!--                        <input type="color" value="#ffffff" class="color-picker" id="item-color-picker" disabled>-->
+<!--                    </div>-->
+<!--                    <div class="right-ui-grid-item" id="height-container">-->
+<!--                        <span class="right-ui-grid-text">H:</span>-->
+<!--                        <input type="text" class="text-editable block-editable" id="height-input" placeholder="-"-->
+<!--                            disabled>-->
+<!--                    </div>-->
+<!--                    <div class="right-ui-grid-item">-->
+<!--                        <span class="right-title title-small">Is Wireframe:</span>-->
+<!--                    </div>-->
+<!--                    <div class="right-ui-grid-item" id="depth-container">-->
+<!--                        <span class="right-ui-grid-text">D:</span>-->
+<!--                        <input type="text" class="text-editable block-editable" id="depth-input" placeholder="-"-->
+<!--                            disabled>-->
+<!--                    </div>-->
+<!--                    <div class="right-ui-grid-item">-->
+<!--                        <div class="checklist">-->
+<!--                            <input type="checkbox" class="simple-checkmark" id="wireframe-toggle" disabled>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="horizontal-separator max-width"></div>-->
+<!--                <div id="info-container">-->
+<!--                    <div class="right-text-field">-->
+<!--                        <div class="right-title title-small">Rotation:</div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>X:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="rotation.x-input"-->
+<!--                                placeholder="-" disabled>-->
+<!--                        </div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>Y:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="rotation.y-input"-->
+<!--                                placeholder="-" disabled>-->
+<!--                        </div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>Z:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="rotation.z-input"-->
+<!--                                placeholder="-" disabled>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="right-text-field">-->
+<!--                        <div class="right-title title-small">Angular Velocity:</div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>X:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="angularVelocity.x-input"-->
+<!--                                placeholder="-" disabled>-->
+<!--                        </div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>Y:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="angularVelocity.y-input"-->
+<!--                                placeholder="-" disabled>-->
+<!--                        </div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>Z:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="angularVelocity.z-input"-->
+<!--                                placeholder="-" disabled>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="right-text-field">-->
+<!--                        <div class="right-title title-small">Position:</div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>X:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="position.x-input"-->
+<!--                                placeholder="-" disabled>-->
+<!--                        </div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>Y:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="position.y-input"-->
+<!--                                placeholder="-" disabled>-->
+<!--                        </div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>Z:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="position.z-input"-->
+<!--                                placeholder="-" disabled>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="right-text-field">-->
+<!--                        <div class="right-title title-small">Velocity:</div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>X:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="velocity.x-input"-->
+<!--                                placeholder="-" disabled>-->
+<!--                        </div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>Y:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="velocity.y-input"-->
+<!--                                placeholder="-" disabled>-->
+<!--                        </div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>Z:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="velocity.z-input"-->
+<!--                                placeholder="-" disabled>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="right-text-field">-->
+<!--                        <div class="right-title title-small">Force:</div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>X:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="force.x-input" placeholder="-"-->
+<!--                                disabled>-->
+<!--                        </div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>Y:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="force.y-input" placeholder="-"-->
+<!--                                disabled>-->
+<!--                        </div>-->
+<!--                        <div class="right-input-field">-->
+<!--                            <span>Z:</span>-->
+<!--                            <input type="text" class="text-editable block-editable" id="force.z-input" placeholder="-"-->
+<!--                                disabled>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
 
-                <div class="right-text-field">
-                    <span>Mass:</span>
-                    <input type="text" class="text-editable block-editable" id="mass-input" placeholder="-" disabled>
-                </div>
-                <div class="right-text-field">
-                    <span>Collidable:</span>
-                    <div class="checklist" id="collidable-checklist">
-                        <input type="checkbox" class="simple-checkmark inline-checkbox" id="collisionResponse-toggle"
-                            disabled>
-                    </div>
-                </div>
-                <div class="right-text-field">
-                    <div class="right-title title-small">Velocity Vectors:</div>
-                    <div id="velocity-vectors-container" class="vectors-container">
-                        <div class="checklist">
-                            <input type="checkbox" class="simple-checkmark" id="velocity-vectors-single" disabled>
-                        </div>
-                        <div class="checklist">
-                            <input type="checkbox" class="simple-checkmark" id="velocity-vectors-all" disabled>
-                        </div>
-                        <span>Single</span>
-                        <span>All</span>
-                    </div>
-                </div>
-                <div class="right-text-field">
-                    <div class="right-title title-small">Force Vectors:</div>
-                    <div id="force-vectors-container" class="vectors-container">
-                        <div class="checklist">
-                            <input type="checkbox" class="simple-checkmark" id="force-vectors-single" disabled>
-                        </div>
-                        <div class="checklist">
-                            <input type="checkbox" class="simple-checkmark" id="force-vectors-all" disabled>
-                        </div>
-                        <span>Single</span>
-                        <span>All</span>
-                    </div>
-                </div>
+<!--                <div class="right-text-field">-->
+<!--                    <span>Mass:</span>-->
+<!--                    <input type="text" class="text-editable block-editable" id="mass-input" placeholder="-" disabled>-->
+<!--                </div>-->
+<!--                <div class="right-text-field">-->
+<!--                    <span>Collidable:</span>-->
+<!--                    <div class="checklist" id="collidable-checklist">-->
+<!--                        <input type="checkbox" class="simple-checkmark inline-checkbox" id="collisionResponse-toggle"-->
+<!--                            disabled>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="right-text-field">-->
+<!--                    <div class="right-title title-small">Velocity Vectors:</div>-->
+<!--                    <div id="velocity-vectors-container" class="vectors-container">-->
+<!--                        <div class="checklist">-->
+<!--                            <input type="checkbox" class="simple-checkmark" id="velocity-vectors-single" disabled>-->
+<!--                        </div>-->
+<!--                        <div class="checklist">-->
+<!--                            <input type="checkbox" class="simple-checkmark" id="velocity-vectors-all" disabled>-->
+<!--                        </div>-->
+<!--                        <span>Single</span>-->
+<!--                        <span>All</span>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="right-text-field">-->
+<!--                    <div class="right-title title-small">Force Vectors:</div>-->
+<!--                    <div id="force-vectors-container" class="vectors-container">-->
+<!--                        <div class="checklist">-->
+<!--                            <input type="checkbox" class="simple-checkmark" id="force-vectors-single" disabled>-->
+<!--                        </div>-->
+<!--                        <div class="checklist">-->
+<!--                            <input type="checkbox" class="simple-checkmark" id="force-vectors-all" disabled>-->
+<!--                        </div>-->
+<!--                        <span>Single</span>-->
+<!--                        <span>All</span>-->
+<!--                    </div>-->
+<!--                </div>-->
             </div>
             <div id="right-ui-items-list">
                 <div class="right-title title-medium">Items in Scene:</div>
@@ -218,7 +280,7 @@
             </div>
         </div>
         <canvas id="viewportCanvas"></canvas>
-        <div id="settings-overlay">
+        <div id="settings-overlay" class="collapsed">
             <div id="settings-box">
                 <div class="settings-row">
                     <span class="title">Settings:</span>
@@ -332,10 +394,11 @@
 
         </div>
     </div>
-    <script src="scripts/main.js" type="module"></script>
-    <script src="scripts/notifications.js" type="module"></script>
-    <script src="scripts/styling.js" type="module"></script>
-    <script src="scripts/controls.js" type="module"></script>
+    <script src="scripts/tempStyling.js"> </script>
+<!--    <script src="scripts/main.js" type="module"></script>-->
+<!--    <script src="scripts/notifications.js" type="module"></script>-->
+<!--    <script src="scripts/styling.js" type="module"></script>-->
+<!--    <script src="scripts/controls.js" type="module"></script>-->
 </body>
 
 </html>

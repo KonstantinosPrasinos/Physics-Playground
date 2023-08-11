@@ -1,0 +1,41 @@
+#time-scale-slider-value {
+    display: inline-block;
+    width: 3.5em;
+    height: 1.25em;
+    text-align: center;
+    pointer-events: none;
+    position: absolute;
+    top: -0.375em;
+    left: calc(27.2727% - 0.954545em); /* Calculated using js for the position of 1x */
+    background-color: var(--secondary-color);
+    color: var(--accent-color);
+    border-radius: 10px;
+    border: 1px solid var(--accent-color);
+}
+
+#time-scale-container {
+    position: relative;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    background-color: var(--secondary-color);
+    border-radius: 10px;
+    height: 0.5em;
+    font-size: inherit;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 1.25em;
+    width: 3.5em;
+    border-radius: 10px;
+    cursor: ew-resize;
+}
+
+input[type=range]::-webkit-slider-runnable-track  {
+    -webkit-appearance: none;
+    box-shadow: none;
+    border: none;
+    background: transparent;
+}
