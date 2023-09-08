@@ -1,0 +1,43 @@
+/* Built-in elements */
+h2 {
+    margin: 0;
+}
+
+h3 {
+    margin: 0;
+}
+
+input[type="radio"] {
+    cursor: pointer;
+}
+label {
+    cursor: pointer;
+}
+
+/* Typography */
+.Label {
+    opacity: 0.45;
+    font-size: 0.75rem;
+}
+.Title-Small {
+    font-size: 0.875rem;
+}
+
+/* Separators */
+.horizontal-separator {
+    height: 0;
+    width: 1em;
+    border: 1px solid var(--accent-color);
+    opacity: 0.2;
+}
+.horizontal-separator.max-width {
+    width: 90%;
+}
+
+.vertical-separator {
+    height: 1em;
+    width: 0;
+    border: 1px solid var(--accent-color);
+    opacity: 0.2;
+    margin: 0;
+}

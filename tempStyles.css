@@ -39,3 +39,144 @@ input[type=range]::-webkit-slider-runnable-track  {
     border: none;
     background: transparent;
 }
+
+#bottom-left-buttons-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+}
+
+/* Settings */
+
+#settings-box {
+    left: 3em;
+    width: 20em;
+    height: calc(100% - 3em);
+    position: fixed;
+    top: 3em;
+    background: var(--primary-color);
+    transition: 0.4s ease-in-out transform;
+    padding: 0.75em;
+    box-sizing: border-box;
+
+    display: flex;
+    gap: 1em;
+    flex-direction: column;
+}
+
+#settings-box.collapsed {
+    transform: translateX(-23em);
+}
+
+#settings-box-title-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2em;
+}
+
+.settings-subsection {
+    display: flex;
+    gap: 0.5em;
+    flex-direction: column;
+}
+
+.settings-subsubsection {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 0.5em;
+}
+
+.settings-subsection-title {
+    margin-bottom: 1em;
+}
+
+.settings-content {
+    display: flex;
+    gap: 1em;
+}
+
+.theme-label {
+    text-align: center;
+}
+
+.theme-button-container {
+    display: flex;
+    justify-content: center;
+}
+
+.theme-radio-button {
+    height: 2em;
+    width: 2em;
+    margin: 0;
+    border: 0.125em solid var(--accent-color);
+    border-radius: 50%;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.theme-radio-button:checked {
+    border-color: var(--selected-color);
+}
+
+#camera-type-container {
+    gap: 0;
+}
+
+#camera-type-container input {
+    display: none;
+}
+
+#camera-type-container label {
+    border: 2px solid var(--accent-color);
+    padding: 0.5em;
+    transition: border-color 0.15s ease-in-out;
+}
+
+#camera-type-container label:first-of-type {
+    border-radius: 0.5em 0 0 0.5em;
+}
+
+#camera-type-container label:last-of-type {
+    border-radius: 0 0.5em 0.5em 0;
+}
+
+#camera-type-container input[type="radio"]:checked + label {
+    border-color: var(--selected-color);
+}
+
+/* Rounded corners */
+#rounded-corner-left {
+    position: fixed;
+    background-color: transparent;
+    top: 3em;
+    left: 3em;
+    height: 20px;
+    width: 10px;
+    border-top-left-radius: 10px;
+    box-shadow: 0 -10px 0 0 var(--primary-color);
+    transition: 0.4s ease-in-out left;
+}
+
+#rounded-corner-left:not(.collapsed) {
+    left: 23em;
+}
+
+#rounded-corner-right {
+    position: fixed;
+    background-color: transparent;
+    top: 3em;
+    right: -10px;
+    height: 20px;
+    width: 10px;
+    border-top-right-radius: 10px;
+    box-shadow: 0 -10px 0 0 var(--primary-color);
+    transition: 0.3s ease-in-out right;
+}
+
+#rounded-corner-right:not(.collapsed) {
+    right: 15em;
+}
