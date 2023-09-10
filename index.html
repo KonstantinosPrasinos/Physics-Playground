@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="styles/globalStyles.css">
 </head>
 
-<body>
+<body class="dark-theme">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"
         integrity="sha512-UxP+UhJaGRWuMG2YC6LPWYpFQnsSgnor0VUF3BHdD83PS/pOpN+FYbZmrYN+ISX8jnvgVUciqP/fILOXDjZSwg=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -21,6 +21,11 @@
         integrity="sha512-avLcnGxl5mqAX/wIKERdb1gFNkOLHh2W5JNCfJm5OugpEPBz7LNXJJ3BDjjwO00AxEY1MqdNjtEmiYhKC0ld7g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <div id="app">
+        <canvas id="viewportCanvas"></canvas>
+        <div id="rounded-corner-container">
+            <div id="rounded-corner-left" class="collapsed"></div>
+            <div id="rounded-corner-right" class="collapsed"></div>
+        </div>
         <div id="notification-popup">
             <button class="close-button icon-buttons big-icon-buttons"
                 style="visibility: inherit; display: inline-block;" id="close-notification-popup"></button>
@@ -59,15 +64,6 @@
             </div>
         </div>
         <div id="top-ui">
-<!--            <div class="top-field">-->
-<!--&lt;!&ndash;                <button id="top-select" class="icon-buttons big-icon-buttons"></button>&ndash;&gt;-->
-<!--&lt;!&ndash;                <button id="top-resize" class="icon-buttons big-icon-buttons"></button>&ndash;&gt;-->
-<!--&lt;!&ndash;                <button id="top-rotate" class="icon-buttons big-icon-buttons"></button>&ndash;&gt;-->
-<!--            </div>-->
-<!--            <div class="top-field">-->
-<!--                <button id="top-play" class="icon-buttons big-icon-buttons top-play"></button>-->
-<!--                <button id="top-replay" class="icon-buttons big-icon-buttons"></button>-->
-<!--            </div>-->
             <button class="material-symbols-outlined" id="top-play">
                 play_arrow
             </button>
@@ -75,8 +71,6 @@
                 fast_rewind
             </button>
             <div class="vertical-separator"></div>
-<!--            <div id="top-mode" class="top-field top-field-text"><b>Mode:</b> Setup</div>-->
-<!--            <button id="collapse-right-ui-button" class="icon-buttons big-icon-buttons"></button>-->
             <button id="collapse-right-ui-button" class="material-symbols-outlined collapsed">
                 chevron_left
             </button>
@@ -84,10 +78,9 @@
                 <span>Time:</span>
                 <span class="top-field top-field-text" id="time">0</span>
             </div>
-            <div id="time-scale-container" class="Horizontal-Flex-Container">
+            <div id="time-scale-container" class="Horizontal-Flex-Container slider-container">
                 <input type="range" min="0.25" max="3" step="0.25" value="1" id="time-scale-slider">
-                <div id="time-scale-slider-value">1 x</div>
-<!--                <label for="time-scale-slider" id="time-scale-slider-label"></label>-->
+                <div id="time-scale-slider-value" class="slider-value">1 x</div>
             </div>
         </div>
         <div id="right-ui" class="collapsed">
@@ -283,9 +276,8 @@
                 <div id="right-ui-item-container"></div>
             </div>
         </div>
-        <canvas id="viewportCanvas"></canvas>
         <div id="settings-box" class="collapsed">
-            <div id="settings-box-title-bar">
+            <div class="title-bar">
                 <h2>Settings</h2>
                 <button class="material-symbols-outlined" id="close-settings-button">
                     close
@@ -294,27 +286,30 @@
             <div class="settings-subsection">
                 <h3 class="settings-subsection-title">Appearance</h3>
                 <section class="settings-subsection">
-                    <label class="Title-Small" for="background-color-picker">Background color</label>
+                    <div class="Title-Small">Background color</div>
                     <div class="settings-subsubsection">
                         <div class="Label">The simulation background color</div>
                         <input type="color" value="#ffffff" id="background-color-picker" class="color-picker">
                     </div>
                 </section>
                 <section class="settings-subsection">
-                    <label class="Title-Small" for="background-color-picker">Theme</label>
+                    <div class="Title-Small">Theme</div>
                     <div class="settings-subsubsection">
                         <div class="Label">The app theme</div>
                         <div id="theme-container" class="settings-content">
-                            <input type="radio" id="light-theme-radio" value="light" name="theme-radio" class="theme-radio-button">
+                            <input type="radio" id="light-theme-radio" value="light" name="theme-radio" class="theme-radio-button" onchange="">
                             <input type="radio" id="dark-theme-radio" value="dark" name="theme-radio" class="theme-radio-button" checked="checked">
                             <input type="radio" id="midnight-theme-radio" value="midnight" class="theme-radio-button" name="theme-radio">
                         </div>
                     </div>
                 </section>
+            </div>
+            <div class="settings-subsection">
+                <h3 class="settings-subsection-title">Simulation</h3>
                 <section class="settings-subsection">
-                    <label class="Title-Small" for="background-color-picker">Camera type</label>
+                    <div class="Title-Small">Camera type</div>
                     <div class="settings-subsubsection">
-                        <div class="Label">The app theme</div>
+                        <div class="Label">The type of the simulation camera</div>
                         <div id="camera-type-container" class="settings-content Title-Small">
                             <input type="radio" id="perspective-camera-radio" value="perspective" name="camera-radio">
                             <label for="perspective-camera-radio">Perspective</label>
@@ -323,125 +318,116 @@
                         </div>
                     </div>
                 </section>
+                <section class="settings-subsection">
+                    <div class="Title-Small">Camera fov</div>
+                    <div class="settings-subsubsection">
+                        <div class="Label">The field-of-view of the simulation camera</div>
+                        <div id="camera-fov-container" class="Horizontal-Flex-Container slider-container">
+                            <input type="range" min="20" max="110" step="1" value="45" id="camera-fov-slider">
+                            <div id="camera-fov-slider-value" class="slider-value">45</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="settings-subsection">
+                <h3 class="settings-subsection-title">Overlay</h3>
+                <section class="settings-subsection">
+                    <div class="Title-Small">Show grid</div>
+                    <div class="settings-subsubsection">
+                        <div class="Label">Whether the simulation grid is displayed</div>
+                        <input type="checkbox" >
+                    </div>
+                </section>
+                <section class="settings-subsection">
+                    <div class="Title-Small">Show framerate</div>
+                    <div class="settings-subsubsection">
+                        <div class="Label">Whether the simulation grid is displayed</div>
+                        <input type="checkbox" >
+                    </div>
+                </section>
             </div>
         </div>
-        <div>
-            <div id="rounded-corner-left" class="collapsed"></div>
-            <div id="rounded-corner-right" class="collapsed"></div>
-        </div>
-<!--        <div id="settings-overlay" class="collapsed">-->
-<!--            <div id="settings-box-old">-->
-<!--                <div class="settings-row">-->
-<!--                    <span class="title">Settings:</span>-->
-<!--                    <button class="close-button icon-buttons big-icon-buttons" style="visibility: inherit;"-->
-<!--                        id="close-settings"></button>-->
-<!--                </div>-->
-<!--                <div class="settings-row">-->
-<!--                    <span class="chapter">Background Color:</span>-->
-<!--                    <input type="color" value="#ffffff" id="background-color-picker" class="color-picker">-->
-<!--                    <span class="chapter">Theme:</span>-->
-<!--                    <div id="theme-container">-->
-<!--                        <input type="radio" id="light-theme-button" class="simple-radio block-editable radio-surround"-->
-<!--                            value="light" name="theme-radio">-->
-<!--                        <input type="radio" id="dark-theme-button" class="simple-radio block-editable radio-surround"-->
-<!--                            value="dark" name="theme-radio">-->
-<!--                        <input type="radio" id="midnight-theme-button"-->
-<!--                            class="simple-radio block-editable radio-surround" value="midnight" name="theme-radio">-->
-<!--                        <input type="radio" id="custom-theme-button" class="simple-radio block-editable radio-surround"-->
-<!--                            value="custom" name="theme-radio">-->
-<!--                        <span>Light</span>-->
-<!--                        <span>Dark</span>-->
-<!--                        <span>Midnight</span>-->
-<!--                        <span>Custom</span>-->
-<!--                    </div>-->
-<!--                    <div id="custom-grid-container">-->
-<!--                        <input type="color" id="custom-primary-color-picker" class="color-picker" value="#ff0000">-->
-<!--                        <input type="color" id="custom-secondary-color-picker" class="color-picker" value="#00ff00">-->
-<!--                        <span>Primary</span>-->
-<!--                        <span>Secondary</span>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div class="settings-row">-->
-<!--                    <span class="chapter">Camera Type:</span>-->
-<!--                    <div id="camera-grid-container">-->
-<!--                        <input type="radio" id="orthographic-button" class="simple-radio block-editable radio-filled"-->
-<!--                            value="orthographic" name="camera-radio" checked>-->
-<!--                        <input type="radio" id="perspective-button" class="simple-radio block-editable radio-filled"-->
-<!--                            value="perspective" name="camera-radio">-->
-<!--                        <span>Orthographic</span>-->
-<!--                        <span>Perpective</span>-->
-<!--                    </div>-->
-<!--                    <div id="fov-grid-container">-->
-<!--                        <span class="chapter" id="fov-chapter">Camera Field of View:</span>-->
-<!--                        <input type="range" name="fov-slider" id="fov-slider" min="20" max="110" style="width: 100px;"-->
-<!--                            value="45">-->
-<!--                        <span>Field of View</span>-->
-<!--                        <input type="text" placeholder="45" class="text-editable" id="fov-text">-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div class="settings-row">-->
-<!--                    <div id="time-step-container">-->
-<!--                        <span class="chapter">Time Step:</span>-->
-<!--                        <input type="text" class="text-editable" id="time-step-editable">-->
-<!--                    </div>-->
-<!--                    <div id="grid-container">-->
-<!--                        <span class="chapter">Grid:</span>-->
-<!--                        <div class="checklist">-->
-<!--                            <span class="chapter-medium">X:</span>-->
-<!--                            <input type="checkbox" class="simple-checkmark">-->
-<!--                        </div>-->
-<!--                        <div class="checklist">-->
-<!--                            <span class="chapter-medium">Y:</span>-->
-<!--                            <input type="checkbox" class="simple-checkmark">-->
-<!--                        </div>-->
-<!--                        <div class="checklist">-->
-<!--                            <span class="chapter-medium">Z:</span>-->
-<!--                            <input type="checkbox" class="simple-checkmark">-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="checklist" id="fps-container">-->
-<!--                        <span class="chapter">Show Framerate:</span>-->
-<!--                        <input type="checkbox" class="simple-checkmark" id="fps-toggle">-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div class="settings-row">-->
-<!--                    <div class="checklist" id="notifications-container">-->
-<!--                        <span class="chapter">Show Notifications:</span>-->
-<!--                        <input type="checkbox" class="simple-checkmark" id="notification-toggle" checked>-->
-<!--                    </div>-->
-<!--                    <div class="checklist" id="tutorial-container">-->
-<!--                        <span class="chapter">Do Tutorial:</span>-->
-<!--                        <input type="checkbox" class="simple-checkmark" id="tutorial-toggle" checked>-->
-<!--                    </div>-->
-<!--                    <div id="upload-container">-->
-<!--                        <input type="file" id="json-input">-->
-<!--                        <span class="chapter">Upload from json: <label for="json-input"-->
-<!--                                class="icon-buttons small-icon-buttons" id="upload-button">Load from json</label></span>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div class="settings-row" id="log-container">-->
-<!--                    <a id="download-log" style="display:none"></a>-->
-<!--                    <span class="chapter">Log</span>-->
-<!--                    <button id="print-log" class="simple-button">Print</button>-->
-<!--                    <button id="clear-log" class="simple-button">Clear</button>-->
-<!--                    <span id="timesteps-span">Print every <input type="text" placeholder="0" class="text-editable"-->
-<!--                            id="print-timestep"> timesteps</span>-->
-<!--                    <div id="log" style="overflow: auto;"></div>-->
-<!--                    <div id="downloads-container">-->
-<!--                        <button id="download-long-json" class="simple-button">Download all timestamps json</button>-->
-<!--                        <button id="download-current-json" class="simple-button">Download current json</button>-->
-<!--                        <button id="download-long-txt" class="simple-button">Download all timestamps txt</button>-->
-<!--                        <button id="download-current-txt" class="simple-button">Download current txt</button>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--            <div id="socials-container">-->
-<!--                <a href="konstantinos.prasinos@gmail.com">konstantinos.prasinos@gmail.com</a>-->
-<!--                <button class="icon-buttons big-icon-buttons" id="email-button" type="button"></button>-->
-<!--                <button class="icon-buttons big-icon-buttons" id="github-button" onclick="location.href='konstantinos.prasinos@gmail.com'" type="button"></button>-->
-<!--            </div>-->
+        <div id="timeline-box" class="collapsed">
+            <div id="timeline-title-bar" class="title-bar">
+                <h2>Timeline</h2>
+                <button class="material-symbols-outlined" id="close-timeline-button">
+                    close
+                </button>
+            </div>
+            <div id="timeline-container">
+                <div class="table-header">
+                    <div>Time</div>
+                    <div>Source</div>
+                    <div>Action</div>
+                    <div>Target</div>
+                </div>
+                <div class="table-body">
+                    <div>
+                        <div>20</div>
+                        <div>Object 1</div>
+                        <div>collided</div>
+                        <div>Object2</div>
+                    </div>
+                    <div>
+                        <div>20</div>
+                        <div>Object 1</div>
+                        <div>collided</div>
+                        <div>Object2</div>
+                    </div>
+                    <div>
+                        <div>20</div>
+                        <div>Object 1</div>
+                        <div>collided</div>
+                        <div>Object2</div>
+                    </div>
+                    <div>
+                        <div>20</div>
+                        <div>Object 1</div>
+                        <div>collided</div>
+                        <div>Object2</div>
+                    </div>
+                    <div>
+                        <div>20</div>
+                        <div>Object 1</div>
+                        <div>collided</div>
+                        <div>Object2</div>
+                    </div>
+                    <div>
+                        <div>20</div>
+                        <div>Object 1</div>
+                        <div>collided</div>
+                        <div>Object2</div>
+                    </div>
+                    <div>
+                        <div>20</div>
+                        <div>Object 1</div>
+                        <div>collided</div>
+                        <div>Object2</div>
+                    </div>
+                    <div>
+                        <div>20</div>
+                        <div>Object 1</div>
+                        <div>collided</div>
+                        <div>Object2</div>
+                    </div>
+                    <div>
+                        <div>20</div>
+                        <div>Object 1</div>
+                        <div>collided</div>
+                        <div>Object2</div>
+                    </div>
+                    <div>
+                        <div>20</div>
+                        <div>Object 1</div>
+                        <div>collided</div>
+                        <div>Object2</div>
+                    </div>
+                </div>
+            </div>
+            <div id="timeline-parameters">
 
-<!--        </div>-->
+            </div>
+        </div>
     </div>
     <script src="scripts/tempStyling.js"> </script>
 <!--    <script src="scripts/main.js" type="module"></script>-->

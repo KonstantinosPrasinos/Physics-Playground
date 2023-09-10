@@ -1,3 +1,25 @@
+:root {
+    --selected-color: #fd7014;
+}
+
+.light-theme {
+    --primary-color: #ffffff;
+    --accent-color: #000000;
+    --secondary-color: #fafafa;
+}
+
+.dark-theme {
+    --primary-color: #2b2d30;
+    --accent-color: #eaeaeb;
+    --secondary-color: #1e1f22;
+}
+
+.midnight-theme {
+    --primary-color: #000000;
+    --accent-color: #eaeaeb;
+    --secondary-color: #1e1f22;
+}
+
 /* Built-in elements */
 h2 {
     margin: 0;
@@ -10,8 +32,43 @@ h3 {
 input[type="radio"] {
     cursor: pointer;
 }
+
+input[type="checkbox"] {
+    width: 2.5em;
+    height: 1.5em;
+    background-color: var(--secondary-color);
+    border-radius: 100px;
+    position: relative;
+}
+
+input[type="checkbox"]:after {
+    position: absolute;
+    content: '';
+    left: 0.25em;
+    top: calc(50% - 0.5em);
+    border-radius: 100px;
+    width: 1em;
+    height: 1em;
+    background-color: var(--accent-color);
+    transition: left 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+input[type="checkbox"]:hover:after {
+    transform: scale(1.1);
+}
+
+input[type="checkbox"]:checked:after {
+    left: calc(100% - 1.25em)
+}
+
 label {
     cursor: pointer;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    color: var(--accent-color);
 }
 
 /* Typography */
