@@ -77,7 +77,7 @@ a {
 #right-ui {
     top: 3em;
     right: 0;
-    width: 15em;
+    width: 17.5em;
     height: calc(100% - 3em);
     background: var(--primary-color);
     margin: 0;
@@ -89,7 +89,7 @@ a {
 }
 
 #right-ui.collapsed {
-    transform: translateX(15em);
+    transform: translateX(17.5em);
 }
 
 #top-ui {
@@ -138,7 +138,7 @@ a {
 }
 
 #collapse-right-ui-button:not(.collapsed) {
-    right: 8.83em;
+    right: 10.33em;
     transform: rotate(180deg);
 }
 
@@ -240,46 +240,16 @@ a {
 
 /* Right UI */
 
-#right-ui-features {
-    opacity: 1;
-    position: absolute;
-    width: calc(100% - 3em);
-    height: 77%;
-    display: flex;
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 1.5em;
-}
-
-.Horizontal-Flex-Container {
-    display: flex;
-    flex-direction: row;
-    gap: 0.75em;
-}
-.Vertical-Flex-Container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75em;
-}
-
-.Space-Between {
-    gap: 0;
-    justify-content: space-between;
-}
-.Horizontal-Flex-Container.Space-Between {
-    width: 100%;
-}
-.Space-Between.Vertical-Flex-Container {
-    height: 100%;
-}
-
-.Max-Width {
-    width: 100%;
-}
-
-.Big-Gap {
-    gap: 1em;
-}
+/*#right-ui-features {*/
+/*    opacity: 1;*/
+/*    position: absolute;*/
+/*    width: calc(100% - 3em);*/
+/*    height: 77%;*/
+/*    display: flex;*/
+/*    align-items: flex-start;*/
+/*    flex-direction: column;*/
+/*    gap: 1.5em;*/
+/*}*/
 
 #right-ui-items-list {
     opacity: 0;

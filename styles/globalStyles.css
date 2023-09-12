@@ -62,6 +62,16 @@ input[type="checkbox"]:checked:after {
     left: calc(100% - 1.25em)
 }
 
+input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--accent-color);
+    background-color: var(--primary-color);
+    border-radius: 4px;
+    padding: 0.25em 0.5em;
+    color: var(--accent-color);
+}
+
 label {
     cursor: pointer;
 }
@@ -79,6 +89,10 @@ body {
 }
 .Title-Small {
     font-size: 0.875rem;
+}
+.Tooltip-Small {
+    font-size: 0.75rem;
+    line-height: 0.75rem;
 }
 
 /* Separators */
@@ -98,4 +112,43 @@ body {
     border: 1px solid var(--accent-color);
     opacity: 0.2;
     margin: 0;
+}
+
+/* Containers */
+.Horizontal-Flex-Container {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75em;
+}
+.Vertical-Flex-Container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em;
+}
+
+.Small-Gap {
+    gap: 0.375em;
+}
+
+.Align-Bottom {
+    align-items: baseline;
+}
+
+.Space-Between {
+    gap: 0;
+    justify-content: space-between;
+}
+.Horizontal-Flex-Container.Space-Between {
+    width: 100%;
+}
+.Space-Between.Vertical-Flex-Container {
+    height: 100%;
+}
+
+.Max-Width {
+    width: 100%;
+}
+
+.Big-Gap {
+    gap: 2em;
 }
