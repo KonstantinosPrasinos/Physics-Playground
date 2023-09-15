@@ -315,11 +315,6 @@ input:disabled{
 .title-small {
     font-size: 12px;
 }
-#object-name {
-    display: block;
-    opacity: inherit;
-    text-align: center;
-}
 .item-list-field {
     /*opacity: hidden;*/
     margin: 5px;

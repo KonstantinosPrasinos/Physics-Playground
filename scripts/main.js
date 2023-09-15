@@ -4,6 +4,7 @@ import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/cont
 import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
 import Stats from 'https://unpkg.com/three@0.126.1/examples/jsm/libs/stats.module.js';
 import {flyControls} from './controls.js';
+import {Simulation} from "./simulation.js";
 
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
@@ -43,7 +44,6 @@ const canvasHandlerParams = {
 }
 
 function switchControls(controlsType) {
-    console.log("test");
     if (controlsType == 'transform') {
         if (simulation.itemSelected > -1) {
             orbitControls.enabled = false;
@@ -246,8 +246,19 @@ function initThree() {
     scene.add(perspectiveCamera);
     camera = orthographicCamera
 
-    renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true });
-    renderer.setClearColor(0xffffff, 1);
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+
+    // Get background color depending on theme
+    const colorRGB = getComputedStyle(canvas).getPropertyValue("background-color");
+
+    const rgbArray = colorRGB.match(/\d+/g);
+    const r = parseInt(rgbArray[0]);
+    const g = parseInt(rgbArray[1]);
+    const b = parseInt(rgbArray[2]);
+    const hexColor = `${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
+
+    renderer.setClearColor(parseInt(`0x${hexColor}`), 1);
+
     renderer.setSize(parseInt(window.getComputedStyle(canvas).width), parseInt(window.getComputedStyle(canvas).height));
     stats = Stats();
 }
@@ -375,127 +386,117 @@ function printToLog() {
 }
 
 function addItemToList(index) {
-    let node = document.createElement("DIV");
-    let selectButtonNode = document.createElement('input');
-    let textNode = document.createElement("input");
-    let editButtonNode = document.createElement('input');
-    let deleteButtonNode = document.createElement('input');
-    let lockButtonNode = document.createElement('input');
-
-    node.classList.add("item-list-field");
-    node.setAttribute("id", simulation.objects[index].mesh.uuid)
-
-    selectButtonNode.type = 'checkbox';
-    selectButtonNode.classList.add("simple-checkmark");
-    selectButtonNode.classList.add("small-inline-checkmark");
-    selectButtonNode.addEventListener('click', (event) => {
-        if (event.target.checked) {
-            if (currentlyCheckedBox) {
-                currentlyCheckedBox.checked = false;
-            }
-            simulation.itemSelected = index;
-            document.getElementById("object-name").innerText = simulation.objects[simulation.itemSelected].mesh.name;
-            switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
-                case "SphereGeometry":
-                    document.getElementById("width-text").innerText = "R:";
-                    document.getElementById("height-container").style.visibility = "hidden";
-                    document.getElementById("depth-container").style.visibility = "hidden";
-                    break;
-                case "CylinderGeometry":
-                    document.getElementById("width-text").innerText = "R:";
-                    document.getElementById("height-container").style.visibility = "inherit";
-                    document.getElementById("depth-container").style.visibility = "hidden";
-                    break;
-                default:
-                    document.getElementById("width-text").innerText = "W:";
-                    document.getElementById("height-container").style.visibility = "inherit";
-                    document.getElementById("depth-container").style.visibility = "inherit";
-                    break;
-            }
-            toggleValues(true);
-            setDisabledVisual(false);
-            if (!simulation.isRunning){
-                switchControls('transform');
-                setDisabledPhysical(false);
-            }
-            currentlyCheckedBox = event.target;
-        } else {
-            switchControls('orbit')
-            toggleValues(false);
-            setDisabledPhysical(true);
-            setDisabledVisual(true);
-            simulation.itemSelected = -1;
-            currentlyCheckedBox = null;
-        }
-    })
-
-    textNode.type = 'text';
-    textNode.value = simulation.objects[index].mesh.name;
-    textNode.setAttribute('required', "");
-    textNode.classList.add("item-list-editable");
-
-    editButtonNode.type = 'button';
-    editButtonNode.classList.add("icon-buttons");
-    editButtonNode.classList.add("item-list-field-edit-button");
-    editButtonNode.classList.add("small-icon-buttons");
-    editButtonNode.addEventListener('click', () => {
-        textNode.focus();
-    });
-
-    deleteButtonNode.type = 'button';
-    deleteButtonNode.classList.add("item-list-field-delete-button");
-    deleteButtonNode.classList.add("icon-buttons");
-    deleteButtonNode.classList.add("small-icon-buttons");
-    deleteButtonNode.addEventListener('click', () => {
-        deleteObjectFromList(index);
-    });
-
-
-    lockButtonNode.type = 'button';
-    lockButtonNode.classList.add("item-list-lock-button");
-    lockButtonNode.classList.add("icon-buttons");
-    lockButtonNode.classList.add("small-icon-buttons");
-    lockButtonNode.addEventListener('click', () => {
-        simulation.objects[index].mesh.userData.selectable = !simulation.objects[index].mesh.userData.selectable;
-        if (!simulation.objects[index].mesh.userData.selectable) {
-            lockButtonNode.style.backgroundColor = 'orange';
-            if (index == simulation.itemSelected) {
-                canvas.click();
-            }
-        } else {
-            lockButtonNode.style.backgroundColor = 'var(--secondary-color)';
-        }
-    })
-
-    textNode.addEventListener("blur", () => {
-        if (textNode.value.length == 0) {
-            textNode.focus();
-        } else {
-            simulation.objects[index].mesh.name = textNode.value;
-            document.getElementById("object-name").innerText = simulation.objects[index].mesh.name;
-        }
-    });
-    textNode.addEventListener("keydown", (event) => {
-        if (event.key === 'Enter' && document.activeElement.value.length != 0) {
-            document.activeElement.blur();
-        }
-    });
-    node.appendChild(selectButtonNode);
-    node.appendChild(textNode);
-    node.appendChild(deleteButtonNode);
-    node.appendChild(editButtonNode);
-    node.appendChild(lockButtonNode);
-    document.getElementById("right-ui-item-container").appendChild(node);
-}
-
-function deleteObjectFromList(index) {
-    if (transformControls.object && transformControls.object.uuid == simulation.objects[index].mesh.uuid) {
-        switchControls('orbit')
-    }
-    scene.remove(simulation.objects[index].mesh);
-    world.remove(simulation.objects[index].body);
-    simulation.objects.splice(index, 1);
-    refreshListOfObjects();
+    // let node = document.createElement("DIV");
+    // let selectButtonNode = document.createElement('input');
+    // let textNode = document.createElement("input");
+    // let editButtonNode = document.createElement('input');
+    // let deleteButtonNode = document.createElement('input');
+    // let lockButtonNode = document.createElement('input');
+    //
+    // node.classList.add("item-list-field");
+    // node.setAttribute("id", simulation.objects[index].mesh.uuid)
+    //
+    // selectButtonNode.type = 'checkbox';
+    // selectButtonNode.classList.add("simple-checkmark");
+    // selectButtonNode.classList.add("small-inline-checkmark");
+    // selectButtonNode.addEventListener('click', (event) => {
+    //     if (event.target.checked) {
+    //         if (currentlyCheckedBox) {
+    //             currentlyCheckedBox.checked = false;
+    //         }
+    //         simulation.itemSelected = index;
+    //         document.getElementById("object-name").innerText = simulation.objects[simulation.itemSelected].mesh.name;
+    //         switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
+    //             case "SphereGeometry":
+    //                 document.getElementById("width-text").innerText = "R:";
+    //                 document.getElementById("height-container").style.visibility = "hidden";
+    //                 document.getElementById("depth-container").style.visibility = "hidden";
+    //                 break;
+    //             case "CylinderGeometry":
+    //                 document.getElementById("width-text").innerText = "R:";
+    //                 document.getElementById("height-container").style.visibility = "inherit";
+    //                 document.getElementById("depth-container").style.visibility = "hidden";
+    //                 break;
+    //             default:
+    //                 document.getElementById("width-text").innerText = "W:";
+    //                 document.getElementById("height-container").style.visibility = "inherit";
+    //                 document.getElementById("depth-container").style.visibility = "inherit";
+    //                 break;
+    //         }
+    //         toggleValues(true);
+    //         setDisabledVisual(false);
+    //         if (!simulation.isRunning){
+    //             switchControls('transform');
+    //             setDisabledPhysical(false);
+    //         }
+    //         currentlyCheckedBox = event.target;
+    //     } else {
+    //         switchControls('orbit')
+    //         toggleValues(false);
+    //         setDisabledPhysical(true);
+    //         setDisabledVisual(true);
+    //         simulation.itemSelected = -1;
+    //         currentlyCheckedBox = null;
+    //     }
+    // })
+    //
+    // textNode.type = 'text';
+    // textNode.value = simulation.objects[index].mesh.name;
+    // textNode.setAttribute('required', "");
+    // textNode.classList.add("item-list-editable");
+    //
+    // editButtonNode.type = 'button';
+    // editButtonNode.classList.add("icon-buttons");
+    // editButtonNode.classList.add("item-list-field-edit-button");
+    // editButtonNode.classList.add("small-icon-buttons");
+    // editButtonNode.addEventListener('click', () => {
+    //     textNode.focus();
+    // });
+    //
+    // deleteButtonNode.type = 'button';
+    // deleteButtonNode.classList.add("item-list-field-delete-button");
+    // deleteButtonNode.classList.add("icon-buttons");
+    // deleteButtonNode.classList.add("small-icon-buttons");
+    // deleteButtonNode.addEventListener('click', () => {
+    //     deleteObjectFromList(index);
+    // });
+    //
+    //
+    // lockButtonNode.type = 'button';
+    // lockButtonNode.classList.add("item-list-lock-button");
+    // lockButtonNode.classList.add("icon-buttons");
+    // lockButtonNode.classList.add("small-icon-buttons");
+    // lockButtonNode.addEventListener('click', () => {
+    //     simulation.objects[index].mesh.userData.selectable = !simulation.objects[index].mesh.userData.selectable;
+    //     if (!simulation.objects[index].mesh.userData.selectable) {
+    //         lockButtonNode.style.backgroundColor = 'orange';
+    //         if (index == simulation.itemSelected) {
+    //             canvas.click();
+    //         }
+    //     } else {
+    //         lockButtonNode.style.backgroundColor = 'var(--secondary-color)';
+    //     }
+    // })
+    //
+    // textNode.addEventListener("blur", () => {
+    //     if (textNode.value.length == 0) {
+    //         textNode.focus();
+    //     } else {
+    //         simulation.objects[index].mesh.name = textNode.value;
+    //         document.getElementById("object-name").innerText = simulation.objects[index].mesh.name;
+    //     }
+    // });
+    // textNode.addEventListener("keydown", (event) => {
+    //     if (event.key === 'Enter' && document.activeElement.value.length != 0) {
+    //         document.activeElement.blur();
+    //     }
+    // });
+    // node.appendChild(selectButtonNode);
+    // node.appendChild(textNode);
+    // node.appendChild(deleteButtonNode);
+    // node.appendChild(editButtonNode);
+    // node.appendChild(lockButtonNode);
+    // document.getElementById("right-ui-item-container").appendChild(node);
 }
 
 function refreshListOfObjects() {
@@ -885,207 +886,13 @@ function generateName(type) {
     return type + '-' + count;
 }
 
-//Simulation Object
-
-let simulation = {
-    objects: [],
-    isPaused: true,
-    logPerSteps: 0,
-    savedLog: null,
-    itemSelected: -1,
-    isRunning: false,
-    placingObject: false,
-    objectPlaceDist: 50,
-    createBox(x, y, z, width, height, depth) {
-        let shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
-        let tempBody = new CANNON.Body({
-            mass: 4
-        });
-        tempBody.addShape(shape);
-        tempBody.position.set(x, y, z);
-        world.addBody(tempBody);
-
-        let geometry = new THREE.BoxGeometry(width, height, depth);
-        let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-        let tempMesh = new THREE.Mesh(geometry, material);
-        tempMesh.position.set(x, y, z);
-        tempMesh.userData.createsGravity = true;
-        tempMesh.userData.selectable = true;
-        tempMesh.userData.hasVectors = false;
-        scene.add(tempMesh);
-
-        tempMesh.name = generateName('Cube');
-        let box = {
-            body: tempBody,
-            mesh: tempMesh
-        }
-        this.objects.push(box);
-        addItemToList(this.objects.length - 1);
-        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
-    },
-    createSphere(x, y, z, radius) {
-        let shape = new CANNON.Sphere(radius);
-        let tempBody = new CANNON.Body({
-            mass: 4
-        });
-        tempBody.addShape(shape);
-        tempBody.position.set(x, y, z);
-        world.addBody(tempBody);
-        let geometry = new THREE.SphereGeometry(radius, Math.ceil(radius / 10) * 16, Math.ceil(radius / 10) * 8);
-        let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-        let tempMesh = new THREE.Mesh(geometry, material);
-        tempMesh.position.set(x, y, z);
-        tempMesh.userData.createsGravity = true;
-        tempMesh.userData.selectable = true;
-        tempMesh.userData.hasVectors = false;
-        scene.add(tempMesh);
-
-        tempMesh.name = generateName('Sphere');
-        let sphere = {
-            body: tempBody,
-            mesh: tempMesh
-        }
-        this.objects.push(sphere);
-        addItemToList(this.objects.length - 1);
-        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
-    },
-    createCylinder(x, y, z, radius, height) {
-        let shape = new CANNON.Cylinder(radius, radius, height, Math.ceil(radius / 10) * 8);
-        let tempBody = new CANNON.Body({
-            mass: 4
-        });
-
-        //Align three js to cannon js rotation
-        var quat = new CANNON.Quaternion();
-        quat.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
-        var translation = new CANNON.Vec3(0, 0, 0);
-        shape.transformAllPoints(translation, quat);
-
-        tempBody.addShape(shape);
-        tempBody.position.set(x, y, z);
-        world.addBody(tempBody);
-        let geometry = new THREE.CylinderGeometry(radius, radius, height, Math.ceil(radius / 10) * 16);
-        let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-        let tempMesh = new THREE.Mesh(geometry, material);
-        tempMesh.position.set(x, y, z);
-        tempMesh.userData.createsGravity = true;
-        tempMesh.userData.selectable = true;
-        tempMesh.userData.hasVectors = false;
-        tempMesh.userData.previousScale = { x: 1, z: 1 };
-        scene.add(tempMesh);
-
-        tempMesh.name = generateName('Cylinder');
-        let cylinder = {
-            body: tempBody,
-            mesh: tempMesh
-        }
-        this.objects.push(cylinder);
-        addItemToList(this.objects.length - 1);
-        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
-        this.placeObject(cylinder.mesh);
-    },
-    placeObject(object){
-        this.placingObject = true;
-        let orbitControlsWereEnabled;
-        function findPosition(event){
-            let mouseVector = new THREE.Vector2();
-            let rayCaster = new THREE.Raycaster();
-
-            mouseVector.x = (event.offsetX / parseInt(window.getComputedStyle(canvas).width)) * 2 - 1;
-            mouseVector.y = -(event.offsetY / parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
-
-            rayCaster.setFromCamera(mouseVector, camera);
-            let tempVector = new THREE.Vector3();
-            rayCaster.ray.at(simulation.objectPlaceDist, tempVector);
-            object.position.set(tempVector.x, tempVector.y, tempVector.z);
-        }
-
-        function handleWheel(event){
-            console.log(transformControls.enabled)
-            if (event.wheelDeltaY < 0){
-                if (simulation.objectPlaceDist > 5){
-                    simulation.objectPlaceDist -= 5;
-                    findPosition(event);
-                }
-            } else {
-                simulation.objectPlaceDist += 5;
-                findPosition(event);
-            }
-        }
-
-        function handleShiftDown(event){
-            if (event.code == 'ShiftLeft') {
-                if (orbitControls.enabled){
-                    console.log("stopping orbit controls");
-                    orbitControls.enabled = false;
-                    orbitControlsWereEnabled = true;
-                }
-                canvas.addEventListener("wheel", handleWheel )
-            }
-        }
-
-        function stopShift(){
-            if (orbitControlsWereEnabled){
-                console.log("starting orbit controls")
-                orbitControls.enabled = true;
-            }
-            canvas.removeEventListener("wheel", handleWheel);
-            document.removeEventListener("keydown", handleShiftDown);
-            document.removeEventListener("keyup", stopShift);
-        }
-
-        document.addEventListener("keydown", handleShiftDown);
-        document.addEventListener("keyup", stopShift);
-        canvas.addEventListener("mousemove", findPosition);
-
-        function removeEventListeners(){
-            canvas.removeEventListener("mousemove", findPosition);
-            canvas.removeEventListener("click", removeEventListeners);
-            simulation.placingObject = false;
-        }
-        canvas.addEventListener("click", removeEventListeners)
-    },
-    checkForObject(event) {
-        let mouseVector = new THREE.Vector2();
-        let rayCaster = new THREE.Raycaster();
-
-        mouseVector.x = (event.offsetX / parseInt(window.getComputedStyle(canvas).width)) * 2 - 1;
-        mouseVector.y = -(event.offsetY / parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
-
-        rayCaster.setFromCamera(mouseVector, camera);
-        rayDirection = rayCaster.ray.direction;
-
-        return rayCaster.intersectObjects(scene.children);
-    },
-    removeAllObjects() {
-        world.time = 0;
-        //Remove all Meshes from scene
-        for (let i = 0; i < scene.children.length; i++) {
-            if (scene.children[i].type === "Mesh") {
-                scene.remove(scene.children[i]);
-                i--;
-            }
-        }
-        //Remove all Bodies from world
-        while (world.bodies.length > 0) {
-            world.removeBody(world.bodies[0]);
-        }
-    },
-    addAllObjects() {
-        //Adds all Bodies to the world and Meshes to the scene
-        for (let i = 0; i < this.objects.length; i++) {
-            scene.add(this.objects[i].mesh);
-            world.addBody(this.objects[i].body);
-        }
-    },
-
-}
-
 //Function Call and Export
 
 initThree();
 initCannon();
 initControls();
+
+const simulation = new Simulation(scene, world, camera, orbitControls, transformControls);
 
 animate();
 

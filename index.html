@@ -84,7 +84,7 @@
             </div>
         </div>
         <div id="right-ui" class="Vertical-Flex-Container Big-Gap">
-            <h3>No item is selected</h3>
+            <h3 id="object-name">No item is selected</h3>
             <div id="right-ui-properties" class="Vertical-Flex-Container Big-Gap">
                 <div class="right-appearance-grid">
                     <div class="Vertical-Flex-Container">
@@ -322,7 +322,7 @@
                 <h3>Objects in scene</h3>
                 <div id="right-ui-objects-list">
                     <div class="right-ui-object">
-                        <input id="Object1" type="radio" name="object-radio" >
+                        <input id="Object1" type="checkbox" name="object-radio" class="Radio-Input" >
                         <label for="Object1" class="right-ui-object-name">Object 1</label>
 
                         <button class="material-symbols-outlined">
@@ -333,7 +333,7 @@
                         </button>
                     </div>
                     <div class="right-ui-object">
-                        <input id="Object2" type="radio" name="object-radio" >
+                        <input id="Object2" type="checkbox" name="object-radio" class="Radio-Input" >
                         <label for="Object2" class="right-ui-object-name">Object 2</label>
 
                         <button class="material-symbols-outlined">
@@ -513,8 +513,9 @@
             </div>
         </div>
     </div>
-    <script src="scripts/tempStyling.js"> </script>
-<!--    <script src="scripts/main.js" type="module"></script>-->
+    <script src="scripts/staticStyling.js" type="module"> </script>
+    <script src="scripts/dynamicStyling.js" type="module"> </script>
+    <script src="scripts/main.js" type="module"></script>
 <!--    <script src="scripts/notifications.js" type="module"></script>-->
 <!--    <script src="scripts/styling.js" type="module"></script>-->
 <!--    <script src="scripts/controls.js" type="module"></script>-->
