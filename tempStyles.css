@@ -171,10 +171,6 @@ input[type=range]::-webkit-slider-runnable-track  {
 #timeline-container {
     height: 45%;
     width: 100%;
-    border-radius: 5px;
-    grid-area: time-line;
-    overflow: hidden;
-    font-size: 0.875rem;
 }
 #timeline-parameters {
     grid-area: parameters;
@@ -222,6 +218,11 @@ input[type=range]::-webkit-slider-runnable-track  {
 }
 
 /* Table */
+.table-container {
+    border-radius: 5px;
+    overflow: hidden;
+    font-size: 0.875rem;
+}
 .table-header {
     background-color: var(--secondary-color);
     display: grid;
@@ -287,4 +288,40 @@ input[type=range]::-webkit-slider-runnable-track  {
 
 #right-ui-properties input {
     width: 3.3em;
+}
+
+#right-ui-list-container {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+#right-ui-objects-list {
+    background-color: var(--secondary-color);
+    width: 100%;
+    border-radius: 5px;
+    padding: 0.5em;
+    box-sizing: border-box;
+    height: 100%;
+    overflow: auto;
+
+    display: flex;
+    gap: 0.5em;
+    flex-direction: column;
+    border: 0.5em solid var(--secondary-color);
+}
+
+.right-ui-object {
+    width: 100%;
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+}
+
+.right-ui-object > .material-symbols-outlined {
+    font-size: inherit;
+    line-height: 1.5;
+}
+
+.right-ui-object-name {
+    flex-grow: 1;
 }

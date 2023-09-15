@@ -83,7 +83,7 @@
                 <div id="time-scale-slider-value" class="slider-value">1 x</div>
             </div>
         </div>
-        <div id="right-ui" class="collapsed Vertical-Flex-Container Big-Gap">
+        <div id="right-ui" class="Vertical-Flex-Container Big-Gap">
             <h3>No item is selected</h3>
             <div id="right-ui-properties" class="Vertical-Flex-Container Big-Gap">
                 <div class="right-appearance-grid">
@@ -318,9 +318,32 @@
                     </div>
                 </div>
             </div>
-            <div id="right-ui-items-list">
-                <div class="right-title title-medium">Items in Scene:</div>
-                <div id="right-ui-item-container"></div>
+            <div id="right-ui-list-container" class="Vertical-Flex-Container">
+                <h3>Objects in scene</h3>
+                <div id="right-ui-objects-list">
+                    <div class="right-ui-object">
+                        <input id="Object1" type="radio" name="object-radio" >
+                        <label for="Object1" class="right-ui-object-name">Object 1</label>
+
+                        <button class="material-symbols-outlined">
+                            videocam
+                        </button>
+                        <button class="material-symbols-outlined">
+                            remove
+                        </button>
+                    </div>
+                    <div class="right-ui-object">
+                        <input id="Object2" type="radio" name="object-radio" >
+                        <label for="Object2" class="right-ui-object-name">Object 2</label>
+
+                        <button class="material-symbols-outlined">
+                            videocam
+                        </button>
+                        <button class="material-symbols-outlined">
+                            remove
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         <div id="settings-box" class="collapsed">
@@ -354,7 +377,7 @@
                     <div class="Title-Small">Show tips</div>
                     <div class="settings-subsubsection">
                         <div class="Label">Whether tips are shown while the user navigates the user interface</div>
-                        <input type="checkbox" >
+                        <input type="checkbox" class="Toggle-Input" >
                     </div>
                 </section>
             </div>
@@ -389,14 +412,21 @@
                     <div class="Title-Small">Show grid</div>
                     <div class="settings-subsubsection">
                         <div class="Label">Whether the simulation grid is displayed</div>
-                        <input type="checkbox" >
+                        <input type="checkbox" class="Toggle-Input" >
                     </div>
                 </section>
                 <section class="settings-subsection">
                     <div class="Title-Small">Show framerate</div>
                     <div class="settings-subsubsection">
                         <div class="Label">Whether the simulation grid is displayed</div>
-                        <input type="checkbox" >
+                        <input type="checkbox" class="Toggle-Input" >
+                    </div>
+                </section>
+                <section class="settings-subsection">
+                    <div class="Title-Small">Show velocity vectors</div>
+                    <div class="settings-subsubsection">
+                        <div class="Label">Whether vectors that indicate velocity are displayed on objects</div>
+                        <input type="checkbox" class="Toggle-Input" >
                     </div>
                 </section>
             </div>
@@ -408,7 +438,7 @@
                     close
                 </button>
             </div>
-            <div id="timeline-container">
+            <div id="timeline-container" class="table-container">
                 <div class="table-header">
                     <div>Time</div>
                     <div>Source</div>
