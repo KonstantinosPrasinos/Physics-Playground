@@ -227,59 +227,6 @@ function synchronizeRotation() {
     simulation.objects[simulation.itemSelected].body.quaternion.z = simulation.objects[simulation.itemSelected].mesh.quaternion.z;
 }
 
-function synchronizeSize(axis){
-    let widthSegments, heightSegments;
-    switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
-        case "BoxGeometry":
-            //Changes the size of the box
-            simulation.objects[simulation.itemSelected].body.shapes[0].halfExtents.set(simulation.objects[simulation.itemSelected].mesh.geometry.parameters.width * simulation.objects[simulation.itemSelected].mesh.scale.x / 2, simulation.objects[simulation.itemSelected].mesh.geometry.parameters.height * simulation.objects[simulation.itemSelected].mesh.scale.y / 2, simulation.objects[simulation.itemSelected].mesh.geometry.parameters.depth * simulation.objects[simulation.itemSelected].mesh.scale.z / 2);
-            break;
-        case "SphereGeometry":
-            //Synchronizes the scales of the three dimensions so that they match and become the "radius"
-            if (simulation.objects[simulation.itemSelected].mesh.scale.x == simulation.objects[simulation.itemSelected].mesh.scale.y){
-                simulation.objects[simulation.itemSelected].mesh.scale.x = simulation.objects[simulation.itemSelected].mesh.scale.y = simulation.objects[simulation.itemSelected].mesh.scale.z;
-            } else if (simulation.objects[simulation.itemSelected].mesh.scale.x == simulation.objects[simulation.itemSelected].mesh.scale.z){
-                simulation.objects[simulation.itemSelected].mesh.scale.x = simulation.objects[simulation.itemSelected].mesh.scale.z = simulation.objects[simulation.itemSelected].mesh.scale.y;
-            } else if (simulation.objects[simulation.itemSelected].mesh.scale.y == simulation.objects[simulation.itemSelected].mesh.scale.z){
-                simulation.objects[simulation.itemSelected].mesh.scale.y = simulation.objects[simulation.itemSelected].mesh.scale.z = simulation.objects[simulation.itemSelected].mesh.scale.x;
-            } else {
-                simulation.objects[simulation.itemSelected].mesh.scale.y = simulation.objects[simulation.itemSelected].mesh.scale.z = simulation.objects[simulation.itemSelected].mesh.scale.x;
-            }
-            //Changes the radius of the sphere
-            simulation.objects[simulation.itemSelected].body.shapes[0].radius = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radius * simulation.objects[simulation.itemSelected].mesh.scale.x;
-
-            //Updating of width and height segments when size changes so that if the sphere becomes bigger, it looks like a sphere
-            simulation.objects[simulation.itemSelected].mesh.geometry.parameters.widthSegments = Math.ceil(simulation.objects[simulation.itemSelected].body.shapes[0].radius / 10) * 16;
-            simulation.objects[simulation.itemSelected].mesh.geometry.parameters.heightSegments = Math.ceil(simulation.objects[simulation.itemSelected].body.shapes[0].radius / 10) * 8;
-            break;
-        case "CylinderGeometry":
-            switch (axis) {
-                case 'X':
-                    simulation.objects[simulation.itemSelected].mesh.scale.z = simulation.objects[simulation.itemSelected].mesh.scale.x;
-                    simulation.objects[simulation.itemSelected].body.shapes[0].radiusTop = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radiusTop * simulation.objects[simulation.itemSelected].mesh.scale.x;
-                    simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radialSegments = Math.ceil(simulation.objects[simulation.itemSelected].body.shapes[0].radiusTop / 10) * 16;
-                    break;
-                case 'Z':
-                    simulation.objects[simulation.itemSelected].mesh.scale.x = simulation.objects[simulation.itemSelected].mesh.scale.z;
-                    simulation.objects[simulation.itemSelected].body.shapes[0].radiusTop = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radiusTop * simulation.objects[simulation.itemSelected].mesh.scale.z;
-                    simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radialSegments = Math.ceil(simulation.objects[simulation.itemSelected].body.shapes[0].radiusTop / 10) * 16;
-                    break;
-                case 'Y':
-                    simulation.objects[simulation.itemSelected].body.shapes[0].height = simulation.objects[simulation.itemSelected].mesh.geometry.parameters.radiusTop * simulation.objects[simulation.itemSelected].mesh.scale.y;
-                    break;
-                default:
-                    break;
-            }
-            break;
-        default:
-            break;
-    }
-    //Updates the size of the object
-    simulation.objects[simulation.itemSelected].body.shapes[0].updateBoundingSphereRadius();
-    simulation.objects[simulation.itemSelected].body.updateBoundingRadius();
-    simulation.objects[simulation.itemSelected].body.updateMassProperties();
-}
-
 function pauseSimulation(){
     if (!simulation.isPaused){
         togglePauseButton.classList.remove('top-pause');
@@ -796,7 +743,7 @@ const zVel = document.getElementById("velocity.z-input");
 xVel.addEventListener("blur", () => {
     if ((xVel.value.length == 0 || isNaN(xVel.value)) && simulation.itemSelected > -1) {
         xVel.focus();
-        createNotification(notificationList.inputEmpty, true);
+        // createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
         simulation.objects[simulation.itemSelected].body.velocity.x = parseFloat(xVel.value);
     }
@@ -856,7 +803,7 @@ zRot.addEventListener("blur", () => {
     }
 });
 
-// //Angular Velocity Setting
+//Angular Velocity Setting
 
 const xAng = document.getElementById("angularVelocity.x-input");
 const yAng = document.getElementById("angularVelocity.y-input");

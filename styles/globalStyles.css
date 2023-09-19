@@ -36,7 +36,7 @@ button {
     border: none;
     color: inherit;
     transform-origin: center center;
-    transition: 0.1s filter ease-in-out;
+    transition: 0.2s filter ease-in-out, 0.2s scale ease-in-out;
     filter: brightness(0.5);
 }
 button:hover {

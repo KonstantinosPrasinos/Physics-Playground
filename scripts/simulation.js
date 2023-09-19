@@ -8,7 +8,7 @@ class Simulation {
         this.logPerSteps = 0;
         this.savedLog = null;
         this.selectedElement = null;
-        this.isRunning = false;
+        this.selectedObject = null;
         this.placingObject = false;
         this.objectPlaceDist = 50;
         this.scene = scene;
@@ -189,6 +189,7 @@ class Simulation {
                 if (this.selectedElement) {
                     this.selectedElement.checked = false;
                     this.selectedElement = null;
+                    this.selectedObject = null;
                 }
 
                 // Add all the required data to the fields
@@ -227,8 +228,10 @@ class Simulation {
 
                 // Set selectedElement to this element
                 this.selectedElement = radioInput;
+                this.selectedObject = this.objects[index];
             } else {
                 this.selectedElement = null;
+                this.selectedObject = null;
 
                 // Remove all data from fields
                 document.getElementById("object-name").innerText = "No item is selected"

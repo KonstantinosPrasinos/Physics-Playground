@@ -1,3 +1,5 @@
+import {simulation} from "./main.js";
+
 const rightUiToggle = document.getElementById("collapse-right-ui-button")
 const rightUi = document.getElementById("right-ui")
 const canvas = document.getElementById("viewportCanvas")
@@ -134,5 +136,15 @@ cameraFovContainer.onwheel = (event) => {
     } else if (event.deltaY < 0) {
         cameraFovSlider.value = parseInt(cameraFovSlider.value) + 1;
         updateCameraFovSliderValue(cameraFovSlider.value);
+    }
+}
+
+document.getElementById("top-play").onclick = (event) => {
+    if (simulation.isPaused) {
+        event.target.innerText = "pause";
+        simulation.isPaused = false;
+    } else {
+        event.target.innerText = "play_arrow";
+        simulation.isPaused = true;
     }
 }
