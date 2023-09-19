@@ -325,3 +325,16 @@ input[type=range]::-webkit-slider-runnable-track  {
 .right-ui-object-name {
     flex-grow: 1;
 }
+.Radio-Input {
+    cursor: pointer;
+    width: 1.5em;
+    height: 1.5em;
+    border: 0.125em solid var(--accent-color);
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    transition: 0.15s border-width ease-in-out;
+}
+
+.Radio-Input:checked {
+    border-width: 0.375em;
+}

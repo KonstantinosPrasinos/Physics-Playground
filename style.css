@@ -26,23 +26,6 @@
     ;
     background-color: var(--primary-color);
 }
-button {
-    cursor: pointer;
-    text-decoration: none;
-    background-color: transparent;
-    border: none;
-    color: inherit;
-    padding: 0;
-    transform-origin: center center;
-    transition: 0.1s transform ease-in-out;
-}
-button:hover {
-    transform: scale(1.1);
-}
-button:active {
-    transform: scale(0.9);
-}
-
 a {
     color: var(--accent-color);
 }
@@ -140,12 +123,6 @@ a {
 #collapse-right-ui-button:not(.collapsed) {
     right: 10.33em;
     transform: rotate(180deg);
-}
-
-#settings-button {
-    bottom: 1vh;
-    -webkit-mask-image:  url(/assets/settings.svg);
-    mask-image: url(assets/settings.svg);
 }
 
 #add-cylinder-button {
