@@ -33,14 +33,14 @@ class Simulation {
         tempMesh.userData.hasVectors = false;
         this.scene.add(tempMesh);
 
-        tempMesh.name = this.generateName('Cube');
+        tempMesh.name = this.#generateName('Cube');
         let box = {
             body: tempBody,
             mesh: tempMesh
         }
 
         this.objects.push(box);
-        this.addItemToList(this.objects.length - 1);
+        this.#addItemToList(this.objects.length - 1);
         this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
     }
 
@@ -61,17 +61,17 @@ class Simulation {
         tempMesh.userData.hasVectors = false;
         this.scene.add(tempMesh);
 
-        tempMesh.name = this.generateName('Sphere');
+        tempMesh.name = this.#generateName('Sphere');
         let sphere = {
             body: tempBody,
             mesh: tempMesh
         }
         this.objects.push(sphere);
-        this.addItemToList(this.objects.length - 1);
+        this.#addItemToList(this.objects.length - 1);
         this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
     }
 
-    generateName(type) {
+    #generateName(type) {
         let count = -1;
         for (let index in this.objects) {
             if (this.objects[index].mesh.name.length >= type.length + 2 && this.objects[index].mesh.name.substring(0, type.length + 1) == type + '-') {
@@ -164,7 +164,7 @@ class Simulation {
         return rayCaster.intersectObjects(this.scene.children);
     }
 
-    addItemToList(index) {
+    #addItemToList(index) {
         // Get object by index
         const objectMesh = this.objects[index].mesh;
         const objectBody = this.objects[index].body;
@@ -188,6 +188,7 @@ class Simulation {
                 // Uncheck the previous radio
                 if (this.selectedElement) {
                     this.selectedElement.checked = false;
+                    this.selectedElement = null;
                 }
 
                 // Add all the required data to the fields
@@ -227,6 +228,8 @@ class Simulation {
                 // Set selectedElement to this element
                 this.selectedElement = radioInput;
             } else {
+                this.selectedElement = null;
+
                 // Remove all data from fields
                 document.getElementById("object-name").innerText = "No item is selected"
                 document.getElementById("width-input").value = "";
