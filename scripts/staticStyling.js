@@ -148,3 +148,7 @@ document.getElementById("top-play").onclick = (event) => {
         simulation.isPaused = true;
     }
 }
+
+document.getElementById("item-color-picker").onclick = (event) => {
+    simulation.selectedObject.mesh.material.color.set(`${event.target.value}`);
+}

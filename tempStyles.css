@@ -60,7 +60,7 @@ input[type=range]::-webkit-slider-runnable-track  {
     position: fixed;
     top: 3em;
     background-color: var(--primary-color);
-    transition: 0.2s ease-in-out transform;
+    transition: 0.375s ease-in-out transform;
     padding: 0.75em;
     box-sizing: border-box;
 
@@ -156,7 +156,7 @@ input[type=range]::-webkit-slider-runnable-track  {
     height: calc(100% - 3em);
     width: 25em;
     background-color: var(--primary-color);
-    transition: 0.2s ease-in-out transform;
+    transition: 0.3s ease-in-out transform;
     padding: 0.75em;
     box-sizing: border-box;
 
