@@ -1,4 +1,11 @@
-import {simulation} from "./main.js";
+import {
+    isObject,
+    rewindobjects,
+    setDisabledPhysical,
+    simulation,
+    switchControls,
+    updateValuesWhileRunning
+} from "./main.js";
 
 const rightUiToggle = document.getElementById("collapse-right-ui-button")
 const rightUi = document.getElementById("right-ui")
@@ -141,12 +148,57 @@ cameraFovContainer.onwheel = (event) => {
 
 document.getElementById("top-play").onclick = (event) => {
     if (simulation.isPaused) {
+        // Save original state
+        for (const object of simulation.objects) {
+            let copyBody = {}, copyMesh;
+
+            //Deep copy of the cannonjs body
+            for (const key in object.body) {
+                if (object.body) {
+                    if (isObject(object.body[key])) {
+                        if (key === "world") {
+                            copyBody[key] = simulation.world;
+                        } else if (key === "invInertiaWorld") {
+                            copyBody[key] = object.body[key];
+                        } else if (key === "invInertiaWorldSolve") {
+                            copyBody[key] = object.body[key];
+                        } else {
+                            copyBody[key] = object.body[key].clone();
+                        }
+                    } else {
+                        copyBody[key] = object.body[key];
+                    }
+                }
+            }
+            //Deep copy of the threejs mesh
+            copyMesh = object.mesh.clone();
+
+            //Assigning all of the above to an object ... object and adding it to the copied objects array
+            let newObject = {
+                body: copyBody,
+                mesh: copyMesh
+            }
+
+            simulation.savedState.push(newObject);
+        }
+
+        // Resume simulation
         event.target.innerText = "pause";
         simulation.isPaused = false;
     } else {
+        // Pause simulation
         event.target.innerText = "play_arrow";
         simulation.isPaused = true;
     }
+}
+
+document.getElementById("top-replay").onclick = (event) => {
+    // Pause simulation
+    document.getElementById("top-play").innerText = "play_arrow";
+    simulation.isPaused = true;
+
+    // Rewind simulation to previous state
+    simulation.rewindState();
 }
 
 document.getElementById("item-color-picker").onclick = (event) => {

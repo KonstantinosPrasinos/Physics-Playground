@@ -11,6 +11,7 @@ class Simulation {
         this.selectedObject = null;
         this.placingObject = false;
         this.objectPlaceDist = 50;
+        this.savedState = [];
         this.scene = scene;
         this.world = world;
     }
@@ -164,6 +165,28 @@ class Simulation {
         return rayCaster.intersectObjects(this.scene.children);
     }
 
+    rewindState() {
+        // Remove objects from scene
+        while (this.objects.length > 0) {
+            const indexInScene = this.scene.children.indexOf(this.objects[0].mesh);
+            this.scene.children.splice(indexInScene, 1);
+            this.world.removeBody(this.world.bodies[0]);
+
+            this.objects.splice(0, 1);
+        }
+
+        // Reset state
+        this.objects = this.savedState;
+        this.savedState = [];
+        this.world.time = 0;
+
+        // Add objects to scene again
+        for (const object of this.objects) {
+            this.scene.add(object.mesh);
+            this.world.addBody(object.body);
+        }
+    }
+
     #addItemToList(index) {
         // Get object by index
         const objectMesh = this.objects[index].mesh;
@@ -301,6 +324,7 @@ class Simulation {
 
         document.getElementById("right-ui-objects-list").appendChild(containerDiv);
     }
+
 }
 
 export {Simulation};

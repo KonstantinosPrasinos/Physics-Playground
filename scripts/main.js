@@ -834,37 +834,38 @@ function isObject(item) {
 }
 
 async function copyobjects() {
-    for (let i = 0; i < simulation.objects.length; i++) {
-        let copyBody = {}, copyMesh, copyName;
+    for (const object of simulation.objects) {
+        let copyBody = {}, copyMesh;
+
         //Deep copy of the cannonjs body
-        for (const key in simulation.objects[i].body) {
-            if (simulation.objects[i].body) {
-                if (isObject(simulation.objects[i].body[key])) {
+        for (const key in object.body) {
+            if (object.body) {
+                if (isObject(object.body[key])) {
                     if (key === "world") {
                         copyBody[key] = world;
                     } else if (key === "invInertiaWorld") {
-                        copyBody[key] = simulation.objects[i].body[key];
+                        copyBody[key] = object.body[key];
                     } else if (key === "invInertiaWorldSolve") {
-                        copyBody[key] = simulation.objects[i].body[key];
+                        copyBody[key] = object.body[key];
                     } else {
-                        copyBody[key] = simulation.objects[i].body[key].clone();
+                        copyBody[key] = object.body[key].clone();
                     }
                 } else {
-                    copyBody[key] = simulation.objects[i].body[key];
+                    copyBody[key] = object.body[key];
                 }
             }
         }
         //Deep copy of the threejs mesh
-        copyMesh = simulation.objects[i].mesh.clone();
+        copyMesh = object.mesh.clone();
 
         //Assigning all of the above to an object ... object and adding it to the copied objects array
-        let box = {
+        let newObject = {
             body: copyBody,
             mesh: copyMesh
         }
-        savedobjects.push(box);
+        
+        simulation.savedState.push(newObject);
     }
-
 }
 
 function generateName(type) {
@@ -897,4 +898,4 @@ const simulation = new Simulation(scene, world, camera, orbitControls, transform
 animate();
 
 
-export { simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning };
+export { isObject, simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning };
