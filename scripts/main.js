@@ -187,6 +187,18 @@ function initControls() {
     scene.add(transformControls);
 }
 
+const setBackgroundWithTheme = () =>{
+    const colorRGB = getComputedStyle(canvas).getPropertyValue("background-color");
+
+    const rgbArray = colorRGB.match(/\d+/g);
+    const r = parseInt(rgbArray[0]);
+    const g = parseInt(rgbArray[1]);
+    const b = parseInt(rgbArray[2]);
+    const hexColor = `${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
+
+    renderer.setClearColor(parseInt(`0x${hexColor}`), 1);
+}
+
 function initThree() {
     scene = new THREE.Scene();
 
@@ -200,16 +212,7 @@ function initThree() {
 
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 
-    // Get background color depending on theme
-    const colorRGB = getComputedStyle(canvas).getPropertyValue("background-color");
-
-    const rgbArray = colorRGB.match(/\d+/g);
-    const r = parseInt(rgbArray[0]);
-    const g = parseInt(rgbArray[1]);
-    const b = parseInt(rgbArray[2]);
-    const hexColor = `${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
-
-    renderer.setClearColor(parseInt(`0x${hexColor}`), 1);
+    setBackgroundWithTheme();
 
     // Get em size
     const emSize = parseInt(getComputedStyle(canvas).fontSize);
@@ -887,4 +890,4 @@ const simulation = new Simulation(scene, world, camera, orbitControls, transform
 animate();
 
 
-export { orthographicCamera, isObject, simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, setSizesForShape};
+export { orthographicCamera, setBackgroundWithTheme, isObject, simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, setSizesForShape};

@@ -3,9 +3,9 @@
 }
 
 .light-theme {
-    --primary-color: #ffffff;
+    --primary-color: #fafafa;
     --accent-color: #000000;
-    --secondary-color: #fafafa;
+    --secondary-color: #ffffff;
 }
 
 .dark-theme {

@@ -1,6 +1,6 @@
 import {
     changeTimeStep,
-    isObject, orthographicCamera, renderer,
+    isObject, orthographicCamera, renderer, setBackgroundWithTheme,
     simulation,
 } from "./main.js";
 
@@ -110,18 +110,21 @@ timeScaleSliderContainer.onwheel = (event) => {
 lightThemeRadio.onchange = () => {
     if (document.body.className !== "light-theme") {
         document.body.className = "light-theme";
+        setBackgroundWithTheme();
     }
 }
 
 darkThemeRadio.onchange = () => {
     if (document.body.className !== "dark-theme") {
         document.body.className = "dark-theme";
+        setBackgroundWithTheme();
     }
 }
 
 midnightThemeRadio.onchange = () => {
     if (document.body.className !== "midnight-theme") {
         document.body.className = "midnight-theme";
+        setBackgroundWithTheme();
     }
 }
 
