@@ -190,6 +190,13 @@ class Simulation {
         if (this.selectedObject) {
             this.setPropertiesDisabled(false);
         }
+
+        // Enable disabled buttons
+        document.getElementById("add-cube-button").disabled = false;
+        document.getElementById("add-sphere-button").disabled = false;
+        document.getElementById("move-button").disabled = false;
+        document.getElementById("resize-button").disabled = false
+        document.getElementById("rotate-button").disabled = false;
     }
 
     setPropertiesDisabled(isDisabled) {

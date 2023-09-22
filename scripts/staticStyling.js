@@ -190,6 +190,13 @@ document.getElementById("top-play").onclick = (event) => {
         if (simulation.selectedObject) {
             simulation.setPropertiesDisabled(true);
         }
+
+        // Disable buttons
+        document.getElementById("add-cube-button").disabled = true;
+        document.getElementById("add-sphere-button").disabled = true;
+        document.getElementById("move-button").disabled = true;
+        document.getElementById("resize-button").disabled = true;
+        document.getElementById("rotate-button").disabled = true;
     } else {
         // Pause simulation
         event.target.innerText = "play_arrow";
