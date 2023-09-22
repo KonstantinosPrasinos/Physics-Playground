@@ -185,6 +185,11 @@ document.getElementById("top-play").onclick = (event) => {
         // Resume simulation
         event.target.innerText = "pause";
         simulation.isPaused = false;
+
+        // Disable inputs if object selected
+        if (simulation.selectedObject) {
+            simulation.setPropertiesDisabled(true);
+        }
     } else {
         // Pause simulation
         event.target.innerText = "play_arrow";

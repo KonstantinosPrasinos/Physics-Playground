@@ -185,6 +185,105 @@ class Simulation {
             this.scene.add(object.mesh);
             this.world.addBody(object.body);
         }
+
+        // Enable inputs if object selected
+        if (this.selectedObject) {
+            this.setPropertiesDisabled(false);
+        }
+    }
+
+    setPropertiesDisabled(isDisabled) {
+        const container = document.getElementById('right-ui-properties');
+        const inputElements = container.querySelectorAll('input');
+
+        for (const inputElement of inputElements) {
+            inputElement.disabled = isDisabled;
+        }
+    }
+
+    #selectObject(objectMesh, objectBody, index, radioInput) {
+        // Uncheck the previous radio
+        if (this.selectedElement) {
+            this.selectedElement.checked = false;
+            this.selectedElement = null;
+            this.selectedObject = null;
+        }
+
+        // Add all the required data to the fields
+        document.getElementById("object-name").innerText = objectMesh.name;
+        document.getElementById("item-color-picker").value = `#${objectMesh.material.color.getHexString()}`;
+
+        if (objectMesh.geometry.type === "BoxGeometry") {
+            document.getElementById("width-input").value = objectMesh.geometry.parameters.width * objectMesh.scale.x;
+            document.getElementById("height-input").value = objectMesh.geometry.parameters.height * objectMesh.scale.y;
+            document.getElementById("depth-input").value = objectMesh.geometry.parameters.depth * objectMesh.scale.z;
+        } else {
+            document.getElementById("width-input").value = objectMesh.geometry.parameters.radius * objectMesh.scale.x;
+            document.getElementById("height-input").value = objectMesh.geometry.parameters.radius * objectMesh.scale.y;
+            document.getElementById("depth-input").value = objectMesh.geometry.parameters.radius * objectMesh.scale.z;
+        }
+
+        document.getElementById("mass-input").value = objectBody.mass;
+
+        document.getElementById("position-x-input").value = objectMesh.position.x;
+        document.getElementById("position-y-input").value = objectMesh.position.y;
+        document.getElementById("position-z-input").value = objectMesh.position.z;
+
+        document.getElementById("rotation-x-input").value = objectMesh.rotation.x;
+        document.getElementById("rotation-y-input").value = objectMesh.rotation.y;
+        document.getElementById("rotation-z-input").value = objectMesh.rotation.z;
+
+        document.getElementById("velocity-x-input").value = objectBody.velocity.x;
+        document.getElementById("velocity-y-input").value = objectBody.velocity.y;
+        document.getElementById("velocity-z-input").value = objectBody.velocity.z;
+
+        document.getElementById("angular-velocity-x-input").value = objectBody.angularVelocity.x;
+        document.getElementById("angular-velocity-y-input").value = objectBody.angularVelocity.y;
+        document.getElementById("angular-velocity-z-input").value = objectBody.angularVelocity.z;
+
+        // Todo Add acceleration and angular acceleration
+
+        // Set selectedElement to this element
+        this.selectedElement = radioInput;
+        this.selectedObject = this.objects[index];
+
+        // Enable the inputs if simulation is not running
+        if (this.world.time === 0) {
+            this.setPropertiesDisabled(false);
+        }
+    }
+
+    #deselectObject() {
+        this.selectedElement = null;
+        this.selectedObject = null;
+
+        // Disable inputs
+        this.setPropertiesDisabled(true);
+
+        // Remove all data from fields
+        document.getElementById("object-name").innerText = "No item is selected"
+        document.getElementById("width-input").value = "";
+        document.getElementById("height-input").value = "";
+        document.getElementById("depth-input").value = "";
+        document.getElementById("mass-input").value = "";
+
+        document.getElementById("position-x-input").value = "";
+        document.getElementById("position-y-input").value = "";
+        document.getElementById("position-z-input").value = "";
+
+        document.getElementById("rotation-x-input").value = "";
+        document.getElementById("rotation-y-input").value = "";
+        document.getElementById("rotation-z-input").value = "";
+
+        document.getElementById("velocity-x-input").value = "";
+        document.getElementById("velocity-y-input").value = "";
+        document.getElementById("velocity-z-input").value = "";
+
+        document.getElementById("angular-velocity-x-input").value = "";
+        document.getElementById("angular-velocity-y-input").value = "";
+        document.getElementById("angular-velocity-z-input").value = "";
+
+        // Todo Remove acceleration and angular acceleration
     }
 
     #addItemToList(index) {
@@ -208,78 +307,9 @@ class Simulation {
         
         radioInput.onchange = (event) => {
             if (event.target.checked) {
-                // Uncheck the previous radio
-                if (this.selectedElement) {
-                    this.selectedElement.checked = false;
-                    this.selectedElement = null;
-                    this.selectedObject = null;
-                }
-
-                // Add all the required data to the fields
-                document.getElementById("object-name").innerText = objectMesh.name;
-                document.getElementById("item-color-picker").value = `#${objectMesh.material.color.getHexString()}`;
-
-                if (objectMesh.geometry.type === "BoxGeometry") {
-                    document.getElementById("width-input").value = objectMesh.geometry.parameters.width * objectMesh.scale.x;
-                    document.getElementById("height-input").value = objectMesh.geometry.parameters.height * objectMesh.scale.y;
-                    document.getElementById("depth-input").value = objectMesh.geometry.parameters.depth * objectMesh.scale.z;
-                } else {
-                    document.getElementById("width-input").value = objectMesh.geometry.parameters.radius * objectMesh.scale.x;
-                    document.getElementById("height-input").value = objectMesh.geometry.parameters.radius * objectMesh.scale.y;
-                    document.getElementById("depth-input").value = objectMesh.geometry.parameters.radius * objectMesh.scale.z;
-                }
-
-                document.getElementById("mass-input").value = objectBody.mass;
-
-                document.getElementById("position-x-input").value = objectMesh.position.x;
-                document.getElementById("position-y-input").value = objectMesh.position.y;
-                document.getElementById("position-z-input").value = objectMesh.position.z;
-
-                document.getElementById("rotation-x-input").value = objectMesh.rotation.x;
-                document.getElementById("rotation-y-input").value = objectMesh.rotation.y;
-                document.getElementById("rotation-z-input").value = objectMesh.rotation.z;
-
-                document.getElementById("velocity-x-input").value = objectBody.velocity.x;
-                document.getElementById("velocity-y-input").value = objectBody.velocity.y;
-                document.getElementById("velocity-z-input").value = objectBody.velocity.z;
-
-                document.getElementById("angular-velocity-x-input").value = objectBody.angularVelocity.x;
-                document.getElementById("angular-velocity-y-input").value = objectBody.angularVelocity.y;
-                document.getElementById("angular-velocity-z-input").value = objectBody.angularVelocity.z;
-
-                // Todo Add acceleration and angular acceleration
-
-                // Set selectedElement to this element
-                this.selectedElement = radioInput;
-                this.selectedObject = this.objects[index];
+                this.#selectObject(objectMesh, objectBody, index, radioInput);
             } else {
-                this.selectedElement = null;
-                this.selectedObject = null;
-
-                // Remove all data from fields
-                document.getElementById("object-name").innerText = "No item is selected"
-                document.getElementById("width-input").value = "";
-                document.getElementById("height-input").value = "";
-                document.getElementById("depth-input").value = "";
-                document.getElementById("mass-input").value = "";
-
-                document.getElementById("position-x-input").value = "";
-                document.getElementById("position-y-input").value = "";
-                document.getElementById("position-z-input").value = "";
-
-                document.getElementById("rotation-x-input").value = "";
-                document.getElementById("rotation-y-input").value = "";
-                document.getElementById("rotation-z-input").value = "";
-
-                document.getElementById("velocity-x-input").value = "";
-                document.getElementById("velocity-y-input").value = "";
-                document.getElementById("velocity-z-input").value = "";
-
-                document.getElementById("angular-velocity-x-input").value = "";
-                document.getElementById("angular-velocity-y-input").value = "";
-                document.getElementById("angular-velocity-z-input").value = "";
-
-                // Todo Remove acceleration and angular acceleration
+                this.#deselectObject();
             }
         }
         
@@ -307,6 +337,11 @@ class Simulation {
         removeButton.innerHTML = "remove";
 
         removeButton.onclick = () => {
+            // Deselect object
+            if (this.selectedObject === this.objects[index]) {
+                this.#deselectObject();
+            }
+
             // Remove from objects, html and scene
             this.objects.splice(index, 1);
 
@@ -323,6 +358,7 @@ class Simulation {
         containerDiv.appendChild(removeButton);
 
         document.getElementById("right-ui-objects-list").appendChild(containerDiv);
+        radioInput.click();
     }
 
 }
