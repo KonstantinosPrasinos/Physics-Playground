@@ -1,6 +1,6 @@
 import {
     changeTimeStep,
-    isObject,
+    isObject, orthographicCamera, renderer,
     simulation,
 } from "./main.js";
 
@@ -211,4 +211,19 @@ document.getElementById("top-replay").onclick = (event) => {
 
 document.getElementById("item-color-picker").onclick = (event) => {
     simulation.selectedObject.mesh.material.color.set(`${event.target.value}`);
+}
+
+window.onresize = () => {
+    const emSize = parseInt(getComputedStyle(canvas).fontSize);
+
+    renderer.setSize(window.innerWidth - 3 * emSize, window.innerHeight - 3 * emSize);
+
+    const aspectRatio = parseInt(window.innerWidth - 3 * emSize) / parseInt(window.innerHeight - 3 * emSize);
+
+    orthographicCamera.left = 40 * aspectRatio / -2;
+    orthographicCamera.right = 40 * aspectRatio / 2;
+    orthographicCamera.top = 40 / 2;
+    orthographicCamera.bottom = 40 / -2;
+
+    orthographicCamera.updateProjectionMatrix();
 }

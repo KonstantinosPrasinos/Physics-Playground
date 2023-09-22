@@ -211,7 +211,10 @@ function initThree() {
 
     renderer.setClearColor(parseInt(`0x${hexColor}`), 1);
 
-    renderer.setSize(parseInt(window.getComputedStyle(canvas).width), parseInt(window.getComputedStyle(canvas).height));
+    // Get em size
+    const emSize = parseInt(getComputedStyle(canvas).fontSize);
+
+    renderer.setSize(window.innerWidth - 3 * emSize, window.innerHeight - 3 * emSize);
     stats = Stats();
 }
 
@@ -250,9 +253,7 @@ function attemptPrintPerStep() {
 }
 
 const updatePhysics = () => {
-    console.log(world.dt, world.time)
     world.step(world.dt);
-    console.log(world.time);
     // attemptPrintPerStep();
 
     // Copy simulated position and rotation to scene
@@ -886,4 +887,4 @@ const simulation = new Simulation(scene, world, camera, orbitControls, transform
 animate();
 
 
-export { isObject, simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, setSizesForShape};
+export { orthographicCamera, isObject, simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, setSizesForShape};
