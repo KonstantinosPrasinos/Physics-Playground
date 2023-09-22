@@ -19,8 +19,11 @@ class Simulation {
     createBox(x, y, z, width, height, depth) {
         let shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
         let tempBody = new CANNON.Body({
-            mass: 4
+            mass: 4,
+            linearDamping: 0,
+            fixedRotation: true
         });
+
         tempBody.addShape(shape);
         tempBody.position.set(x, y, z);
         this.world.addBody(tempBody);
@@ -48,7 +51,9 @@ class Simulation {
     createSphere(x, y, z, radius) {
         let shape = new CANNON.Sphere(radius);
         let tempBody = new CANNON.Body({
-            mass: 4
+            mass: 4,
+            linearDamping: 0,
+            fixedRotation: true
         });
         tempBody.addShape(shape);
         tempBody.position.set(x, y, z);

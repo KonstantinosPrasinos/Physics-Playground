@@ -1,10 +1,6 @@
 import {
     isObject,
-    rewindobjects,
-    setDisabledPhysical,
     simulation,
-    switchControls,
-    updateValuesWhileRunning
 } from "./main.js";
 
 const rightUiToggle = document.getElementById("collapse-right-ui-button")
@@ -161,6 +157,8 @@ document.getElementById("top-play").onclick = (event) => {
                         } else if (key === "invInertiaWorld") {
                             copyBody[key] = object.body[key];
                         } else if (key === "invInertiaWorldSolve") {
+                            copyBody[key] = object.body[key];
+                        } else if (key === "material") {
                             copyBody[key] = object.body[key];
                         } else {
                             copyBody[key] = object.body[key].clone();

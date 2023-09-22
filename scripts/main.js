@@ -154,44 +154,6 @@ function updateStaticValues(bool) {
 
 }
 
-function updateVarValues(bool) {
-    if (bool) {
-        if (simulation.itemSelected > -1) {
-            document.getElementById("position.x-input").value = simulation.objects[simulation.itemSelected].mesh.position.x;
-            document.getElementById("position.y-input").value = simulation.objects[simulation.itemSelected].mesh.position.y;
-            document.getElementById("position.z-input").value = simulation.objects[simulation.itemSelected].mesh.position.z;
-            document.getElementById("rotation.x-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.x;
-            document.getElementById("rotation.y-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.y;
-            document.getElementById("rotation.z-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.z;
-            document.getElementById("velocity.x-input").value = simulation.objects[simulation.itemSelected].body.velocity.x;
-            document.getElementById("velocity.y-input").value = simulation.objects[simulation.itemSelected].body.velocity.y;
-            document.getElementById("velocity.z-input").value = simulation.objects[simulation.itemSelected].body.velocity.z;
-            document.getElementById("angularVelocity.x-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.x;
-            document.getElementById("angularVelocity.y-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.y;
-            document.getElementById("angularVelocity.z-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.z;
-            document.getElementById("force.x-input").value = simulation.objects[simulation.itemSelected].body.force.x;
-            document.getElementById("force.y-input").value = simulation.objects[simulation.itemSelected].body.force.y;
-            document.getElementById("force.z-input").value = simulation.objects[simulation.itemSelected].body.force.z;
-        }
-    } else {
-        document.getElementById("position.x-input").value = "";
-        document.getElementById("position.y-input").value = "";
-        document.getElementById("position.z-input").value = "";
-        document.getElementById("rotation.x-input").value = "";
-        document.getElementById("rotation.y-input").value = "";
-        document.getElementById("rotation.z-input").value = "";
-        document.getElementById("velocity.x-input").value = "";
-        document.getElementById("velocity.y-input").value = "";
-        document.getElementById("velocity.z-input").value = "";
-        document.getElementById("angularVelocity.x-input").value = "";
-        document.getElementById("angularVelocity.y-input").value = "";
-        document.getElementById("angularVelocity.z-input").value = "";
-        document.getElementById("force.x-input").value = "";
-        document.getElementById("force.y-input").value = "";
-        document.getElementById("force.z-input").value = "";
-    }
-}
-
 function setSizesForShape() {
     if (simulation.itemSelected > -1) {
         switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
@@ -212,16 +174,6 @@ function setSizesForShape() {
                 break;
         }
     }
-}
-
-function toggleValues(bool) {
-    updateStaticValues(bool);
-    updateVarValues(bool);
-    setSizesForShape();
-}
-
-function updateValuesWhileRunning(bool) {
-    updateVarValues(bool);
 }
 
 //Init Functions
@@ -269,6 +221,25 @@ function initCannon() {
     world.broadphase = new CANNON.NaiveBroadphase();
     world.solver.iterations = 10;
     world.dt = timeStep / 2;
+
+    const physicsMaterial = new CANNON.Material("bouncyMaterial");
+    physicsMaterial.restitution = 1.0;
+    physicsMaterial.friction = 0.0;
+    var physicsContactMaterial = new CANNON.ContactMaterial(physicsMaterial,
+        physicsMaterial,
+        {
+            friction: 0.0,
+            restitution: 1.0,
+            contactEquationRelaxation: 1000
+        }
+    );
+
+    // We must add the contact materials to the world
+    world.addContactMaterial(physicsContactMaterial);
+    world.defaultContactMaterial = physicsContactMaterial;
+    world.defaultMaterial = physicsMaterial;
+
+    console.log(world);
 }
 
 //Timed Functions
@@ -280,14 +251,32 @@ function attemptPrintPerStep() {
     }
 }
 
-function updatePhysics() {
+const updatePhysics = () => {
     world.step(world.dt);
-    attemptPrintPerStep();
+    // attemptPrintPerStep();
+
+    // Copy simulated position and rotation to scene
     simulation.objects.forEach(element => {
         element.mesh.position.copy(element.body.position);
         element.mesh.quaternion.copy(element.body.quaternion);
     });
-    updateVarValues(true);
+    
+    // Update values for selected object
+    if (simulation.selectedObject) {
+        console.log(simulation.selectedObject.body);
+        document.getElementById("position-x-input").value = simulation.selectedObject.mesh.position.x.toFixed(3);
+        document.getElementById("position-y-input").value = simulation.selectedObject.mesh.position.y.toFixed(3);
+        document.getElementById("position-z-input").value = simulation.selectedObject.mesh.position.z.toFixed(3);
+        document.getElementById("rotation-x-input").value = simulation.selectedObject.mesh.rotation.x.toFixed(3);
+        document.getElementById("rotation-y-input").value = simulation.selectedObject.mesh.rotation.y.toFixed(3);
+        document.getElementById("rotation-z-input").value = simulation.selectedObject.mesh.rotation.z.toFixed(3);
+        document.getElementById("velocity-x-input").value = simulation.selectedObject.body.velocity.x.toFixed(3);
+        document.getElementById("velocity-y-input").value = simulation.selectedObject.body.velocity.y.toFixed(3);
+        document.getElementById("velocity-z-input").value = simulation.selectedObject.body.velocity.z.toFixed(3);
+        document.getElementById("angular-velocity-x-input").value = simulation.selectedObject.body.angularVelocity.x.toFixed(3);
+        document.getElementById("angular-velocity-y-input").value = simulation.selectedObject.body.angularVelocity.y.toFixed(3);
+        document.getElementById("angular-velocity-z-input").value = simulation.selectedObject.body.angularVelocity.z.toFixed(3);
+    }
 }
 
 function render() {
@@ -898,4 +887,4 @@ const simulation = new Simulation(scene, world, camera, orbitControls, transform
 animate();
 
 
-export { isObject, simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning };
+export { isObject, simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, setSizesForShape};
