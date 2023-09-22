@@ -10,7 +10,6 @@ class flyControls {
 
         function handleKeyDown(event){
             let cameraDirection = new THREE.Vector3();
-            console.log(event.key)
             
             camera.getWorldDirection(cameraDirection);
             let rotatedVector = new THREE.Vector3(cameraDirection.z, cameraDirection.x, cameraDirection.y);

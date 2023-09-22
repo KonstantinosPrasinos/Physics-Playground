@@ -12,8 +12,8 @@ let topTime = document.getElementById("time");
 let rayDirection, savedobjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
 let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
 
-function changeTimeStep(temp) {
-    timeStep = temp;
+function changeTimeStep(scalar) {
+    world.dt = timeStep * scalar / 2;
 }
 
 function setCamera(cameraType) {
@@ -238,8 +238,6 @@ function initCannon() {
     world.addContactMaterial(physicsContactMaterial);
     world.defaultContactMaterial = physicsContactMaterial;
     world.defaultMaterial = physicsMaterial;
-
-    console.log(world);
 }
 
 //Timed Functions
@@ -252,7 +250,9 @@ function attemptPrintPerStep() {
 }
 
 const updatePhysics = () => {
+    console.log(world.dt, world.time)
     world.step(world.dt);
+    console.log(world.time);
     // attemptPrintPerStep();
 
     // Copy simulated position and rotation to scene
@@ -263,7 +263,6 @@ const updatePhysics = () => {
     
     // Update values for selected object
     if (simulation.selectedObject) {
-        console.log(simulation.selectedObject.body);
         document.getElementById("position-x-input").value = simulation.selectedObject.mesh.position.x.toFixed(3);
         document.getElementById("position-y-input").value = simulation.selectedObject.mesh.position.y.toFixed(3);
         document.getElementById("position-z-input").value = simulation.selectedObject.mesh.position.z.toFixed(3);

@@ -1,4 +1,5 @@
 import {
+    changeTimeStep,
     isObject,
     simulation,
 } from "./main.js";
@@ -91,6 +92,7 @@ const updateTimeScaleSliderValue = (value) => {
 
 timeScaleSlider.addEventListener("input", (event) => {
     updateTimeScaleSliderValue(event.target.value);
+    changeTimeStep(event.target.value)
 });
 
 timeScaleSliderContainer.onwheel = (event) => {
@@ -101,6 +103,8 @@ timeScaleSliderContainer.onwheel = (event) => {
         timeScaleSlider.value = parseFloat(timeScaleSlider.value) + 0.25;
         updateTimeScaleSliderValue(timeScaleSlider.value);
     }
+
+    changeTimeStep(timeScaleSlider.value);
 }
 
 lightThemeRadio.onchange = () => {
@@ -152,13 +156,7 @@ document.getElementById("top-play").onclick = (event) => {
             for (const key in object.body) {
                 if (object.body) {
                     if (isObject(object.body[key])) {
-                        if (key === "world") {
-                            copyBody[key] = simulation.world;
-                        } else if (key === "invInertiaWorld") {
-                            copyBody[key] = object.body[key];
-                        } else if (key === "invInertiaWorldSolve") {
-                            copyBody[key] = object.body[key];
-                        } else if (key === "material") {
+                        if (object.body[key]?.clone === undefined) {
                             copyBody[key] = object.body[key];
                         } else {
                             copyBody[key] = object.body[key].clone();
