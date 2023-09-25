@@ -151,34 +151,31 @@ cameraFovContainer.onwheel = (event) => {
 
 document.getElementById("top-play").onclick = (event) => {
     if (simulation.isPaused) {
-        // Save original state
+        // Save object position and rotation
         for (const object of simulation.objects) {
-            let copyBody = {}, copyMesh;
+            const savedObject = {
+                id: object.mesh.id,
+                position: {x: null, y: null, z: null},
+                quaternion: {x: null, y: null, z: null},
+                velocity: {x: null, y: null, z: null},
+                angularVelocity: {x: null, y: null, z: null}
+            };
 
-            //Deep copy of the cannonjs body
-            for (const key in object.body) {
-                if (object.body) {
-                    if (isObject(object.body[key])) {
-                        if (object.body[key]?.clone === undefined) {
-                            copyBody[key] = object.body[key];
-                        } else {
-                            copyBody[key] = object.body[key].clone();
-                        }
-                    } else {
-                        copyBody[key] = object.body[key];
-                    }
-                }
-            }
-            //Deep copy of the threejs mesh
-            copyMesh = object.mesh.clone();
+            savedObject.position.x = object.mesh.position.x;
+            savedObject.position.y = object.mesh.position.y;
+            savedObject.position.z = object.mesh.position.z;
+            savedObject.quaternion.x = object.mesh.quaternion.x;
+            savedObject.quaternion.y = object.mesh.quaternion.y;
+            savedObject.quaternion.z = object.mesh.quaternion.z;
 
-            //Assigning all of the above to an object ... object and adding it to the copied objects array
-            let newObject = {
-                body: copyBody,
-                mesh: copyMesh
-            }
+            savedObject.velocity.x = object.body.velocity.x;
+            savedObject.velocity.y = object.body.velocity.y;
+            savedObject.velocity.z = object.body.velocity.z;
+            savedObject.angularVelocity.x = object.body.angularVelocity.x;
+            savedObject.angularVelocity.y = object.body.angularVelocity.y;
+            savedObject.angularVelocity.z = object.body.angularVelocity.z;
 
-            simulation.savedState.push(newObject);
+            simulation.savedState.push(savedObject);
         }
 
         // Resume simulation

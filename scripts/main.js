@@ -289,19 +289,32 @@ function render() {
 
 function animate() {
     requestAnimationFrame(animate);
+
+    // Run physics
     if (!simulation.isPaused) {
         updatePhysics();
     }
+
+    // Follow object
+    if (camera.following) {
+        const cameraOffset = new THREE.Vector3(0.0, 0.0, 50.0);
+        const newObjectPosition = camera.following.mesh.position;
+
+        camera.position.copy(newObjectPosition).add(cameraOffset);
+    }
+
+    // Do rendering
     render();
 
-    if (statsOn) {
-        stats.update();
-    }
-    for (let i in simulation.objects) {
-        if (simulation.objects[i].mesh.userData.hasVectors) {
-            updateVectors(simulation.objects[i]);
-        }
-    }
+    // if (statsOn) {
+    //     stats.update();
+    // }
+    //
+    // for (let i in simulation.objects) {
+    //     if (simulation.objects[i].mesh.userData.hasVectors) {
+    //         updateVectors(simulation.objects[i]);
+    //     }
+    // }
 }
 
 //General Functions

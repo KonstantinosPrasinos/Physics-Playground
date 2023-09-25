@@ -14,6 +14,7 @@ class Simulation {
         this.savedState = [];
         this.scene = scene;
         this.world = world;
+        this.camera = camera;
     }
 
     createBox(x, y, z, width, height, depth) {
@@ -171,29 +172,44 @@ class Simulation {
     }
 
     rewindState() {
-        // Remove objects from scene
-        while (this.objects.length > 0) {
-            const indexInScene = this.scene.children.indexOf(this.objects[0].mesh);
-            this.scene.children.splice(indexInScene, 1);
-            this.world.removeBody(this.world.bodies[0]);
+        // Reset objects to previous state
+        for (const object of this.savedState) {
+            const targetObject = this.objects.find(tempObject => tempObject.mesh.id === object.id);
 
-            this.objects.splice(0, 1);
+            targetObject.mesh.position.x = object.position.x;
+            targetObject.mesh.position.y = object.position.y;
+            targetObject.mesh.position.z = object.position.z;
+            targetObject.body.position.x = object.position.x;
+            targetObject.body.position.y = object.position.y;
+            targetObject.body.position.z = object.position.z;
+
+            targetObject.mesh.quaternion.x = object.quaternion.x;
+            targetObject.mesh.quaternion.y = object.quaternion.y;
+            targetObject.mesh.quaternion.z = object.quaternion.z;
+            targetObject.body.quaternion.x = object.quaternion.x;
+            targetObject.body.quaternion.y = object.quaternion.y;
+            targetObject.body.quaternion.z = object.quaternion.z;
+
+            targetObject.body.velocity.x = object.velocity.x;
+            targetObject.body.velocity.y = object.velocity.y;
+            targetObject.body.velocity.z = object.velocity.z;
+
+            targetObject.body.angularVelocity.x = object.angularVelocity.x;
+            targetObject.body.angularVelocity.y = object.angularVelocity.y;
+            targetObject.body.angularVelocity.z = object.angularVelocity.z;
         }
 
         // Reset state
-        this.objects = this.savedState;
         this.savedState = [];
         this.world.time = 0;
 
-        // Add objects to scene again
-        for (const object of this.objects) {
-            this.scene.add(object.mesh);
-            this.world.addBody(object.body);
-        }
 
-        // Enable inputs if object selected
         if (this.selectedObject) {
+            // Enable inputs if object selected
             this.setPropertiesDisabled(false);
+
+            // Populate inputs again
+            this.#addDataToFields(this.selectedObject.body, this.selectedObject.mesh)
         }
 
         // Enable disabled buttons
@@ -202,6 +218,8 @@ class Simulation {
         document.getElementById("move-button").disabled = false;
         document.getElementById("resize-button").disabled = false
         document.getElementById("rotate-button").disabled = false;
+
+
     }
 
     setPropertiesDisabled(isDisabled) {
@@ -221,6 +239,22 @@ class Simulation {
             this.selectedObject = null;
         }
 
+        this.#addDataToFields(objectBody, objectMesh);
+
+
+        // Todo Add acceleration and angular acceleration
+
+        // Set selectedElement to this element
+        this.selectedElement = radioInput;
+        this.selectedObject = this.objects[index];
+
+        // Enable the inputs if simulation is not running
+        if (this.world.time === 0) {
+            this.setPropertiesDisabled(false);
+        }
+    }
+
+    #addDataToFields(objectBody, objectMesh) {
         // Add all the required data to the fields
         document.getElementById("object-name").innerText = objectMesh.name;
         document.getElementById("item-color-picker").value = `#${objectMesh.material.color.getHexString()}`;
@@ -252,17 +286,6 @@ class Simulation {
         document.getElementById("angular-velocity-x-input").value = objectBody.angularVelocity.x;
         document.getElementById("angular-velocity-y-input").value = objectBody.angularVelocity.y;
         document.getElementById("angular-velocity-z-input").value = objectBody.angularVelocity.z;
-
-        // Todo Add acceleration and angular acceleration
-
-        // Set selectedElement to this element
-        this.selectedElement = radioInput;
-        this.selectedObject = this.objects[index];
-
-        // Enable the inputs if simulation is not running
-        if (this.world.time === 0) {
-            this.setPropertiesDisabled(false);
-        }
     }
 
     #deselectObject() {
@@ -340,6 +363,21 @@ class Simulation {
         
         followButton.onclick = () => {
             // Follow objectMesh
+            if (followButton.innerHTML === "videocam") {
+                // Unfollow previous object
+                if (this.camera.following) {
+                    this.camera.following.button.innerHTML = "videocam";
+                    this.camera.following.following = null;
+                }
+
+                // Follow new object
+                this.camera.following = {mesh: objectMesh, button: followButton}
+                followButton.innerHTML = "videocam_off";
+            } else {
+                // Unfollow object
+                this.camera.following = null;
+                followButton.innerHTML = "videocam";
+            }
         }
         
         // Generate the remove button

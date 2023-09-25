@@ -115,11 +115,12 @@ input[type=range]::-webkit-slider-runnable-track  {
     border-radius: 50%;
     vertical-align: middle;
     cursor: pointer;
-    transition: border-color 0.15s ease-in-out;
+    transition: border-color 0.15s ease-in-out, border-width 0.15s ease-in-out;
 }
 
 .theme-radio-button:checked {
     border-color: var(--selected-color);
+    border-width: 0.250em solid var(--accent-color);
 }
 
 #camera-type-container {
