@@ -18,6 +18,11 @@ function changeTimeStep(scalar) {
     world.dt = timeStep * scalar / 2;
 }
 
+const setTransformControlsEnabled = (bool) => {
+    transformControls.enabled = bool;
+    orbitControls.enabled = !bool;
+}
+
 function setCamera(cameraType) {
     if (camera.type != cameraType) {
         switch (cameraType) {
@@ -934,4 +939,4 @@ simulation = new Simulation(scene, world, camera, orbitControls, transformContro
 animate();
 
 
-export { orthographicCamera, setBackgroundWithTheme, isObject, simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, setSizesForShape};
+export { setTransformControlsEnabled, orthographicCamera, setBackgroundWithTheme, isObject, simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, setSizesForShape};

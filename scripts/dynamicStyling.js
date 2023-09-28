@@ -1,4 +1,11 @@
-import {orbitControls, setDisabledPhysical, setDisabledVisual, simulation, transformControls} from "./main.js";
+import {
+    orbitControls,
+    setDisabledPhysical,
+    setDisabledVisual,
+    setTransformControlsEnabled,
+    simulation,
+    transformControls
+} from "./main.js";
 import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 
 /* Helper functions */
@@ -143,11 +150,6 @@ document.getElementById("scale-button").onclick = (event) => {
 
 document.getElementById("rotate-button").onclick = (event) => {
     highlightButton(event);
-}
-
-const setTransformControlsEnabled = (bool) => {
-    transformControls.enabled = bool;
-    orbitControls.enabled = !bool;
 }
 
 document.getElementById("viewportCanvas").onclick = (event) => {

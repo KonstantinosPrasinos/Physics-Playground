@@ -1,7 +1,7 @@
 import {
     changeTimeStep,
-    isObject, orthographicCamera, renderer, setBackgroundWithTheme,
-    simulation,
+    isObject, orthographicCamera, renderer, setBackgroundWithTheme, setTransformControlsEnabled,
+    simulation, transformControls,
 } from "./main.js";
 
 const rightUiToggle = document.getElementById("collapse-right-ui-button")
@@ -193,6 +193,13 @@ document.getElementById("top-play").onclick = (event) => {
         document.getElementById("translate-button").disabled = true;
         document.getElementById("scale-button").disabled = true;
         document.getElementById("rotate-button").disabled = true;
+
+        if (simulation.selectedModeElement) {
+            transformControls.detach();
+            setTransformControlsEnabled(false);
+            simulation.selectedModeElement.classList.remove("Button-Selected");
+            simulation.selectedModeElement = null;
+        }
     } else {
         // Pause simulation
         event.target.innerText = "play_arrow";
