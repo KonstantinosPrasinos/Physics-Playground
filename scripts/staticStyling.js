@@ -190,8 +190,8 @@ document.getElementById("top-play").onclick = (event) => {
         // Disable buttons
         document.getElementById("add-cube-button").disabled = true;
         document.getElementById("add-sphere-button").disabled = true;
-        document.getElementById("move-button").disabled = true;
-        document.getElementById("resize-button").disabled = true;
+        document.getElementById("translate-button").disabled = true;
+        document.getElementById("scale-button").disabled = true;
         document.getElementById("rotate-button").disabled = true;
     } else {
         // Pause simulation

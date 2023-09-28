@@ -12,6 +12,8 @@ let topTime = document.getElementById("time");
 let rayDirection, savedobjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
 let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
 
+let simulation;
+
 function changeTimeStep(scalar) {
     world.dt = timeStep * scalar / 2;
 }
@@ -181,8 +183,36 @@ function setSizesForShape() {
 function initControls() {
     orbitControls = new OrbitControls(camera, renderer.domElement);
     transformControls = new TransformControls(camera, renderer.domElement);
-    let temp = new flyControls(perspectiveCamera, renderer.domElement);
-    // transformControls.addEventListener('change', render);
+
+    transformControls.addEventListener('objectChange', (event) => {
+        if (simulation?.selectedObject) {
+            if (transformControls.mode === "scale" && simulation.selectedObject.mesh.geometry.type === "SphereGeometry") {
+                // Make sphere have the same x, y, z scales
+                const sourceAxis = event.target.axis.charAt(0).toLowerCase();
+
+                simulation.selectedObject.mesh.scale.x = simulation.selectedObject.mesh.scale[sourceAxis];
+                simulation.selectedObject.mesh.scale.y = simulation.selectedObject.mesh.scale[sourceAxis];
+                simulation.selectedObject.mesh.scale.z = simulation.selectedObject.mesh.scale[sourceAxis];
+            }
+
+            simulation.addDataToFields(simulation.selectedObject.body, simulation.selectedObject.mesh);
+        }
+    });
+
+    transformControls.addEventListener('mouseUp', (event) => {
+        // After transforming is done, synchronize the required property
+        switch (event.target.mode) {
+            case 'translate':
+                simulation.synchronizePosition();
+                break;
+            case 'rotate':
+                simulation.synchronizeRotation();
+                break;
+            case 'scale':
+                simulation.synchronizeSize('x');
+        }
+    })
+
     transformControls.enabled = false;
     scene.add(transformControls);
 }
@@ -898,7 +928,7 @@ initThree();
 initCannon();
 initControls();
 
-const simulation = new Simulation(scene, world, camera, orbitControls, transformControls);
+simulation = new Simulation(scene, world, camera, orbitControls, transformControls);
 
 animate();
 

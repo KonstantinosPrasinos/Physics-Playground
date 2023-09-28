@@ -564,6 +564,10 @@ function handleTransformControlsMouse(mouseUp){
     }
 }
 
+const handleCanvasClick = (event) => {
+    if ()
+}
+
 let doubleClick = null;
 
 function handleCanvasClick(event, bool){

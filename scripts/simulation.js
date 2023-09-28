@@ -15,6 +15,7 @@ class Simulation {
         this.scene = scene;
         this.world = world;
         this.camera = camera;
+        this.selectedModeElement = null;
     }
 
     createBox(x, y, z, width, height, depth) {
@@ -97,80 +98,6 @@ class Simulation {
         return type + '-' + count;
     }
 
-    placeObject(object){
-        this.placingObject = true;
-        let orbitControlsWereEnabled;
-        function findPosition(event){
-            let mouseVector = new THREE.Vector2();
-            let rayCaster = new THREE.Raycaster();
-
-            mouseVector.x = (event.offsetX / parseInt(window.getComputedStyle(canvas).width)) * 2 - 1;
-            mouseVector.y = -(event.offsetY / parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
-
-            rayCaster.setFromCamera(mouseVector, camera);
-            let tempVector = new THREE.Vector3();
-            rayCaster.ray.at(this.objectPlaceDist, tempVector);
-            object.position.set(tempVector.x, tempVector.y, tempVector.z);
-        }
-
-        function handleWheel(event){
-            if (event.wheelDeltaY < 0){
-                if (this.objectPlaceDist > 5){
-                    this.objectPlaceDist -= 5;
-                    findPosition(event);
-                }
-            } else {
-                this.objectPlaceDist += 5;
-                findPosition(event);
-            }
-        }
-
-        function handleShiftDown(event){
-            if (event.code == 'ShiftLeft') {
-                if (orbitControls.enabled){
-                    console.log("stopping orbit controls");
-                    orbitControls.enabled = false;
-                    orbitControlsWereEnabled = true;
-                }
-                canvas.addEventListener("wheel", handleWheel )
-            }
-        }
-
-        function stopShift(){
-            if (orbitControlsWereEnabled){
-                console.log("starting orbit controls")
-                orbitControls.enabled = true;
-            }
-            canvas.removeEventListener("wheel", handleWheel);
-            document.removeEventListener("keydown", handleShiftDown);
-            document.removeEventListener("keyup", stopShift);
-        }
-
-        document.addEventListener("keydown", handleShiftDown);
-        document.addEventListener("keyup", stopShift);
-        canvas.addEventListener("mousemove", findPosition);
-
-        function removeEventListeners(){
-            canvas.removeEventListener("mousemove", findPosition);
-            canvas.removeEventListener("click", removeEventListeners);
-            this.placingObject = false;
-        }
-        canvas.addEventListener("click", removeEventListeners)
-    }
-
-    checkForObject(event) {
-        let mouseVector = new THREE.Vector2();
-        let rayCaster = new THREE.Raycaster();
-
-        mouseVector.x = (event.offsetX / parseInt(window.getComputedStyle(canvas).width)) * 2 - 1;
-        mouseVector.y = -(event.offsetY / parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
-
-        rayCaster.setFromCamera(mouseVector, camera);
-        // rayDirection = rayCaster.ray.direction;
-
-        return rayCaster.intersectObjects(this.scene.children);
-    }
-
     rewindState() {
         // Reset objects to previous state
         for (const object of this.savedState) {
@@ -209,14 +136,14 @@ class Simulation {
             this.setPropertiesDisabled(false);
 
             // Populate inputs again
-            this.#addDataToFields(this.selectedObject.body, this.selectedObject.mesh)
+            this.addDataToFields(this.selectedObject.body, this.selectedObject.mesh)
         }
 
         // Enable disabled buttons
         document.getElementById("add-cube-button").disabled = false;
         document.getElementById("add-sphere-button").disabled = false;
-        document.getElementById("move-button").disabled = false;
-        document.getElementById("resize-button").disabled = false
+        document.getElementById("translate-button").disabled = false;
+        document.getElementById("scale-button").disabled = false
         document.getElementById("rotate-button").disabled = false;
 
 
@@ -231,7 +158,7 @@ class Simulation {
         }
     }
 
-    #selectObject(objectMesh, objectBody, index, radioInput) {
+    selectObject(object) {
         // Uncheck the previous radio
         if (this.selectedElement) {
             this.selectedElement.checked = false;
@@ -239,14 +166,12 @@ class Simulation {
             this.selectedObject = null;
         }
 
-        this.#addDataToFields(objectBody, objectMesh);
+        this.addDataToFields(object.body, object.mesh);
 
-
-        // Todo Add acceleration and angular acceleration
-
-        // Set selectedElement to this element
-        this.selectedElement = radioInput;
-        this.selectedObject = this.objects[index];
+        // Get radio assigned to object and set selectedElement to this element
+        this.selectedElement = document.getElementById(`radio_input_${object.mesh.uuid}`);
+        this.selectedObject = object;
+        this.selectedElement.checked = true;
 
         // Enable the inputs if simulation is not running
         if (this.world.time === 0) {
@@ -254,7 +179,7 @@ class Simulation {
         }
     }
 
-    #addDataToFields(objectBody, objectMesh) {
+    addDataToFields(objectBody, objectMesh) {
         // Add all the required data to the fields
         document.getElementById("object-name").innerText = objectMesh.name;
         document.getElementById("item-color-picker").value = `#${objectMesh.material.color.getHexString()}`;
@@ -288,7 +213,7 @@ class Simulation {
         document.getElementById("angular-velocity-z-input").value = objectBody.angularVelocity.z;
     }
 
-    #deselectObject() {
+    deselectObject() {
         this.selectedElement = null;
         this.selectedObject = null;
 
@@ -342,9 +267,9 @@ class Simulation {
         
         radioInput.onchange = (event) => {
             if (event.target.checked) {
-                this.#selectObject(objectMesh, objectBody, index, radioInput);
+                this.selectObject(this.objects[index]);
             } else {
-                this.#deselectObject();
+                this.deselectObject();
             }
         }
         
@@ -389,7 +314,7 @@ class Simulation {
         removeButton.onclick = () => {
             // Deselect object
             if (this.selectedObject === this.objects[index]) {
-                this.#deselectObject();
+                this.deselectObject();
             }
 
             // Remove from objects, html and scene
@@ -411,6 +336,50 @@ class Simulation {
         radioInput.click();
     }
 
+    synchronizePosition() {
+        this.selectedObject.body.position.x = this.selectedObject.mesh.position.x;
+        this.selectedObject.body.position.y = this.selectedObject.mesh.position.y;
+        this.selectedObject.body.position.z = this.selectedObject.mesh.position.z;
+        // updateVectors(this.selectedObject);
+    }
+
+    synchronizeRotation() {
+        this.selectedObject.body.quaternion.x = this.selectedObject.mesh.quaternion.x;
+        this.selectedObject.body.quaternion.y = this.selectedObject.mesh.quaternion.y;
+        this.selectedObject.body.quaternion.z = this.selectedObject.mesh.quaternion.z;
+    }
+
+    synchronizeSize(axis) {
+        switch (this.selectedObject.mesh.geometry.type) {
+            case "BoxGeometry":
+                //Changes the size of the box
+                const newWidth = this.selectedObject.mesh.geometry.parameters.width * this.selectedObject.mesh.scale.x / 2;
+                const newHeight = this.selectedObject.mesh.geometry.parameters.height * this.selectedObject.mesh.scale.y / 2;
+                const newDepth = this.selectedObject.mesh.geometry.parameters.depth * this.selectedObject.mesh.scale.z / 2;
+
+                this.selectedObject.body.shapes[0].halfExtents.set(newWidth, newHeight, newDepth);
+                break;
+            case "SphereGeometry":
+                //Synchronizes the scales of the three dimensions so that they match and become the "radius"
+                this.selectedObject.mesh.scale.x = this.selectedObject.mesh.scale[axis];
+                this.selectedObject.mesh.scale.y = this.selectedObject.mesh.scale[axis];
+                this.selectedObject.mesh.scale.z = this.selectedObject.mesh.scale[axis];
+
+                //Changes the radius of the sphere
+                this.selectedObject.body.shapes[0].radius = this.selectedObject.mesh.geometry.parameters.radius * this.selectedObject.mesh.scale.x;
+
+                //Updating of width and height segments when size changes so that if the sphere becomes bigger, it looks like a sphere
+                this.selectedObject.mesh.geometry.parameters.widthSegments = Math.ceil(this.selectedObject.body.shapes[0].radius / 10) * 16;
+                this.selectedObject.mesh.geometry.parameters.heightSegments = Math.ceil(this.selectedObject.body.shapes[0].radius / 10) * 8;
+                break;
+            default:
+                break;
+        }
+        //Updates the size of the object
+        this.selectedObject.body.shapes[0].updateBoundingSphereRadius();
+        this.selectedObject.body.updateBoundingRadius();
+        this.selectedObject.body.updateMassProperties();
+    }
 }
 
 export {Simulation};
