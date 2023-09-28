@@ -89,6 +89,7 @@ function setDisabledVisual(bool) {
     document.getElementById("force-vectors-single").disabled = bool;
     document.getElementById("velocity-vectors-all").disabled = bool;
     document.getElementById("velocity-vectors-single").disabled = bool;
+    document.getElementById("object-name").disabled = bool;
 }
 
 function updateStaticValues(bool) {

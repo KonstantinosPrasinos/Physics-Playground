@@ -145,14 +145,16 @@ class Simulation {
         document.getElementById("translate-button").disabled = false;
         document.getElementById("scale-button").disabled = false
         document.getElementById("rotate-button").disabled = false;
-
-
     }
 
     setPropertiesDisabled(isDisabled) {
         const container = document.getElementById('right-ui-properties');
         const inputElements = container.querySelectorAll('input');
 
+        // For name
+        document.getElementById('object-name').disabled = isDisabled;
+
+        // For rest object properties
         for (const inputElement of inputElements) {
             inputElement.disabled = isDisabled;
         }
@@ -181,7 +183,7 @@ class Simulation {
 
     addDataToFields(objectBody, objectMesh) {
         // Add all the required data to the fields
-        document.getElementById("object-name").innerText = objectMesh.name;
+        document.getElementById("object-name").value = objectMesh.name;
         document.getElementById("item-color-picker").value = `#${objectMesh.material.color.getHexString()}`;
 
         if (objectMesh.geometry.type === "BoxGeometry") {
@@ -221,7 +223,7 @@ class Simulation {
         this.setPropertiesDisabled(true);
 
         // Remove all data from fields
-        document.getElementById("object-name").innerText = "No item is selected"
+        document.getElementById("object-name").value = "No item is selected"
         document.getElementById("width-input").value = "";
         document.getElementById("height-input").value = "";
         document.getElementById("depth-input").value = "";
@@ -277,6 +279,7 @@ class Simulation {
         const inputLabel = document.createElement("LABEL");
         
         inputLabel.setAttribute("for", radioInput.id);
+        inputLabel.id = `radio_label_${objectMesh.uuid}`;
         inputLabel.classList.add("right-ui-object-name");
         inputLabel.innerHTML = objectMesh.name;
         

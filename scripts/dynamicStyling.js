@@ -175,3 +175,17 @@ document.getElementById("viewportCanvas").onclick = (event) => {
         }
     }
 }
+
+document.getElementById("object-name").onblur = (event) => {
+    const value = event.target.value;
+
+    if (value.length > 0) {
+        simulation.selectedObject.mesh.name = value;
+
+        document.getElementById(`radio_label_${simulation.selectedObject.mesh.uuid}`).innerHTML = value;
+    } else {
+        event.target.focus();
+    }
+}
+
+document.getElementById("object-name").onkeydown = blurElementOnEnter;
