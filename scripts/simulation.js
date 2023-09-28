@@ -40,6 +40,7 @@ class Simulation {
         this.scene.add(tempMesh);
 
         tempMesh.name = this.#generateName('Cube');
+
         let box = {
             body: tempBody,
             mesh: tempMesh

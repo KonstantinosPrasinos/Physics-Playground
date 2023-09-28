@@ -119,6 +119,20 @@ document.getElementById("angular-velocity-y-input").onkeydown = blurElementOnEnt
 document.getElementById("angular-velocity-z-input").onkeydown = blurElementOnEnter;
 
 /* Right ui inputs */
+document.getElementById("mass-input").onblur = (event) => {
+    if (event.target.value.length === 0 || isNaN(event.target.value)) {
+        event.target.focus();
+        // createNotification(notificationList.inputEmpty, true);
+    } else {
+        simulation.selectedObject.body.mass = parseFloat(event.target.value);
+        simulation.selectedObject.body.updateMassProperties();
+    }
+}
+
+document.getElementById("item-color-picker").onclick = (event) => {
+    simulation.selectedObject.mesh.material.color.set(`${event.target.value}`);
+}
+
 document.getElementById("width-input").onblur = (event) => setSize("x", event);
 document.getElementById("height-input").onblur = (event) => setSize("y", event);
 document.getElementById("depth-input").onblur = (event) => setSize("z", event);

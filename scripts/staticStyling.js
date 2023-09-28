@@ -216,10 +216,6 @@ document.getElementById("top-replay").onclick = (event) => {
     simulation.rewindState();
 }
 
-document.getElementById("item-color-picker").onclick = (event) => {
-    simulation.selectedObject.mesh.material.color.set(`${event.target.value}`);
-}
-
 window.onresize = () => {
     const emSize = parseInt(getComputedStyle(canvas).fontSize);
 
