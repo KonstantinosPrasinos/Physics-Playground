@@ -357,3 +357,13 @@ input[type=range]::-webkit-slider-runnable-track  {
     outline: none;
     border-bottom: 1px solid var(--accent-color);
 }
+
+.Button {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#upload-button-input {
+    display: none;
+}

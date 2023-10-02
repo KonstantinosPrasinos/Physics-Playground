@@ -18,72 +18,73 @@ class Simulation {
         this.selectedModeElement = null;
     }
 
-    createBox(x, y, z, width, height, depth) {
-        let shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
-        let tempBody = new CANNON.Body({
-            mass: 4,
-            linearDamping: 0,
-            fixedRotation: true
-        });
-
-        tempBody.addShape(shape);
-        tempBody.position.set(x, y, z);
-        this.world.addBody(tempBody);
-
-        let geometry = new THREE.BoxGeometry(width, height, depth);
-        let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-        let tempMesh = new THREE.Mesh(geometry, material);
-        tempMesh.position.set(x, y, z);
-        tempMesh.userData.createsGravity = true;
-        tempMesh.userData.selectable = true;
-        tempMesh.userData.hasVectors = false;
-        this.scene.add(tempMesh);
-
-        tempMesh.name = this.#generateName('Cube');
-
-        let box = {
-            body: tempBody,
-            mesh: tempMesh
-        }
-
-        this.objects.push(box);
-        this.#addItemToList(this.objects.length - 1);
-        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
+    createBox() {
+        this.createObject("Cube");
     }
 
-    createSphere(x, y, z, radius) {
-        let shape = new CANNON.Sphere(radius);
-        let tempBody = new CANNON.Body({
-            mass: 4,
+    createSphere() {
+        return this.createObject("Sphere");
+    }
+
+    createObject(objectType) {
+        const radius = 1;
+
+        // Create body
+        const tempBody = new CANNON.Body({
+            mass: 1,
             linearDamping: 0,
             fixedRotation: true
         });
+
+        let shape;
+
+        if (objectType === "Cube") {
+            shape = new CANNON.Box(new CANNON.Vec3(radius, radius, radius));
+        } else {
+            shape = new CANNON.Sphere(radius);
+        }
+
         tempBody.addShape(shape);
-        tempBody.position.set(x, y, z);
+        tempBody.position.set(0, 0, 0);
+
+        // Add body to world
         this.world.addBody(tempBody);
-        let geometry = new THREE.SphereGeometry(radius, Math.ceil(radius / 10) * 16, Math.ceil(radius / 10) * 8);
-        let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-        let tempMesh = new THREE.Mesh(geometry, material);
-        tempMesh.position.set(x, y, z);
-        tempMesh.userData.createsGravity = true;
-        tempMesh.userData.selectable = true;
-        tempMesh.userData.hasVectors = false;
+
+        // Create mesh
+        let geometry;
+
+        if (objectType === "Cube") {
+            geometry = new THREE.BoxGeometry(radius, radius, radius);
+        } else {
+            new THREE.SphereGeometry(radius, Math.ceil(radius / 10) * 16, Math.ceil(radius / 10) * 8);
+        }
+
+
+        const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+        const tempMesh = new THREE.Mesh(geometry, material);
+
+        tempMesh.position.set(0, 0, 0);
+        tempMesh.name = this.#generateName(objectType);
+
         this.scene.add(tempMesh);
 
-        tempMesh.name = this.#generateName('Sphere');
-        let sphere = {
+        let object = {
             body: tempBody,
             mesh: tempMesh
         }
-        this.objects.push(sphere);
+
+        this.objects.push(object);
         this.#addItemToList(this.objects.length - 1);
         this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
+
+        return object;
     }
 
     #generateName(type) {
         let count = -1;
+
         for (let index in this.objects) {
-            if (this.objects[index].mesh.name.length >= type.length + 2 && this.objects[index].mesh.name.substring(0, type.length + 1) == type + '-') {
+            if (this.objects[index].mesh.name.length >= type.length + 2 && this.objects[index].mesh.name.substring(0, type.length + 1) === type + '-') {
                 let nString = this.objects[index].mesh.name.substring(type.length + 1);
                 if (!isNaN(nString)) {
                     if (count + 1 < parseInt(nString)) {
@@ -96,6 +97,7 @@ class Simulation {
             }
         }
         count++;
+
         return type + '-' + count;
     }
 
@@ -217,6 +219,8 @@ class Simulation {
     }
 
     deselectObject() {
+        document.getElementById(`radio_input_${this.selectedObject.mesh.uuid}`).checked = false;
+
         this.selectedElement = null;
         this.selectedObject = null;
 
@@ -249,10 +253,32 @@ class Simulation {
         // Todo Remove acceleration and angular acceleration
     }
 
+    #deleteObject(object) {
+        const {mesh, body} = object;
+        const index = this.objects.indexOf(object);
+
+        // Deselect object
+        if (this.selectedObject === this.objects[index]) {
+            this.deselectObject();
+        }
+
+        // Remove from objects, html and scene
+        this.objects.splice(index, 1);
+
+        const containerElement = document.getElementById(`object_container_${mesh.uuid}`);
+
+        document.getElementById("right-ui-objects-list").removeChild(containerElement);
+
+        const indexInScene = this.scene.children.indexOf(mesh);
+        this.scene.children.splice(indexInScene, 1);
+
+        const indexInWorld = this.world.bodies.indexOf(body);
+        this.world.bodies.splice(indexInWorld, 1);
+    }
+
     #addItemToList(index) {
         // Get object by index
         const objectMesh = this.objects[index].mesh;
-        const objectBody = this.objects[index].body;
         
         // Generate the div container
         const containerDiv = document.createElement("DIV");
@@ -316,18 +342,7 @@ class Simulation {
         removeButton.innerHTML = "remove";
 
         removeButton.onclick = () => {
-            // Deselect object
-            if (this.selectedObject === this.objects[index]) {
-                this.deselectObject();
-            }
-
-            // Remove from objects, html and scene
-            this.objects.splice(index, 1);
-
-            document.getElementById("right-ui-objects-list").removeChild(containerDiv);
-
-            const indexInScene = this.scene.children.indexOf(objectMesh);
-            this.scene.children.splice(indexInScene, 1);
+            this.#deleteObject(this.objects[index]);
         }
 
         // Append all the nodes to their parent
@@ -340,49 +355,71 @@ class Simulation {
         radioInput.click();
     }
 
-    synchronizePosition() {
-        this.selectedObject.body.position.x = this.selectedObject.mesh.position.x;
-        this.selectedObject.body.position.y = this.selectedObject.mesh.position.y;
-        this.selectedObject.body.position.z = this.selectedObject.mesh.position.z;
-        // updateVectors(this.selectedObject);
+    synchronizePosition(object) {
+        if (!object) {
+            object = this.selectedObject;
+        }
+
+        object.body.position.x = object.mesh.position.x;
+        object.body.position.y = object.mesh.position.y;
+        object.body.position.z = object.mesh.position.z;
+        // updateVectors(object);
     }
 
-    synchronizeRotation() {
-        this.selectedObject.body.quaternion.x = this.selectedObject.mesh.quaternion.x;
-        this.selectedObject.body.quaternion.y = this.selectedObject.mesh.quaternion.y;
-        this.selectedObject.body.quaternion.z = this.selectedObject.mesh.quaternion.z;
+    synchronizeRotation(object) {
+        if (!object) {
+            object = this.selectedObject;
+        }
+        
+        object.body.quaternion.x = object.mesh.quaternion.x;
+        object.body.quaternion.y = object.mesh.quaternion.y;
+        object.body.quaternion.z = object.mesh.quaternion.z;
     }
 
-    synchronizeSize(axis) {
-        switch (this.selectedObject.mesh.geometry.type) {
+    synchronizeSize(axis, object) {
+        if (!object) {
+            object = this.selectedObject;
+        }
+
+        switch (object.mesh.geometry.type) {
             case "BoxGeometry":
                 //Changes the size of the box
-                const newWidth = this.selectedObject.mesh.geometry.parameters.width * this.selectedObject.mesh.scale.x / 2;
-                const newHeight = this.selectedObject.mesh.geometry.parameters.height * this.selectedObject.mesh.scale.y / 2;
-                const newDepth = this.selectedObject.mesh.geometry.parameters.depth * this.selectedObject.mesh.scale.z / 2;
+                const newWidth = object.mesh.geometry.parameters.width * object.mesh.scale.x / 2;
+                const newHeight = object.mesh.geometry.parameters.height * object.mesh.scale.y / 2;
+                const newDepth = object.mesh.geometry.parameters.depth * object.mesh.scale.z / 2;
 
-                this.selectedObject.body.shapes[0].halfExtents.set(newWidth, newHeight, newDepth);
+                object.body.shapes[0].halfExtents.set(newWidth, newHeight, newDepth);
                 break;
             case "SphereGeometry":
                 //Synchronizes the scales of the three dimensions so that they match and become the "radius"
-                this.selectedObject.mesh.scale.x = this.selectedObject.mesh.scale[axis];
-                this.selectedObject.mesh.scale.y = this.selectedObject.mesh.scale[axis];
-                this.selectedObject.mesh.scale.z = this.selectedObject.mesh.scale[axis];
+                object.mesh.scale.x = object.mesh.scale[axis];
+                object.mesh.scale.y = object.mesh.scale[axis];
+                object.mesh.scale.z = object.mesh.scale[axis];
 
                 //Changes the radius of the sphere
-                this.selectedObject.body.shapes[0].radius = this.selectedObject.mesh.geometry.parameters.radius * this.selectedObject.mesh.scale.x;
+                object.body.shapes[0].radius = object.mesh.geometry.parameters.radius * object.mesh.scale.x;
 
                 //Updating of width and height segments when size changes so that if the sphere becomes bigger, it looks like a sphere
-                this.selectedObject.mesh.geometry.parameters.widthSegments = Math.ceil(this.selectedObject.body.shapes[0].radius / 10) * 16;
-                this.selectedObject.mesh.geometry.parameters.heightSegments = Math.ceil(this.selectedObject.body.shapes[0].radius / 10) * 8;
+                object.mesh.geometry.parameters.widthSegments = Math.ceil(object.body.shapes[0].radius / 10) * 16;
+                object.mesh.geometry.parameters.heightSegments = Math.ceil(object.body.shapes[0].radius / 10) * 8;
                 break;
             default:
                 break;
         }
         //Updates the size of the object
-        this.selectedObject.body.shapes[0].updateBoundingSphereRadius();
-        this.selectedObject.body.updateBoundingRadius();
-        this.selectedObject.body.updateMassProperties();
+        object.body.shapes[0].updateBoundingSphereRadius();
+        object.body.updateBoundingRadius();
+        object.body.updateMassProperties();
+    }
+
+    clear() {
+        if (this.selectedObject) {
+            this.deselectObject();
+        }
+
+        for (const object in this.objects) {
+            this.#deleteObject(object);
+        }
     }
 }
 

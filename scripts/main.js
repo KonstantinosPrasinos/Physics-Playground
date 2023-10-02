@@ -3,7 +3,6 @@ import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
 import Stats from 'https://unpkg.com/three@0.126.1/examples/jsm/libs/stats.module.js';
-import {flyControls} from './controls.js';
 import {Simulation} from "./simulation.js";
 
 let canvas = document.getElementById("viewportCanvas");

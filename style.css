@@ -726,15 +726,6 @@ input {
 #json-input{
     display: none;
 }
-#upload-button {
-    -webkit-mask-image:  url(/assets/upload.svg);
-    mask-image: url(assets/upload.svg);
-    margin-left: 5px;
-    position: absolute;
-}
-#upload-button:hover{
-    cursor: pointer;
-}
 
 #grid-container {
     display:flex;

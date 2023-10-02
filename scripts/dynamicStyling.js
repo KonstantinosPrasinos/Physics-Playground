@@ -88,8 +88,8 @@ const setAngularVelocity = (axis, event) => {
 }
 
 /* Left ui buttons */
-document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation, 0, 0, 0, 2, 2, 2);
-document.getElementById("add-sphere-button").onclick = simulation.createSphere.bind(simulation, 5, 0, 0, 1);
+document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation);
+document.getElementById("add-sphere-button").onclick = simulation.createSphere.bind(simulation);
 
 /* Add enter functionality to right ui inputs */
 const blurElementOnEnter = (event) => {
