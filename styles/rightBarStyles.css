@@ -1,0 +1,134 @@
+#right-ui {
+    top: 3em;
+    right: 0;
+    width: 17.5em;
+    height: calc(100% - 3em);
+    background: var(--primary-color);
+    margin: 0;
+    position: fixed;
+    z-index: 2;
+    transition: 0.3s ease-in-out transform;
+    box-sizing: border-box;
+    padding: 1.5em;
+}
+
+#right-ui.collapsed {
+    transform: translateX(17.5em);
+}
+
+.right-appearance-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+        "color dimensions"
+        "mass dimensions";
+    row-gap: 0.75em;
+    column-gap: 1.5em;
+    width: 100%;
+}
+
+#dimensions-container {
+    width: auto;
+    grid-area: dimensions;
+}
+
+.right-title-small {
+    flex-shrink: 0;
+    display: inline-block;
+    width: 0.75em;
+}
+
+.right-properties-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1.5em;
+    width: 100%;
+}
+
+#acceleration-title {
+    height: 2.4em;
+    line-height: 2.4em;
+}
+
+#right-ui-properties input {
+    width: 3.6em;
+}
+
+#right-ui-list-container {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+#right-ui-objects-list {
+    background-color: var(--secondary-color);
+    width: 100%;
+    border-radius: 5px;
+    padding: 0.5em;
+    box-sizing: border-box;
+    height: 100%;
+    overflow: auto;
+
+    display: flex;
+    gap: 0.5em;
+    flex-direction: column;
+    border: 0.5em solid var(--secondary-color);
+}
+
+.right-ui-object {
+    width: 100%;
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+}
+
+.right-ui-object > .material-symbols-outlined {
+    font-size: inherit;
+    line-height: 1.5;
+}
+
+.right-ui-object-name {
+    flex-grow: 1;
+}
+
+#object-name {
+    background: none;
+    border: none;
+    font-size: 1.17em;
+    color: var(--accent-color);
+    cursor: unset;
+    transition: 0.1s border-color ease-in-out;
+    border-bottom: 1px solid transparent;
+}
+#object-name:disabled {
+    color: var(--accent-color);
+    opacity: 0.3;
+}
+#object-name:focus-visible {
+    outline: none;
+    border-bottom: 1px solid var(--accent-color);
+}
+
+#clear-button-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#clear-scene-button {
+    background: var(--secondary-color);
+    border-radius: 200px;
+    padding: 8px 12px;
+}
+
+#collapse-right-ui-button {
+    position: fixed;
+    height: 1em;
+    right: 1em;
+    transition: 0.3s ease-in-out right, 0.3s ease-in-out transform;
+    padding: 0;
+}
+
+#collapse-right-ui-button:not(.collapsed) {
+    right: 10.33em;
+    transform: rotate(180deg);
+}

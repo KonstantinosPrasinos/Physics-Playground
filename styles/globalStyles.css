@@ -29,6 +29,10 @@ h3 {
     margin: 0;
 }
 
+a {
+    color: var(--accent-color);
+}
+
 button {
     cursor: pointer;
     text-decoration: none;
@@ -58,6 +62,81 @@ button:disabled {
 button.Button-Selected {
     background: var(--primary-color);
     filter: brightness(1.6);
+}
+
+label {
+    cursor: pointer;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    color: var(--accent-color);
+}
+
+input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+/* Scroll bar*/
+::-webkit-scrollbar{
+    width: 7px;
+}
+::-webkit-scrollbar-thumb{
+    background-color: var(--accent-color);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover{
+    filter: brightness(0.85);
+}
+
+/* Inputs */
+input:hover{
+    cursor: pointer;
+}
+input[type=text]:hover{
+    cursor: text;
+}
+input[type=text]:hover:disabled{
+    cursor: not-allowed;
+}
+input:disabled{
+    cursor: not-allowed;
+}
+
+input[type=color]{
+    opacity: inherit;
+    position: relative;
+    background-color: rgba(255, 255, 255, 0);
+    top: 0;
+    border: 1px solid var(--accent-color);
+    border-radius: 0.5em;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    background-color: var(--secondary-color);
+    border-radius: 10px;
+    height: 0.5em;
+    font-size: inherit;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 1.25em;
+    width: 3.5em;
+    border-radius: 10px;
+    cursor: ew-resize;
+}
+
+input[type=range]::-webkit-slider-runnable-track  {
+    -webkit-appearance: none;
+    box-shadow: none;
+    border: none;
+    background: transparent;
 }
 
 input[type="checkbox"].Toggle-Input {
@@ -96,16 +175,6 @@ input[type="text"] {
     background-color: var(--primary-color);
     border-radius: 4px;
     padding: 0.25em 0.5em;
-    color: var(--accent-color);
-}
-
-label {
-    cursor: pointer;
-}
-
-body {
-    font-family: 'Roboto', sans-serif;
-    margin: 0;
     color: var(--accent-color);
 }
 
@@ -178,4 +247,79 @@ body {
 
 .Big-Gap {
     gap: 2em;
+}
+
+/* Slider */
+
+.slider-value {
+    display: inline-block;
+    width: 3.5em;
+    height: 1.25em;
+    text-align: center;
+    pointer-events: none;
+    position: absolute;
+    top: -0.375em;
+    left: calc(27.2727% - 0.954545em); /* Calculated using js for the position of 1x */
+    background-color: var(--secondary-color);
+    color: var(--accent-color);
+    border-radius: 10px;
+    border: 1px solid var(--accent-color);
+}
+
+.slider-container {
+    position: relative;
+}
+
+/* Table */
+.table-container {
+    border-radius: 5px;
+    overflow: hidden;
+    font-size: 0.875rem;
+}
+.table-header {
+    background-color: var(--secondary-color);
+    display: grid;
+    padding: 0.75em;
+    gap: 0.5em;
+    height: 3em;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--primary-color);
+    box-sizing: border-box;
+    line-height: 1.5em;
+}
+
+.table-body > div {
+    background-color: var(--secondary-color);
+    display: grid;
+    padding: 1em;
+    gap: 0.5em;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--primary-color);
+}
+
+.table-body {
+    height: calc(100% - 3em);
+    overflow: auto;
+    background-color: var(--secondary-color);
+}
+
+/* Radio */
+.Radio-Input {
+    cursor: pointer;
+    width: 1.5em;
+    height: 1.5em;
+    border: 0.125em solid var(--accent-color);
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    transition: 0.15s border-width ease-in-out;
+}
+
+.Radio-Input:checked {
+    border-width: 0.375em;
+}
+
+/* etc */
+.title-bar {
+    display: flex;
+    justify-content: space-between;
 }

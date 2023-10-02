@@ -1,0 +1,118 @@
+#settings-box {
+    left: 3em;
+    width: 20em;
+    height: calc(100% - 3em);
+    position: fixed;
+    top: 3em;
+    background-color: var(--primary-color);
+    transition: 0.375s ease-in-out transform;
+    padding: 0.75em;
+    box-sizing: border-box;
+
+    display: flex;
+    gap: 1em;
+    flex-direction: column;
+}
+
+#settings-box.collapsed {
+    transform: translateX(-23em);
+}
+
+.settings-subsection {
+    display: flex;
+    gap: 0.5em;
+    flex-direction: column;
+}
+
+.settings-subsubsection {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 0.5em;
+    gap: 1em;
+}
+
+.settings-subsection-title {
+    margin-bottom: 1em;
+    margin-top: 1em;
+}
+
+.settings-content {
+    display: flex;
+    gap: 1em;
+}
+
+.theme-radio-button {
+    height: 2em;
+    width: 2em;
+    margin: 0;
+    border: 0.125em solid var(--accent-color);
+    border-radius: 50%;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: border-color 0.15s ease-in-out, border-width 0.15s ease-in-out;
+}
+
+.theme-radio-button:checked {
+    border-color: var(--selected-color);
+    border-width: 0.250em solid var(--accent-color);
+}
+
+#camera-type-container {
+    gap: 0;
+}
+
+#camera-type-container input {
+    display: none;
+}
+
+#camera-type-container label {
+    border: 2px solid var(--accent-color);
+    padding: 0.5em;
+    transition: border-color 0.15s ease-in-out;
+}
+
+#camera-type-container label:first-of-type {
+    border-radius: 0.5em 0 0 0.5em;
+}
+
+#camera-type-container label:last-of-type {
+    border-radius: 0 0.5em 0.5em 0;
+}
+
+#camera-type-container input[type="radio"]:checked + label {
+    border-color: var(--selected-color);
+}
+
+#object-name {
+    background: none;
+    border: none;
+    font-size: 1.17em;
+    color: var(--accent-color);
+    cursor: unset;
+    transition: 0.1s border-color ease-in-out;
+    border-bottom: 1px solid transparent;
+}
+#object-name:disabled {
+    color: var(--accent-color);
+    opacity: 0.3;
+}
+#object-name:focus-visible {
+    outline: none;
+    border-bottom: 1px solid var(--accent-color);
+}
+
+#upload-button-input {
+    display: none;
+}
+
+#dark-theme-radio {
+    background-color: #222831;
+}
+#light-theme-radio {
+    background-color: #EEEEEE;
+}
+#midnight-theme-radio {
+    background-color: #000000;
+}

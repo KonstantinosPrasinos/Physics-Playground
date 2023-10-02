@@ -1,16 +1,11 @@
-let canvas = document.getElementById("viewportCanvas");
 import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 
 class Simulation {
-    constructor(scene, world, camera, orbitControls, transformControls) {
+    constructor(scene, world, camera) {
         this.objects = [];
         this.isPaused = true;
-        this.logPerSteps = 0;
-        this.savedLog = null;
         this.selectedElement = null;
         this.selectedObject = null;
-        this.placingObject = false;
-        this.objectPlaceDist = 50;
         this.savedState = [];
         this.scene = scene;
         this.world = world;
@@ -19,7 +14,7 @@ class Simulation {
     }
 
     createBox() {
-        this.createObject("Cube");
+        return this.createObject("Cube");
     }
 
     createSphere() {
@@ -56,7 +51,7 @@ class Simulation {
         if (objectType === "Cube") {
             geometry = new THREE.BoxGeometry(radius, radius, radius);
         } else {
-            new THREE.SphereGeometry(radius, Math.ceil(radius / 10) * 16, Math.ceil(radius / 10) * 8);
+            geometry = new THREE.SphereGeometry(radius, Math.ceil(radius / 10) * 16, Math.ceil(radius / 10) * 8);
         }
 
 

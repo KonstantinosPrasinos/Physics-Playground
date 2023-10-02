@@ -1,0 +1,31 @@
+#bottom-left-buttons-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+}
+
+#left-ui {
+    width: 3em;
+    height: 100%;
+    background: var(--primary-color);
+    margin: 0;
+    border-right: var(--accent-color);
+    z-index: 1;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3.5em 0 1em 0;
+    justify-content: space-between;
+    box-sizing: border-box;
+
+    grid-area: left-bar;
+}
+
+.left-bar-tools {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+}

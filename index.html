@@ -1,16 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
     <title>A very creative title</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="tempStyles.css">
+    <link rel="stylesheet" href="styles/generalStyles.css">
     <link rel="stylesheet" href="styles/globalStyles.css">
+    <link rel="stylesheet" href="styles/leftBarStyles.css">
+    <link rel="stylesheet" href="styles/topBarStyles.css">
+    <link rel="stylesheet" href="styles/rightBarStyles.css">
+    <link rel="stylesheet" href="styles/settingsStyles.css">
+    <link rel="stylesheet" href="styles/timelineStyles.css">
 </head>
 
 <body class="dark-theme">
@@ -334,13 +338,6 @@
             </div>
             <div class="settings-subsection">
                 <h3 class="settings-subsection-title">Interface</h3>
-<!--                <section class="settings-subsection">-->
-<!--                    <div class="Title-Small">Background color</div>-->
-<!--                    <div class="settings-subsubsection">-->
-<!--                        <div class="Label">The simulation background color</div>-->
-<!--                        <input type="color" value="#ffffff" id="background-color-picker" class="color-picker">-->
-<!--                    </div>-->
-<!--                </section>-->
                 <section class="settings-subsection">
                     <div class="Title-Small">Theme</div>
                     <div class="settings-subsubsection">
@@ -394,13 +391,6 @@
                         <input type="checkbox" class="Toggle-Input" >
                     </div>
                 </section>
-<!--                <section class="settings-subsection">-->
-<!--                    <div class="Title-Small">Show framerate</div>-->
-<!--                    <div class="settings-subsubsection">-->
-<!--                        <div class="Label">Whether the simulation grid is displayed</div>-->
-<!--                        <input type="checkbox" class="Toggle-Input" >-->
-<!--                    </div>-->
-<!--                </section>-->
                 <section class="settings-subsection">
                     <div class="Title-Small">Show velocity vectors</div>
                     <div class="settings-subsubsection">
@@ -512,12 +502,13 @@
             </div>
         </div>
     </div>
-    <script src="scripts/staticStyling.js" type="module"> </script>
-    <script src="scripts/dynamicStyling.js" type="module"> </script>
     <script src="scripts/main.js" type="module"></script>
-<!--    <script src="scripts/notifications.js" type="module"></script>-->
-<!--    <script src="scripts/styling.js" type="module"></script>-->
-<!--    <script src="scripts/controls.js" type="module"></script>-->
+    <script src="scripts/generalStyling.js" type="module"></script>
+    <script src="scripts/styling/top-bar-styling.js" type="module"></script>
+    <script src="scripts/styling/right-bar-styling.js" type="module"></script>
+    <script src="scripts/styling/left-bar-styling.js" type="module"></script>
+    <script src="scripts/styling/settings-page-styling.js" type="module"></script>
+    <script src="scripts/styling/timeline-page-styling.js" type="module"></script>
 </body>
 
 </html>

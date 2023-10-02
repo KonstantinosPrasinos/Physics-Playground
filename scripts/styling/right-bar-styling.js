@@ -1,39 +1,53 @@
-import {
-    orbitControls,
-    setDisabledPhysical,
-    setDisabledVisual,
-    setTransformControlsEnabled,
-    simulation,
-    transformControls
-} from "./main.js";
-import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
+import {simulation} from "../main.js";
 
-/* Helper functions */
-const highlightButton = (event) => {
-    if (simulation.selectedModeElement) {
-        // Deselect previous button
-        simulation.selectedModeElement.classList.remove("Button-Selected");
+const rightUiToggle = document.getElementById("collapse-right-ui-button")
+const rightUi = document.getElementById("right-ui");
+const rightRoundedCorner = document.getElementById("rounded-corner-right");
 
-        if (simulation.selectedModeElement !== event.target) {
-            // If not the same button then select new button
-            event.target.classList.add("Button-Selected");
-            simulation.selectedModeElement = event.target;
-
-            transformControls.mode = event.target.id.split("-")[0];
-        } else {
-            // If it's the same button then just detach transform controls
-            transformControls.detach();
-            simulation.selectedModeElement = null;
-        }
+document.getElementById("collapse-right-ui-button").onclick = () => {
+    if (rightUi.classList.contains("collapsed")) {
+        rightUi.classList.remove("collapsed")
+        rightUiToggle.classList.remove("collapsed")
+        rightRoundedCorner.classList.remove("collapsed")
     } else {
-        // No button is selected, select this button
-        event.target.classList.add("Button-Selected");
-        simulation.selectedModeElement = event.target;
-
-        transformControls.mode = event.target.id.split("-")[0];
+        rightUi.classList.add("collapsed")
+        rightUiToggle.classList.add("collapsed")
+        rightRoundedCorner.classList.add("collapsed")
     }
 }
 
+document.getElementById("clear-scene-button").onclick = simulation.clear.bind(simulation);
+
+/* Add enter functionality to right ui inputs */
+const blurElementOnEnter = (event) => {
+    if (event.keyCode === 13) {
+        event.target.blur();
+    }
+}
+
+document.getElementById("width-input").onkeydown = blurElementOnEnter;
+document.getElementById("height-input").onkeydown = blurElementOnEnter;
+document.getElementById("depth-input").onkeydown = blurElementOnEnter;
+
+document.getElementById("position-x-input").onkeydown = blurElementOnEnter;
+document.getElementById("position-y-input").onkeydown = blurElementOnEnter;
+document.getElementById("position-z-input").onkeydown = blurElementOnEnter;
+
+document.getElementById("rotation-x-input").onkeydown = blurElementOnEnter;
+document.getElementById("rotation-y-input").onkeydown = blurElementOnEnter;
+document.getElementById("rotation-z-input").onkeydown = blurElementOnEnter;
+
+document.getElementById("velocity-x-input").onkeydown = blurElementOnEnter;
+document.getElementById("velocity-y-input").onkeydown = blurElementOnEnter;
+document.getElementById("velocity-z-input").onkeydown = blurElementOnEnter;
+
+document.getElementById("angular-velocity-x-input").onkeydown = blurElementOnEnter;
+document.getElementById("angular-velocity-y-input").onkeydown = blurElementOnEnter;
+document.getElementById("angular-velocity-z-input").onkeydown = blurElementOnEnter;
+
+document.getElementById("object-name").onkeydown = blurElementOnEnter;
+
+/* Right ui inputs */
 const setSize = (axis, event) => {
     if (event.target.value.length === 0 || isNaN(event.target.value)) {
         event.target.focus();
@@ -87,38 +101,6 @@ const setAngularVelocity = (axis, event) => {
     }
 }
 
-/* Left ui buttons */
-document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation);
-document.getElementById("add-sphere-button").onclick = simulation.createSphere.bind(simulation);
-
-/* Add enter functionality to right ui inputs */
-const blurElementOnEnter = (event) => {
-    if (event.keyCode === 13) {
-        event.target.blur();
-    }
-}
-
-document.getElementById("width-input").onkeydown = blurElementOnEnter;
-document.getElementById("height-input").onkeydown = blurElementOnEnter;
-document.getElementById("depth-input").onkeydown = blurElementOnEnter;
-
-document.getElementById("position-x-input").onkeydown = blurElementOnEnter;
-document.getElementById("position-y-input").onkeydown = blurElementOnEnter;
-document.getElementById("position-z-input").onkeydown = blurElementOnEnter;
-
-document.getElementById("rotation-x-input").onkeydown = blurElementOnEnter;
-document.getElementById("rotation-y-input").onkeydown = blurElementOnEnter;
-document.getElementById("rotation-z-input").onkeydown = blurElementOnEnter;
-
-document.getElementById("velocity-x-input").onkeydown = blurElementOnEnter;
-document.getElementById("velocity-y-input").onkeydown = blurElementOnEnter;
-document.getElementById("velocity-z-input").onkeydown = blurElementOnEnter;
-
-document.getElementById("angular-velocity-x-input").onkeydown = blurElementOnEnter;
-document.getElementById("angular-velocity-y-input").onkeydown = blurElementOnEnter;
-document.getElementById("angular-velocity-z-input").onkeydown = blurElementOnEnter;
-
-/* Right ui inputs */
 document.getElementById("mass-input").onblur = (event) => {
     if (event.target.value.length === 0 || isNaN(event.target.value)) {
         event.target.focus();
@@ -153,45 +135,6 @@ document.getElementById("angular-velocity-x-input").onblur = (event) => setAngul
 document.getElementById("angular-velocity-y-input").onblur = (event) => setAngularVelocity("y", event);
 document.getElementById("angular-velocity-z-input").onblur = (event) => setAngularVelocity("z", event);
 
-/* Selection modes inputs */
-document.getElementById("translate-button").onclick = (event) => {
-    highlightButton(event)
-}
-
-document.getElementById("scale-button").onclick = (event) => {
-    highlightButton(event);
-}
-
-document.getElementById("rotate-button").onclick = (event) => {
-    highlightButton(event);
-}
-
-document.getElementById("viewportCanvas").onclick = (event) => {
-    if (simulation.selectedModeElement) {
-        // Get intercepted objects
-        const xPos = (event.offsetX / parseInt(window.getComputedStyle(event.target).width)) * 2 - 1;
-        const yPos = -(event.offsetY / parseInt(window.getComputedStyle(event.target).height)) * 2 + 1;
-
-        const mouseVector = new THREE.Vector2(xPos, yPos);
-        const rayCaster = new THREE.Raycaster();
-
-        rayCaster.setFromCamera(mouseVector, simulation.camera);
-
-        const intersectedObjectInScene = rayCaster.intersectObjects(simulation.scene.children)[0]?.object;
-
-        if (intersectedObjectInScene) {
-            const intersectedObject = simulation.objects.find(object => object.mesh.id === intersectedObjectInScene?.id);
-
-            if (simulation.selectedObject !== intersectedObject) {
-                simulation.selectObject(intersectedObject);
-            }
-
-            transformControls.attach(intersectedObject.mesh);
-            setTransformControlsEnabled(true);
-        }
-    }
-}
-
 document.getElementById("object-name").onblur = (event) => {
     const value = event.target.value;
 
@@ -203,5 +146,3 @@ document.getElementById("object-name").onblur = (event) => {
         event.target.focus();
     }
 }
-
-document.getElementById("object-name").onkeydown = blurElementOnEnter;

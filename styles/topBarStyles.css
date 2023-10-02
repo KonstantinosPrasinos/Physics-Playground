@@ -1,0 +1,16 @@
+#top-ui {
+    width: 100%;
+    height: 3em;
+    top: 0;
+    background: var(--primary-color);
+    position: fixed;
+    z-index: 3;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1em;
+    padding-left: 3.5em;
+    padding-right: 15em;
+    grid-area: top-bar;
+    box-sizing: border-box;
+}

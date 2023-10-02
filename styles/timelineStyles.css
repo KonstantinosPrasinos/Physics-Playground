@@ -1,0 +1,30 @@
+#timeline-box {
+    position: fixed;
+    top: 3em;
+    left: 3em;
+    height: calc(100% - 3em);
+    width: 25em;
+    background-color: var(--primary-color);
+    transition: 0.3s ease-in-out transform;
+    padding: 0.75em;
+    box-sizing: border-box;
+
+    display: flex;
+    gap: 1em;
+    flex-direction: column;
+}
+#timeline-box.collapsed {
+    transform: translateX(-28em);
+}
+
+#timeline-container {
+    height: 45%;
+    width: 100%;
+}
+#timeline-parameters {
+    grid-area: parameters;
+}
+
+#timeline-title-bar {
+    grid-area: title-bar;
+}

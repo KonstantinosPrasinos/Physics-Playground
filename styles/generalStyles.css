@@ -1,0 +1,65 @@
+/* Rounded corners */
+#rounded-corner-left {
+    position: fixed;
+    background-color: transparent;
+    top: 3em;
+    left: 3em;
+    height: 20px;
+    width: 10px;
+    border-top-left-radius: 10px;
+    box-shadow: 0 -10px 0 0 var(--primary-color);
+    transition: 0.2s ease-in-out left;
+}
+
+#rounded-corner-left.extended {
+    left: 23em;
+}
+
+#rounded-corner-left.double-extended {
+    left: 28em;
+}
+
+#rounded-corner-right {
+    position: fixed;
+    background-color: transparent;
+    top: 3em;
+    right: -10px;
+    height: 20px;
+    width: 10px;
+    border-top-right-radius: 10px;
+    box-shadow: 0 -10px 0 0 var(--primary-color);
+    transition: 0.3s ease-in-out right;
+}
+
+#rounded-corner-right:not(.collapsed) {
+    right: 17.5em;
+}
+
+#viewportCanvas {
+    top: 3em;
+    left: 3em;
+    position: fixed;
+    z-index: 0;
+
+    grid-area: canvas;
+    /*border-radius: 10px 0 0 0;*/
+    width: calc(100% - 3em);
+    height: calc(100% - 3em);
+    background-color: var(--secondary-color);
+    transition: 0.3s width ease-in-out, 0.3s border-radius ease-in-out;
+}
+
+#app {
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+
+    display: grid;
+    grid-template-rows: 3em calc(100% - 3em);
+    grid-template-columns: 3em calc(100% - 3em);
+    grid-template-areas:
+    "left-bar top-bar"
+    "left-bar canvas"
+;
+    background-color: var(--primary-color);
+}
