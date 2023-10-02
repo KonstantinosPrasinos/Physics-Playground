@@ -417,8 +417,8 @@ class Simulation {
             this.deselectObject();
         }
 
-        for (const object in this.objects) {
-            this.#deleteObject(object);
+        while (this.objects.length > 0) {
+            this.#deleteObject(this.objects[0]);
         }
     }
 }

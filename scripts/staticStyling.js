@@ -337,3 +337,5 @@ document.getElementById("upload-button-input").onchange = (event) => {
     // Trigger onload event
     reader.readAsText(file);
 }
+
+document.getElementById("clear-scene-button").onclick = simulation.clear.bind(simulation);

@@ -367,3 +367,14 @@ input[type=range]::-webkit-slider-runnable-track  {
 #upload-button-input {
     display: none;
 }
+
+#clear-button-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#clear-scene-button {
+    background: var(--secondary-color);
+    border-radius: 200px;
+    padding: 8px 12px;
+}
