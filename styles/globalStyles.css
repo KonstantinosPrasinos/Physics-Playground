@@ -55,7 +55,7 @@ button:active:enabled {
 
 button:disabled {
     cursor: not-allowed;
-    opacity: 0.3;
+    opacity: 0.38;
     /* Other styling */
 }
 
@@ -79,6 +79,8 @@ input {
     -moz-appearance: none;
     appearance: none;
     margin: 0;
+
+    transition: opacity 0.15s ease-in-out;
 }
 
 /* Scroll bar*/
@@ -105,10 +107,10 @@ input[type=text]:hover:disabled{
 }
 input:disabled{
     cursor: not-allowed;
+    opacity: 0.38;
 }
 
 input[type=color]{
-    opacity: inherit;
     position: relative;
     background-color: rgba(255, 255, 255, 0);
     top: 0;
@@ -176,13 +178,26 @@ input[type="text"] {
     border-radius: 4px;
     padding: 0.25em 0.5em;
     color: var(--accent-color);
+    opacity: 0.87;
 }
+
+input[type="text"]:disabled {
+    opacity: 0.38;
+}
+
+
 
 /* Typography */
 .Label {
     opacity: 0.6;
     font-size: 0.75rem;
+    line-height: 0.75rem;
 }
+.Label-Small {
+    opacity: 0.6;
+    font-size: 0.65rem;
+}
+
 .Title-Small {
     font-size: 0.875rem;
 }
@@ -215,6 +230,7 @@ input[type="text"] {
     display: flex;
     flex-direction: row;
     gap: 0.75em;
+    align-items: center;
 }
 .Vertical-Flex-Container {
     display: flex;

@@ -84,19 +84,19 @@
                 <div id="time-scale-slider-value" class="slider-value">1 x</div>
             </div>
         </div>
-        <div id="right-ui" class="Vertical-Flex-Container Big-Gap">
+        <div id="right-ui" class="Vertical-Flex-Container Big-Gap collapsed">
             <input id="object-name" value="No item is selected" disabled>
-            <div id="right-ui-properties" class="Vertical-Flex-Container Big-Gap">
+            <div id="right-ui-properties" class="Vertical-Flex-Container Big-Gap Disabled">
                 <div class="right-appearance-grid">
                     <div class="Vertical-Flex-Container">
                         <div class="Title-Small">Color</div>
-                        <input disabled type="color" value="#ffffff" class="color-picker" id="item-color-picker">
+                        <input disabled class="right-ui-input color-picker" type="color" value="#ffffff" id="item-color-picker">
                     </div>
                     <div class="Vertical-Flex-Container">
                         <div class="Title-Small">Mass</div>
-                        <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                            <input disabled type="text" id="mass-input">
-                            <div class="Tooltip-Small">
+                        <div class="Horizontal-Flex-Container Small-Gap">
+                            <input disabled class="right-ui-input" type="text" id="mass-input">
+                            <div class="Label-Small">
                                 kg
                             </div>
                         </div>
@@ -104,28 +104,28 @@
                     <div class="Vertical-Flex-Container Space-Between" id="dimensions-container">
                         <div class="Title-Small">Dimensions</div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">W</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="width-input">
-                                <div class="Tooltip-Small">
+                            <div class="Label">W</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="width-input">
+                                <div class="Label-Small">
                                     m
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">H</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="height-input">
-                                <div class="Tooltip-Small">
+                            <div class="Label">H</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="height-input">
+                                <div class="Label-Small">
                                     m
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">D</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="depth-input">
-                                <div class="Tooltip-Small right-tooltip">
+                            <div class="Label">D</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="depth-input">
+                                <div class="Label-Small">
                                     m
                                 </div>
                             </div>
@@ -136,28 +136,28 @@
                     <div class="Vertical-Flex-Container">
                         <div class="Title-Small">Position</div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">X</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="position-x-input">
-                                <div class="Tooltip-Small">
+                            <div class="Label">X</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="position-x-input">
+                                <div class="Label-Small">
                                     m
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">Y</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="position-y-input">
-                                <div class="Tooltip-Small">
+                            <div class="Label">Y</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="position-y-input">
+                                <div class="Label-Small">
                                     m
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">Z</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="position-z-input">
-                                <div class="Tooltip-Small right-tooltip">
+                            <div class="Label">Z</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="position-z-input">
+                                <div class="Label-Small">
                                     m
                                 </div>
                             </div>
@@ -166,28 +166,28 @@
                     <div class="Vertical-Flex-Container">
                         <div class="Title-Small">Rotation</div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">X</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="rotation-x-input">
-                                <div class="Tooltip-Small">
+                            <div class="Label">X</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="rotation-x-input">
+                                <div class="Label-Small">
                                     rad
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">Y</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="rotation-y-input">
-                                <div class="Tooltip-Small">
+                            <div class="Label">Y</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="rotation-y-input">
+                                <div class="Label-Small">
                                     rad
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">Z</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="rotation-z-input">
-                                <div class="Tooltip-Small right-tooltip">
+                            <div class="Label">Z</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="rotation-z-input">
+                                <div class="Label-Small">
                                     rad
                                 </div>
                             </div>
@@ -198,28 +198,28 @@
                     <div class="Vertical-Flex-Container">
                         <div class="Title-Small">Velocity</div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">X</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="velocity-x-input">
-                                <div class="Tooltip-Small">
+                            <div class="Label">X</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="velocity-x-input">
+                                <div class="Label-Small">
                                     m/s
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">Y</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="velocity-y-input">
-                                <div class="Tooltip-Small">
+                            <div class="Label">Y</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="velocity-y-input">
+                                <div class="Label-Small">
                                     m/s
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">Z</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="velocity-z-input">
-                                <div class="Tooltip-Small right-tooltip">
+                            <div class="Label">Z</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="velocity-z-input">
+                                <div class="Label-Small">
                                     m/s
                                 </div>
                             </div>
@@ -228,28 +228,28 @@
                     <div class="Vertical-Flex-Container">
                         <div class="Title-Small">Angular Velocity</div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">X</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="angular-velocity-x-input">
-                                <div class="Tooltip-Small">
+                            <div class="Label">X</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="angular-velocity-x-input">
+                                <div class="Label-Small">
                                     rad/s
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">Y</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="angular-velocity-y-input">
-                                <div class="Tooltip-Small">
+                            <div class="Label">Y</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="angular-velocity-y-input">
+                                <div class="Label-Small">
                                     rad/s
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">Z</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="angular-velocity-z-input">
-                                <div class="Tooltip-Small right-tooltip">
+                            <div class="Label">Z</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="angular-velocity-z-input">
+                                <div class="Label-Small">
                                     rad/s
                                 </div>
                             </div>
@@ -260,28 +260,28 @@
                     <div class="Vertical-Flex-Container">
                         <div class="Title-Small" id="acceleration-title">Acceleration</div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">X</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="acceleration-x-input">
-                                <div class="Tooltip-Small">
+                            <div class="Label">X</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="acceleration-x-input">
+                                <div class="Label-Small">
                                     m/s²
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">Y</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="acceleration-y-input">
-                                <div class="Tooltip-Small">
+                            <div class="Label">Y</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="acceleration-y-input">
+                                <div class="Label-Small">
                                     m/s²
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">Z</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="acceleration-z-input">
-                                <div class="Tooltip-Small right-tooltip">
+                            <div class="Label">Z</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="acceleration-z-input">
+                                <div class="Label-Small">
                                     m/s²
                                 </div>
                             </div>
@@ -290,28 +290,28 @@
                     <div class="Vertical-Flex-Container">
                         <div class="Title-Small">Angular Acceleration</div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">X</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="angular-acceleration-x-input">
-                                <div class="Tooltip-Small">
+                            <div class="Label">X</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="angular-acceleration-x-input">
+                                <div class="Label-Small">
                                     rad/s²
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">Y</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id=angular-acceleration-y-input">
-                                <div class="Tooltip-Small">
+                            <div class="Label">Y</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id=angular-acceleration-y-input">
+                                <div class="Label-Small">
                                     rad/s²
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Title-Small right-title-small">Z</div>
-                            <div class="Horizontal-Flex-Container Small-Gap Align-Bottom">
-                                <input disabled type="text" id="angular-acceleration-z-input">
-                                <div class="Tooltip-Small right-tooltip">
+                            <div class="Label">Z</div>
+                            <div class="Horizontal-Flex-Container Small-Gap">
+                                <input disabled class="right-ui-input" type="text" id="angular-acceleration-z-input">
+                                <div class="Label-Small">
                                     rad/s²
                                 </div>
                             </div>

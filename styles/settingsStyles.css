@@ -85,24 +85,6 @@
     border-color: var(--selected-color);
 }
 
-#object-name {
-    background: none;
-    border: none;
-    font-size: 1.17em;
-    color: var(--accent-color);
-    cursor: unset;
-    transition: 0.1s border-color ease-in-out;
-    border-bottom: 1px solid transparent;
-}
-#object-name:disabled {
-    color: var(--accent-color);
-    opacity: 0.3;
-}
-#object-name:focus-visible {
-    outline: none;
-    border-bottom: 1px solid var(--accent-color);
-}
-
 #upload-button-input {
     display: none;
 }

@@ -149,6 +149,13 @@ class Simulation {
         const container = document.getElementById('right-ui-properties');
         const inputElements = container.querySelectorAll('input');
 
+        // For labels
+        if (isDisabled) {
+            document.getElementById("right-ui-properties").classList.add("Disabled")
+        } else {
+            document.getElementById("right-ui-properties").classList.remove("Disabled")
+        }
+
         // For name
         document.getElementById('object-name').disabled = isDisabled;
 

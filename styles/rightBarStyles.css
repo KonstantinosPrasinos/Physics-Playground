@@ -102,7 +102,8 @@
 }
 #object-name:disabled {
     color: var(--accent-color);
-    opacity: 0.3;
+    opacity: 0.38;
+    cursor: not-allowed;
 }
 #object-name:focus-visible {
     outline: none;
@@ -131,4 +132,8 @@
 #collapse-right-ui-button:not(.collapsed) {
     right: 10.33em;
     transform: rotate(180deg);
+}
+
+#right-ui-properties.Disabled .Title-Small {
+    opacity: 0.38;
 }
