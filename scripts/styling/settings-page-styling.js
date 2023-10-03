@@ -11,9 +11,10 @@ const cameraFovValue = document.getElementById("camera-fov-slider-value");
 const cameraFovSlider = document.getElementById("camera-fov-slider");
 
 let userSettings = {
-  theme: "dark",
-  cameraType: "Orthographic",
-  cameraFov: "45"
+    theme: "dark",
+    cameraType: "Orthographic",
+    cameraFov: "45",
+    useDeviceTheme: false
 };
 
 const loadSettingsFromLocalStorage = () => {
@@ -21,23 +22,20 @@ const loadSettingsFromLocalStorage = () => {
     userSettings = JSON.parse(localStorage.getItem("userSettings"));
 
     // Update settings ui
-    switch (userSettings.theme) {
-        case "light":
-            document.body.className = "light-theme";
-            setBackgroundWithTheme();
-
-            document.getElementById("light-theme-radio").checked = true;
-            document.getElementById("dark-theme-radio").checked = false;
-            break;
-        case 'midnight':
-            document.body.className = "midnight-theme";
-            setBackgroundWithTheme();
-
-            document.getElementById("midnight-theme-radio").checked = true;
-            document.getElementById("dark-theme-radio").checked = false;
-            break;
-        default:
-            break;
+    if (userSettings.useDeviceTheme) {
+        setColorSchemeEvent(true);
+        document.getElementById("device-theme-toggle").checked = true;
+    } else {
+        switch (userSettings.theme) {
+            case "light":
+                setLightTheme()
+                break;
+            case 'midnight':
+                setLightTheme()
+                break;
+            default:
+                break;
+        }
     }
 
     if (userSettings.cameraType !== "Orthographic") {
@@ -242,6 +240,65 @@ document.getElementById("orthographic-camera-radio").onchange = (event) => {
         document.getElementById("camera-fov-container-section").classList.add("Disabled");
         document.getElementById("camera-fov-slider").disabled = true;
     }
+}
+
+const setDarkTheme = () => {
+    document.body.className = "dark-theme";
+    setBackgroundWithTheme();
+
+    document.getElementById("dark-theme-radio").checked = true;
+}
+
+const setLightTheme = () => {
+    document.body.className = "light-theme";
+    setBackgroundWithTheme();
+
+    document.getElementById("light-theme-radio").checked = true;
+}
+
+const setColorSchemeEvent = (bool) => {
+    if (bool) {
+        document.getElementById("theme-section").classList.add("Disabled");
+    } else {
+        document.getElementById("theme-section").classList.remove("Disabled");
+    }
+    document.getElementById("light-theme-radio").disabled = bool;
+    document.getElementById("dark-theme-radio").disabled = bool;
+    document.getElementById("midnight-theme-radio").disabled = bool;
+
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        setDarkTheme();
+    } else {
+        setLightTheme();
+    }
+    const eventListener = (event) => {
+        if (event.matches) {
+            // Dark mode
+            setDarkTheme();
+        } else {
+            // Light mode
+            setLightTheme();
+        }
+    }
+
+    if (bool) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', eventListener)
+    } else {
+        window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', eventListener);
+    }
+}
+
+document.getElementById("device-theme-toggle").onchange = (event) => {
+    if (event.target.checked) {
+        setColorSchemeEvent(true);
+        // Disable theme picker
+    } else {
+        setColorSchemeEvent(false);
+        userSettings.us
+    }
+
+    userSettings.useDeviceTheme = event.target.checked;
+    saveSettingsToLocalStorage();
 }
 
 loadSettingsFromLocalStorage();
