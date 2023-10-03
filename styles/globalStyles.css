@@ -15,9 +15,9 @@
 }
 
 .midnight-theme {
-    --primary-color: #000000;
+    --primary-color: #1e1f22;
     --accent-color: #eaeaeb;
-    --secondary-color: #1e1f22;
+    --secondary-color: #000000;
 }
 
 /* Built-in elements */

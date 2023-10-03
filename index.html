@@ -33,10 +33,6 @@
             <p id="notification-popup-text"></p>
         </div>
         <div id="left-ui">
-<!--            <button class="left-ui-buttons icon-buttons big-icon-buttons" id="settings-button"></button>-->
-<!--            <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-cube-button"></button>-->
-<!--            <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-sphere-button"></button>-->
-<!--            <button class="left-ui-buttons icon-buttons big-icon-buttons" id="add-cylinder-button"></button>-->
             <div class="left-bar-tools">
                 <button class="material-symbols-outlined" id="translate-button">
                     open_with
@@ -343,7 +339,7 @@
                     <div class="settings-subsubsection">
                         <div class="Label">The app theme</div>
                         <div id="theme-container" class="settings-content">
-                            <input type="radio" id="light-theme-radio" value="light" name="theme-radio" class="theme-radio-button" onchange="">
+                            <input type="radio" id="light-theme-radio" value="light" name="theme-radio" class="theme-radio-button">
                             <input type="radio" id="dark-theme-radio" value="dark" name="theme-radio" class="theme-radio-button" checked="checked">
                             <input type="radio" id="midnight-theme-radio" value="midnight" class="theme-radio-button" name="theme-radio">
                         </div>
@@ -353,7 +349,7 @@
                     <div class="Title-Small">Show tips</div>
                     <div class="settings-subsubsection">
                         <div class="Label">Whether tips are shown while the user navigates the user interface</div>
-                        <input type="checkbox" class="Toggle-Input" >
+                        <input type="checkbox" class="Toggle-Input" id="show-tips-button" >
                     </div>
                 </section>
             </div>
@@ -379,23 +375,6 @@
                             <input type="range" min="20" max="110" step="1" value="45" id="camera-fov-slider">
                             <div id="camera-fov-slider-value" class="slider-value">45</div>
                         </div>
-                    </div>
-                </section>
-            </div>
-            <div class="settings-subsection">
-                <h3 class="settings-subsection-title">Overlay</h3>
-                <section class="settings-subsection">
-                    <div class="Title-Small">Show grid</div>
-                    <div class="settings-subsubsection">
-                        <div class="Label">Whether the simulation grid is displayed</div>
-                        <input type="checkbox" class="Toggle-Input" >
-                    </div>
-                </section>
-                <section class="settings-subsection">
-                    <div class="Title-Small">Show velocity vectors</div>
-                    <div class="settings-subsubsection">
-                        <div class="Label">Whether vectors that indicate velocity are displayed on objects</div>
-                        <input type="checkbox" class="Toggle-Input" >
                     </div>
                 </section>
             </div>

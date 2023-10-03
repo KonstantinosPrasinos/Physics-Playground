@@ -1,6 +1,57 @@
 import {setBackgroundWithTheme, simulation} from "../main.js";
 import {collapseSettings} from "./left-bar-styling.js";
 
+const cameraFovValue = document.getElementById("camera-fov-slider-value");
+const cameraFovSlider = document.getElementById("camera-fov-slider");
+
+let userSettings = {
+  theme: "dark",
+  showTips: false,
+  cameraType: "Orthographic",
+  cameraFov: "45"
+};
+
+const loadSettingsFromLocalStorage = () => {
+    // Get from local storage
+    userSettings = JSON.parse(localStorage.getItem("userSettings"));
+
+    // Update settings ui
+    switch (userSettings.theme) {
+        case "light":
+            document.body.className = "light-theme";
+            setBackgroundWithTheme();
+
+            document.getElementById("light-theme-radio").checked = true;
+            document.getElementById("dark-theme-radio").checked = false;
+            break;
+        case 'midnight':
+            document.body.className = "midnight-theme";
+            setBackgroundWithTheme();
+
+            document.getElementById("midnight-theme-radio").checked = true;
+            document.getElementById("dark-theme-radio").checked = false;
+            break;
+        default:
+            break;
+    }
+
+    if (!userSettings.showTips) {
+        document.getElementById("show-tips-button").checked = false;
+    }
+
+    if (userSettings.cameraType !== "Orthographic") {
+        document.getElementById("perspective-camera-radio").checked = true;
+    }
+
+    if (userSettings.cameraFov !== "45") {
+        cameraFovSlider.value = userSettings.cameraFov;
+        updateCameraFovSliderValue(userSettings.cameraFov);
+    }
+}
+const saveSettingsToLocalStorage = () => {
+    localStorage.setItem("userSettings", JSON.stringify(userSettings));
+}
+
 document.getElementById("close-settings-button").onclick = () => {
     collapseSettings();
 }
@@ -9,13 +60,17 @@ document.getElementById("light-theme-radio").onchange = () => {
     if (document.body.className !== "light-theme") {
         document.body.className = "light-theme";
         setBackgroundWithTheme();
+        userSettings.theme = "light";
+        saveSettingsToLocalStorage();
     }
 }
 
-document.getElementById("light-theme-radio").onchange = () => {
+document.getElementById("dark-theme-radio").onchange = () => {
     if (document.body.className !== "dark-theme") {
         document.body.className = "dark-theme";
         setBackgroundWithTheme();
+        userSettings.theme = "dark"
+        saveSettingsToLocalStorage();
     }
 }
 
@@ -23,11 +78,10 @@ document.getElementById("midnight-theme-radio").onchange = () => {
     if (document.body.className !== "midnight-theme") {
         document.body.className = "midnight-theme";
         setBackgroundWithTheme();
+        userSettings.theme = "midnight";
+        saveSettingsToLocalStorage();
     }
 }
-
-const cameraFovValue = document.getElementById("camera-fov-slider-value");
-const cameraFovSlider = document.getElementById("camera-fov-slider");
 
 const updateCameraFovSliderValue = (value) => {
     const percentage = ((value - 20) / 90) * 100
@@ -37,7 +91,9 @@ const updateCameraFovSliderValue = (value) => {
 }
 
 cameraFovSlider.addEventListener("input", (event) => {
-    updateCameraFovSliderValue(event.target.value)
+    updateCameraFovSliderValue(event.target.value);
+    userSettings.cameraFov = event.target.value;
+    saveSettingsToLocalStorage();
 });
 
 document.getElementById("camera-fov-container").onwheel = (event) => {
@@ -156,3 +212,5 @@ document.getElementById("upload-button-input").onchange = (event) => {
     // Trigger onload event
     reader.readAsText(file);
 }
+
+loadSettingsFromLocalStorage();
