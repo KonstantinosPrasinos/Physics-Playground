@@ -1,4 +1,10 @@
-import {setBackgroundWithTheme, simulation} from "../main.js";
+import {
+    setBackgroundWithTheme,
+    setCameraFov,
+    setCameraOrthographic,
+    setCameraPerspective,
+    simulation
+} from "../main.js";
 import {collapseSettings} from "./left-bar-styling.js";
 
 const cameraFovValue = document.getElementById("camera-fov-slider-value");
@@ -41,6 +47,10 @@ const loadSettingsFromLocalStorage = () => {
 
     if (userSettings.cameraType !== "Orthographic") {
         document.getElementById("perspective-camera-radio").checked = true;
+        setCameraPerspective();
+
+        document.getElementById("camera-fov-container-section").classList.remove("Disabled");
+        document.getElementById("camera-fov-slider").disabled = false;
     }
 
     if (userSettings.cameraFov !== "45") {
@@ -94,6 +104,8 @@ cameraFovSlider.addEventListener("input", (event) => {
     updateCameraFovSliderValue(event.target.value);
     userSettings.cameraFov = event.target.value;
     saveSettingsToLocalStorage();
+
+    setCameraFov(event.target.value);
 });
 
 document.getElementById("camera-fov-container").onwheel = (event) => {
@@ -211,6 +223,30 @@ document.getElementById("upload-button-input").onchange = (event) => {
 
     // Trigger onload event
     reader.readAsText(file);
+}
+
+document.getElementById("perspective-camera-radio").onchange = (event) => {
+    if (event.target.checked) {
+        setCameraPerspective();
+        userSettings.cameraType = "Perspective";
+
+        saveSettingsToLocalStorage();
+
+        document.getElementById("camera-fov-container-section").classList.remove("Disabled");
+        document.getElementById("camera-fov-slider").disabled = false;
+    }
+}
+
+document.getElementById("orthographic-camera-radio").onchange = (event) => {
+    if (event.target.checked) {
+        setCameraOrthographic();
+        userSettings.cameraType = "Orthographic";
+
+        saveSettingsToLocalStorage();
+
+        document.getElementById("camera-fov-container-section").classList.add("Disabled");
+        document.getElementById("camera-fov-slider").disabled = true;
+    }
 }
 
 loadSettingsFromLocalStorage();

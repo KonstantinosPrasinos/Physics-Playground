@@ -33,6 +33,35 @@ const setBackgroundWithTheme = () =>{
     renderer.setClearColor(parseInt(`0x${hexColor}`), 1);
 }
 
+const setCameraPerspective = () => {
+    perspectiveCamera.position.set(camera.position.x, camera.position.y, camera.position.z);
+    perspectiveCamera.rotation.set(camera.rotation.x, camera.rotation.y, camera.rotation.z);
+    
+    camera = perspectiveCamera;
+    camera.updateMatrixWorld();
+    camera.updateProjectionMatrix();
+
+    orbitControls.object = camera;
+}
+
+const setCameraOrthographic = () => {
+    orthographicCamera.position.set(camera.position.x, camera.position.y, camera.position.z);
+    orthographicCamera.rotation.set(camera.rotation.x, camera.rotation.y, camera.rotation.z);
+
+    camera = orthographicCamera;
+    camera.updateMatrixWorld();
+    camera.updateProjectionMatrix();
+
+    orbitControls.object = camera;
+}
+
+const setCameraFov = (value) => {
+    if (camera.type === "PerspectiveCamera") {
+        camera.fov = parseInt(value)
+        camera.updateProjectionMatrix();
+    }
+}
+
 //Init Functions
 function initControls() {
     orbitControls = new OrbitControls(camera, renderer.domElement);
@@ -176,4 +205,4 @@ simulation = new Simulation(scene, world, camera, orbitControls, transformContro
 
 animate();
 
-export { setTransformControlsEnabled, orthographicCamera, simulation, camera, transformControls, orbitControls, renderer, changeTimeStep, setBackgroundWithTheme };
+export { setCameraFov, perspectiveCamera, setTransformControlsEnabled, orthographicCamera, simulation, camera, transformControls, orbitControls, renderer, changeTimeStep, setBackgroundWithTheme, setCameraOrthographic, setCameraPerspective };

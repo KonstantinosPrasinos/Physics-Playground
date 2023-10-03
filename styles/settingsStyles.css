@@ -24,6 +24,14 @@
     flex-direction: column;
 }
 
+.settings-subsection.Disabled .Title-Small {
+    opacity: 0.38;
+}
+
+.settings-subsection.Disabled .Label {
+    opacity: 0.38;
+}
+
 .settings-subsubsection {
     display: flex;
     flex-direction: row;

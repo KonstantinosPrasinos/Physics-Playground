@@ -1,5 +1,5 @@
 import {
-    orthographicCamera, renderer, setTransformControlsEnabled,
+    orthographicCamera, perspectiveCamera, renderer, setTransformControlsEnabled,
     simulation, transformControls,
 } from "./main.js";
 
@@ -17,7 +17,10 @@ window.onresize = () => {
     orthographicCamera.top = 40 / 2;
     orthographicCamera.bottom = 40 / -2;
 
+    perspectiveCamera.aspect = aspectRatio;
+
     orthographicCamera.updateProjectionMatrix();
+    perspectiveCamera.updateProjectionMatrix();
 }
 
 document.getElementById("viewportCanvas").onclick = (event) => {

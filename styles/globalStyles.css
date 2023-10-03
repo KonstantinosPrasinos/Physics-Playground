@@ -133,6 +133,9 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: 10px;
     cursor: ew-resize;
 }
+input[type="range"]:disabled::-webkit-slider-thumb {
+    cursor: not-allowed;
+}
 
 input[type=range]::-webkit-slider-runnable-track  {
     -webkit-appearance: none;
@@ -192,6 +195,8 @@ input[type="text"]:disabled {
     opacity: 0.6;
     font-size: 0.75rem;
     line-height: 0.75rem;
+
+    transition: opacity 0.15s ease-in-out;
 }
 .Label-Small {
     opacity: 0.6;
@@ -200,6 +205,7 @@ input[type="text"]:disabled {
 
 .Title-Small {
     font-size: 0.875rem;
+    transition: opacity 0.15s ease-in-out;
 }
 .Tooltip-Small {
     font-size: 0.75rem;
@@ -280,6 +286,13 @@ input[type="text"]:disabled {
     color: var(--accent-color);
     border-radius: 10px;
     border: 1px solid var(--accent-color);
+
+    transition: opacity 0.15s ease-in-out;
+}
+
+input:disabled ~ .slider-value {
+    opacity: 0.38;
+    cursor: not-allowed;
 }
 
 .slider-container {
