@@ -75,21 +75,36 @@
                 <span>Time:</span>
                 <span class="top-field top-field-text" id="time">0</span>
             </div>
-            <div id="time-scale-container" class="Horizontal-Flex-Container slider-container">
-                <input type="range" min="0.25" max="3" step="0.25" value="1" id="time-scale-slider">
-                <div id="time-scale-slider-value" class="slider-value">1 x</div>
+            <div class="input-with-pop-up-label">
+                <div id="time-scale-container" class="Horizontal-Flex-Container slider-container">
+                    <input type="range" min="0.25" max="3" step="0.25" value="1" id="time-scale-slider">
+                    <div id="time-scale-slider-value" class="slider-value">1 x</div>
+                </div>
+                <label for="time-scale-slider" class="popup-label" id="time-scale-slider-label">Time scale</label>
             </div>
         </div>
         <div id="right-ui" class="Vertical-Flex-Container Big-Gap collapsed">
-            <input id="object-name" value="No item is selected" disabled>
+            <div class="input-with-pop-up-label">
+                <input id="object-name" value="No item is selected" disabled>
+                <label for="object-name" class="popup-label" id="object-name-label">Object name</label>
+            </div>
             <div id="right-ui-properties" class="Vertical-Flex-Container Big-Gap Disabled">
                 <div class="right-appearance-grid">
                     <div class="Vertical-Flex-Container">
-                        <div class="Title-Small">Color</div>
+                        <label for="item-color-picker" class="Title-Small">Color</label>
                         <input disabled class="right-ui-input color-picker" type="color" value="#ffffff" id="item-color-picker">
                     </div>
                     <div class="Vertical-Flex-Container">
-                        <div class="Title-Small">Mass</div>
+                        <label for="mass-input" class="Title-Small Horizontal-Flex-Container Small-Gap">
+                            Mass
+                            <button class="material-symbols-outlined info-button" id="mass-info-button">
+                                info
+                            </button>
+                        </label>
+                        <div class="Tooltip-Container Collapsed Horizontal-Flex-Container Align-Top" id="mass-tooltip">
+                            Set the mass of an object to 0 to make it immovable
+                            <button class="material-symbols-outlined" id="mass-tooltip-close-button">close</button>
+                        </div>
                         <div class="Horizontal-Flex-Container Small-Gap">
                             <input disabled class="right-ui-input" type="text" id="mass-input">
                             <div class="Label-Small">
@@ -98,9 +113,18 @@
                         </div>
                     </div>
                     <div class="Vertical-Flex-Container Space-Between" id="dimensions-container">
-                        <div class="Title-Small">Dimensions</div>
+                        <label for="mass-input" class="Title-Small Horizontal-Flex-Container Small-Gap">
+                            Dimensions
+                            <button class="material-symbols-outlined info-button" id="dimensions-info-button">
+                                info
+                            </button>
+                        </label>
+                        <div class="Tooltip-Container Collapsed Horizontal-Flex-Container Align-Top" id="dimensions-tooltip">
+                            In a sphere all the dimensions change when you change one
+                            <button class="material-symbols-outlined" id="dimensions-tooltip-close-button">close</button>
+                        </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">W</div>
+                            <label for="width-input" class="Label">W</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="width-input">
                                 <div class="Label-Small">
@@ -109,7 +133,7 @@
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">H</div>
+                            <label for="height-input" class="Label">H</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="height-input">
                                 <div class="Label-Small">
@@ -118,7 +142,7 @@
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">D</div>
+                            <label for="depth-input" class="Label">D</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="depth-input">
                                 <div class="Label-Small">
@@ -132,7 +156,7 @@
                     <div class="Vertical-Flex-Container">
                         <div class="Title-Small">Position</div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">X</div>
+                            <label for="position-x-input" class="Label">X</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="position-x-input">
                                 <div class="Label-Small">
@@ -141,7 +165,7 @@
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">Y</div>
+                            <label for="position-y-input" class="Label">Y</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="position-y-input">
                                 <div class="Label-Small">
@@ -150,7 +174,7 @@
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">Z</div>
+                            <label for="position-z-input" class="Label">Z</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="position-z-input">
                                 <div class="Label-Small">
@@ -162,7 +186,7 @@
                     <div class="Vertical-Flex-Container">
                         <div class="Title-Small">Rotation</div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">X</div>
+                            <label for="rotation-x-input" class="Label">X</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="rotation-x-input">
                                 <div class="Label-Small">
@@ -171,7 +195,7 @@
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">Y</div>
+                            <label for="rotation-y-input" class="Label">Y</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="rotation-y-input">
                                 <div class="Label-Small">
@@ -180,7 +204,7 @@
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">Z</div>
+                            <label for="rotation-z-input" class="Label">Z</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="rotation-z-input">
                                 <div class="Label-Small">
@@ -192,7 +216,7 @@
                 </div>
                 <div id="right-second-degree-grid" class="right-properties-grid">
                     <div class="Vertical-Flex-Container">
-                        <div class="Title-Small">Velocity</div>
+                        <label for="velocity-x-input" class="Title-Small">Velocity</label>
                         <div class="Horizontal-Flex-Container">
                             <div class="Label">X</div>
                             <div class="Horizontal-Flex-Container Small-Gap">
@@ -203,7 +227,7 @@
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">Y</div>
+                            <label for="velocity-y-input" class="Label">Y</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="velocity-y-input">
                                 <div class="Label-Small">
@@ -212,7 +236,7 @@
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">Z</div>
+                            <label for="velocity-z-input" class="Label">Z</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="velocity-z-input">
                                 <div class="Label-Small">
@@ -224,7 +248,7 @@
                     <div class="Vertical-Flex-Container">
                         <div class="Title-Small">Angular Velocity</div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">X</div>
+                            <label for="angular-velocity-x-input" class="Label">X</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="angular-velocity-x-input">
                                 <div class="Label-Small">
@@ -233,7 +257,7 @@
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">Y</div>
+                            <label for="angular-velocity-y-input" class="Label">Y</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="angular-velocity-y-input">
                                 <div class="Label-Small">
@@ -242,7 +266,7 @@
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">Z</div>
+                            <label for="angular-velocity-z-input" class="Label">Z</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="angular-velocity-z-input">
                                 <div class="Label-Small">
@@ -256,7 +280,7 @@
                     <div class="Vertical-Flex-Container">
                         <div class="Title-Small" id="acceleration-title">Acceleration</div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">X</div>
+                            <label for="acceleration-x-input" class="Label">X</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="acceleration-x-input">
                                 <div class="Label-Small">
@@ -265,7 +289,7 @@
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">Y</div>
+                            <label for="acceleration-y-input" class="Label">Y</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="acceleration-y-input">
                                 <div class="Label-Small">
@@ -274,7 +298,7 @@
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">Z</div>
+                            <label for="acceleration-z-input" class="Label">Z</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="acceleration-z-input">
                                 <div class="Label-Small">
@@ -286,7 +310,7 @@
                     <div class="Vertical-Flex-Container">
                         <div class="Title-Small">Angular Acceleration</div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">X</div>
+                            <label for="angular-acceleration-x-input" class="Label">X</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="angular-acceleration-x-input">
                                 <div class="Label-Small">
@@ -295,16 +319,16 @@
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">Y</div>
+                            <label for="angular-acceleration-y-input" class="Label">Y</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
-                                <input disabled class="right-ui-input" type="text" id=angular-acceleration-y-input">
+                                <input disabled class="right-ui-input" type="text" id="angular-acceleration-y-input">
                                 <div class="Label-Small">
                                     rad/s²
                                 </div>
                             </div>
                         </div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">Z</div>
+                            <label for="angular-acceleration-z-input" class="Label">Z</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="angular-acceleration-z-input">
                                 <div class="Label-Small">
@@ -339,17 +363,19 @@
                     <div class="settings-subsubsection">
                         <div class="Label">The app theme</div>
                         <div id="theme-container" class="settings-content">
-                            <input type="radio" id="light-theme-radio" value="light" name="theme-radio" class="theme-radio-button">
-                            <input type="radio" id="dark-theme-radio" value="dark" name="theme-radio" class="theme-radio-button" checked="checked">
-                            <input type="radio" id="midnight-theme-radio" value="midnight" class="theme-radio-button" name="theme-radio">
+                            <div class="input-with-pop-up-label">
+                                <input type="radio" id="light-theme-radio" value="light" name="theme-radio" class="theme-radio-button">
+                                <label for="light-theme-radio" class="popup-label" id="light-theme-radio-label">Light</label>
+                            </div>
+                            <div class="input-with-pop-up-label">
+                                <input type="radio" id="dark-theme-radio" value="dark" name="theme-radio" class="theme-radio-button" checked="checked">
+                                <label for="dark-theme-radio" class="popup-label" id="dark-theme-radio-label">Dark</label>
+                            </div>
+                            <div class="input-with-pop-up-label">
+                                <input type="radio" id="midnight-theme-radio" value="midnight" class="theme-radio-button" name="theme-radio">
+                                <label for="midnight-theme-radio" class="popup-label" id="midnight-theme-radio-label">Midnight</label>
+                            </div>
                         </div>
-                    </div>
-                </section>
-                <section class="settings-subsection">
-                    <div class="Title-Small">Show tips</div>
-                    <div class="settings-subsubsection">
-                        <div class="Label">Whether tips are shown while the user navigates the user interface</div>
-                        <input type="checkbox" class="Toggle-Input" id="show-tips-button" >
                     </div>
                 </section>
             </div>
@@ -361,14 +387,14 @@
                         <div class="Label">The type of the simulation camera</div>
                         <div id="camera-type-container" class="settings-content Title-Small">
                             <input type="radio" id="perspective-camera-radio" value="perspective" name="camera-radio">
-                            <label for="perspective-camera-radio">Perspective</label>
+                            <label for="perspective-camera-radio" class="Clickable">Perspective</label>
                             <input type="radio" id="orthographic-camera-radio" value="orthographic" name="camera-radio" checked="checked">
-                            <label for="orthographic-camera-radio">Orthographic</label>
+                            <label for="orthographic-camera-radio" class="Clickable">Orthographic</label>
                         </div>
                     </div>
                 </section>
                 <section class="settings-subsection Disabled" id="camera-fov-container-section">
-                    <div class="Title-Small">Camera fov</div>
+                    <label class="Title-Small Horizontal-Flex-Container" for="camera-fov-slider">Camera fov</label>
                     <div class="settings-subsubsection">
                         <div class="Label">The field-of-view of the simulation camera</div>
                         <div id="camera-fov-container" class="Horizontal-Flex-Container slider-container">

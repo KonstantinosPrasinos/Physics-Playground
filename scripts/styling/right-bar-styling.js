@@ -146,3 +146,50 @@ document.getElementById("object-name").onblur = (event) => {
         event.target.focus();
     }
 }
+
+// Tooltips
+const setTooltipVisibility = (tooltip, event) => {
+    const fontSize = parseInt(getComputedStyle(event.target).fontSize);
+
+    const posX = event.target.getBoundingClientRect().left;
+    const posY = event.target.getBoundingClientRect().top;
+
+    const sourceWidth = event.target.getBoundingClientRect().width;
+    const targetWidth = tooltip.getBoundingClientRect().width;
+    const targetHeight = tooltip.getBoundingClientRect().height;
+
+    let left = posX - 0.5 * targetWidth + 0.5 * sourceWidth;
+
+    if ((left + targetWidth +  0.5 * fontSize) > window.innerWidth) {
+        left = window.innerWidth - 0.5 * fontSize - targetWidth;
+    }
+
+    if (tooltip.classList.contains("Collapsed")) {
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${posY - targetHeight - 0.5 * fontSize}px`;
+
+        tooltip.classList.remove("Collapsed");
+    } else {
+        tooltip.classList.add("Collapsed");
+    }
+}
+
+document.getElementById("mass-info-button").onclick = (event) => {
+    const tooltip = document.getElementById("mass-tooltip");
+
+    setTooltipVisibility(tooltip, event);
+}
+
+document.getElementById("mass-tooltip-close-button").onclick = () => {
+    document.getElementById("mass-tooltip").classList.add("Collapsed");
+}
+
+document.getElementById("dimensions-info-button").onclick = (event) => {
+    const tooltip = document.getElementById("dimensions-tooltip");
+
+    setTooltipVisibility(tooltip, event);
+}
+
+document.getElementById("dimensions-tooltip-close-button").onclick = () => {
+    document.getElementById("dimensions-tooltip").classList.add("Collapsed");
+}

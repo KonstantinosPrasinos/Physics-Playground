@@ -63,3 +63,53 @@
 ;
     background-color: var(--primary-color);
 }
+
+.info-button {
+    font-size: inherit;
+    padding: 0;
+    line-height: normal;
+}
+
+.Tooltip-Container {
+    position: fixed;
+    z-index: 2;
+
+    background: var(--secondary-color);
+    padding: 8px 12px;
+    border: 1px solid var(--accent-color);
+    border-radius: 8px;
+
+    opacity: 1;
+    transition: opacity 0.2s ease-in-out, left 0s;
+    width: 15em;
+}
+
+.Tooltip-Container.Collapsed {
+    opacity: 0;
+    transition-delay: 0s, 0.2s;
+    left: calc(100% + 1000px) !important;
+}
+
+.input-with-pop-up-label {
+    position: relative;
+}
+
+.popup-label {
+    font-size: 0.65rem;
+    position: absolute;
+    background: var(--secondary-color);
+    padding: 2px 4px;
+    border: 1px solid var(--accent-color);
+    border-radius: 4px;
+    bottom: calc(-2em - 8px);
+    height: 1.25em;
+    width: 2.5em;
+
+    text-align: center;
+
+    left: calc(50% - 1.675em);
+
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    transition-delay: 0.2s;
+}

@@ -56,16 +56,11 @@ button:active:enabled {
 button:disabled {
     cursor: not-allowed;
     opacity: 0.38;
-    /* Other styling */
 }
 
 button.Button-Selected {
     background: var(--primary-color);
     filter: brightness(1.6);
-}
-
-label {
-    cursor: pointer;
 }
 
 body {
@@ -252,6 +247,10 @@ input[type="text"]:disabled {
     align-items: baseline;
 }
 
+.Align-Top {
+    align-items: flex-start;
+}
+
 .Space-Between {
     gap: 0;
     justify-content: space-between;
@@ -351,4 +350,30 @@ input:disabled ~ .slider-value {
 .title-bar {
     display: flex;
     justify-content: space-between;
+}
+
+.Clickable {
+    cursor: pointer;
+}
+
+.Button {
+    cursor: pointer;
+    text-decoration: none;
+    background-color: transparent;
+    border: none;
+    color: inherit;
+    transform-origin: center center;
+    transition: 0.2s filter ease-in-out, 0.2s scale ease-in-out, 0.2s background-color ease-in-out;
+    filter: brightness(0.6);
+    padding: 6px;
+    border-radius: 8px;
+}
+
+.Button:hover {
+    filter: brightness(0.87);
+}
+
+.Button:enabled {
+    filter: brightness(0.87);
+    scale: 0.9;
 }

@@ -106,3 +106,20 @@
 #midnight-theme-radio {
     background-color: #000000;
 }
+
+#midnight-theme-radio-label {
+    width: 4em;
+    left: calc(50% - 2.25em);
+}
+
+#dark-theme-radio:hover ~ #dark-theme-radio-label {
+    opacity: 1;
+}
+
+#light-theme-radio:hover ~ #light-theme-radio-label {
+    opacity: 1;
+}
+
+#midnight-theme-radio:hover ~ #midnight-theme-radio-label {
+    opacity: 1;
+}

@@ -12,7 +12,6 @@ const cameraFovSlider = document.getElementById("camera-fov-slider");
 
 let userSettings = {
   theme: "dark",
-  showTips: false,
   cameraType: "Orthographic",
   cameraFov: "45"
 };
@@ -39,10 +38,6 @@ const loadSettingsFromLocalStorage = () => {
             break;
         default:
             break;
-    }
-
-    if (!userSettings.showTips) {
-        document.getElementById("show-tips-button").checked = false;
     }
 
     if (userSettings.cameraType !== "Orthographic") {

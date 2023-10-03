@@ -110,6 +110,16 @@
     border-bottom: 1px solid var(--accent-color);
 }
 
+#object-name:hover:not(:focus-visible):not(:disabled) ~ #object-name-label {
+    opacity: 1;
+}
+
+#object-name-label {
+    width: 6em;
+    left: 0;
+    bottom: calc(-2em - 4px);
+}
+
 #clear-button-container {
     display: flex;
     justify-content: flex-end;

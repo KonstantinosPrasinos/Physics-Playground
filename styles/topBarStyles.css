@@ -14,3 +14,13 @@
     grid-area: top-bar;
     box-sizing: border-box;
 }
+
+#time-scale-slider-label {
+    width: 6em;
+    bottom: calc(-2.5em - 8px);
+    left: calc(50% - 3.5em);
+}
+
+#time-scale-container:hover ~ #time-scale-slider-label {
+    opacity: 1;
+}
