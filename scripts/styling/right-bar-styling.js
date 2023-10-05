@@ -173,7 +173,7 @@ document.getElementById("object-name").onblur = (event) => {
     }
 }
 
-document.getElementById("item-color-picker").onclick = (event) => {
+document.getElementById("item-color-picker").onblur = (event) => {
     simulation.selectedObject.mesh.material.color.set(`${event.target.value}`);
 }
 

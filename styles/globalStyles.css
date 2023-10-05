@@ -3,9 +3,9 @@
 }
 
 .light-theme {
-    --primary-color: #fafafa;
-    --accent-color: #000000;
-    --secondary-color: #ffffff;
+    --primary-color: #ffffff;
+    --accent-color: #272727;
+    --secondary-color: #f2f2f7;
     --outline-color: #79747E;
 }
 
@@ -43,16 +43,16 @@ button {
     border: none;
     color: inherit;
     transform-origin: center center;
-    transition: 0.2s filter ease-in-out, 0.2s scale ease-in-out, 0.2s background-color ease-in-out;
-    filter: brightness(0.6);
+    transition: 0.2s opacity ease-in-out, 0.2s scale ease-in-out, 0.2s background-color ease-in-out;
     padding: 6px;
     border-radius: 8px;
+    opacity: 0.6;
 }
 button:hover:enabled:not(.Button-Selected) {
-    filter: brightness(0.87);
+    opacity: 0.87;
 }
 button:active:enabled {
-    filter: brightness(0.87);
+    opacity: 0.87;
     scale: 0.9;
 }
 
@@ -183,7 +183,7 @@ input[type="text"] {
 }
 
 input[type="text"]:disabled {
-    opacity: 0.38;
+    opacity: 0.6;
 }
 
 

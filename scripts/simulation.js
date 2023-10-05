@@ -36,7 +36,7 @@ class Simulation {
         let shape;
 
         if (objectType === "Cube") {
-            shape = new CANNON.Box(new CANNON.Vec3(radius, radius, radius));
+            shape = new CANNON.Box(new CANNON.Vec3(radius / 2, radius / 2, radius / 2));
         } else {
             shape = new CANNON.Sphere(radius);
         }
