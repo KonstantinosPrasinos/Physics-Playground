@@ -13,7 +13,7 @@ let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.g
 let simulation;
 
 function changeTimeStep(scalar) {
-    world.dt = timeStep * scalar / 2;
+    world.dt = timeStep * scalar;
 }
 
 const setTransformControlsEnabled = (bool) => {
@@ -126,7 +126,7 @@ function initCannon() {
     world.gravity.set(0, 0, 0);
     world.broadphase = new CANNON.NaiveBroadphase();
     world.solver.iterations = 10;
-    world.dt = timeStep / 2;
+    world.dt = timeStep * 2;
 
     const physicsMaterial = new CANNON.Material("bouncyMaterial");
 
@@ -149,10 +149,17 @@ function initCannon() {
 }
 
 const updatePhysics = () => {
-    // Update rendered time
-    topTime.innerText = parseFloat(world.time).toFixed(3);
-
     world.step(world.dt);
+
+    // Update rendered time
+    topTime.innerText = parseFloat(world.time / 2).toFixed(3);
+
+    // Apply force if acceleration is set
+    for (const object of simulation.objects) {
+        const impulse = object.body.acceleration.clone().scale(2 * timeStep * object.body.mass);
+
+        object.body.applyLocalImpulse(impulse, new CANNON.Vec3(0, 0, 0));
+    }
 
     // Copy simulated position and rotation to scene
     simulation.objects.forEach(element => {
@@ -165,12 +172,15 @@ const updatePhysics = () => {
         document.getElementById("position-x-input").value = simulation.selectedObject.mesh.position.x.toFixed(3);
         document.getElementById("position-y-input").value = simulation.selectedObject.mesh.position.y.toFixed(3);
         document.getElementById("position-z-input").value = simulation.selectedObject.mesh.position.z.toFixed(3);
+
         document.getElementById("rotation-x-input").value = simulation.selectedObject.mesh.rotation.x.toFixed(3);
         document.getElementById("rotation-y-input").value = simulation.selectedObject.mesh.rotation.y.toFixed(3);
         document.getElementById("rotation-z-input").value = simulation.selectedObject.mesh.rotation.z.toFixed(3);
+
         document.getElementById("velocity-x-input").value = simulation.selectedObject.body.velocity.x.toFixed(3);
         document.getElementById("velocity-y-input").value = simulation.selectedObject.body.velocity.y.toFixed(3);
         document.getElementById("velocity-z-input").value = simulation.selectedObject.body.velocity.z.toFixed(3);
+
         document.getElementById("angular-velocity-x-input").value = simulation.selectedObject.body.angularVelocity.x.toFixed(3);
         document.getElementById("angular-velocity-y-input").value = simulation.selectedObject.body.angularVelocity.y.toFixed(3);
         document.getElementById("angular-velocity-z-input").value = simulation.selectedObject.body.angularVelocity.z.toFixed(3);

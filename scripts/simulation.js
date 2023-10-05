@@ -31,6 +31,8 @@ class Simulation {
             fixedRotation: true
         });
 
+        tempBody.acceleration = new CANNON.Vec3(0, 0, 0);
+
         let shape;
 
         if (objectType === "Cube") {
@@ -218,6 +220,10 @@ class Simulation {
         document.getElementById("angular-velocity-x-input").value = objectBody.angularVelocity.x;
         document.getElementById("angular-velocity-y-input").value = objectBody.angularVelocity.y;
         document.getElementById("angular-velocity-z-input").value = objectBody.angularVelocity.z;
+
+        document.getElementById("acceleration-x-input").value = objectBody.acceleration.x;
+        document.getElementById("acceleration-y-input").value = objectBody.acceleration.y;
+        document.getElementById("acceleration-z-input").value = objectBody.acceleration.z;
     }
 
     deselectObject() {
@@ -252,7 +258,9 @@ class Simulation {
         document.getElementById("angular-velocity-y-input").value = "";
         document.getElementById("angular-velocity-z-input").value = "";
 
-        // Todo Remove acceleration and angular acceleration
+        document.getElementById("acceleration-x-input").value = "";
+        document.getElementById("acceleration-y-input").value = "";
+        document.getElementById("acceleration-z-input").value = "";
     }
 
     #deleteObject(object) {

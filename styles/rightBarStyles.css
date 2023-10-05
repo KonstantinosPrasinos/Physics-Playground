@@ -46,10 +46,10 @@
     width: 100%;
 }
 
-#acceleration-title {
-    height: 2.4em;
-    line-height: 2.4em;
-}
+/*#acceleration-title {*/
+/*    height: 2.4em;*/
+/*    line-height: 2.4em;*/
+/*}*/
 
 #right-ui-properties input {
     width: 3.6em;

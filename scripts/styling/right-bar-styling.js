@@ -25,6 +25,9 @@ const blurElementOnEnter = (event) => {
     }
 }
 
+document.getElementById("object-name").onkeydown = blurElementOnEnter;
+document.getElementById("mass-input").onkeydown = blurElementOnEnter;
+
 document.getElementById("width-input").onkeydown = blurElementOnEnter;
 document.getElementById("height-input").onkeydown = blurElementOnEnter;
 document.getElementById("depth-input").onkeydown = blurElementOnEnter;
@@ -45,7 +48,9 @@ document.getElementById("angular-velocity-x-input").onkeydown = blurElementOnEnt
 document.getElementById("angular-velocity-y-input").onkeydown = blurElementOnEnter;
 document.getElementById("angular-velocity-z-input").onkeydown = blurElementOnEnter;
 
-document.getElementById("object-name").onkeydown = blurElementOnEnter;
+document.getElementById("acceleration-x-input").onkeydown = blurElementOnEnter;
+document.getElementById("acceleration-y-input").onkeydown = blurElementOnEnter;
+document.getElementById("acceleration-z-input").onkeydown = blurElementOnEnter;
 
 /* Right ui inputs */
 const setSize = (axis, event) => {
@@ -101,6 +106,15 @@ const setAngularVelocity = (axis, event) => {
     }
 }
 
+const setAcceleration = (axis, event) => {
+    if (event.target.value.length === 0 || isNaN(event.target.value)) {
+        event.target.focus();
+        // createNotification(notificationList.inputEmpty, true);
+    } else {
+        simulation.selectedObject.body.acceleration[axis] = parseFloat(event.target.value);
+    }
+}
+
 document.getElementById("mass-input").onblur = (event) => {
     if (event.target.value.length === 0 || isNaN(event.target.value)) {
         event.target.focus();
@@ -108,6 +122,18 @@ document.getElementById("mass-input").onblur = (event) => {
     } else {
         simulation.selectedObject.body.mass = parseFloat(event.target.value);
         simulation.selectedObject.body.updateMassProperties();
+    }
+}
+
+document.getElementById("object-name").onblur = (event) => {
+    const value = event.target.value;
+
+    if (value.length > 0) {
+        simulation.selectedObject.mesh.name = value;
+
+        document.getElementById(`radio_label_${simulation.selectedObject.mesh.uuid}`).innerHTML = value;
+    } else {
+        event.target.focus();
     }
 }
 
@@ -135,17 +161,9 @@ document.getElementById("angular-velocity-x-input").onblur = (event) => setAngul
 document.getElementById("angular-velocity-y-input").onblur = (event) => setAngularVelocity("y", event);
 document.getElementById("angular-velocity-z-input").onblur = (event) => setAngularVelocity("z", event);
 
-document.getElementById("object-name").onblur = (event) => {
-    const value = event.target.value;
-
-    if (value.length > 0) {
-        simulation.selectedObject.mesh.name = value;
-
-        document.getElementById(`radio_label_${simulation.selectedObject.mesh.uuid}`).innerHTML = value;
-    } else {
-        event.target.focus();
-    }
-}
+document.getElementById("acceleration-x-input").onblur = (event) => setAcceleration("x", event);
+document.getElementById("acceleration-y-input").onblur = (event) => setAcceleration("y", event);
+document.getElementById("acceleration-z-input").onblur = (event) => setAcceleration("z", event);
 
 // Tooltips
 let selectedTooltipElement;
