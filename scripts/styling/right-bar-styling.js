@@ -17,40 +17,76 @@ document.getElementById("collapse-right-ui-button").onclick = () => {
 }
 
 document.getElementById("clear-scene-button").onclick = simulation.clear.bind(simulation);
+const handleKeyDown = (event) => {
+    // Cancel event on not allowed characters
+    const allowedKeys = [
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',  // Numbers
+        'Backspace', 'Enter', 'Delete',  // Special keys
+        'Home', 'End', 'PageUp', 'PageDown',  // Navigation keys
+        'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',  // Arrow keys
+        '-', ',', '.',  // Specific characters
+    ];
 
-/* Add enter functionality to right ui inputs */
-const blurElementOnEnter = (event) => {
+    if (isNaN(event.key) && !(allowedKeys.includes(event.key)) && !event.ctrlKey && !event.metaKey) {
+        event.preventDefault();
+    }
+
+    // Handle -
+    if (event.key === "-") {
+        if (event.target.id === "mass-input") {
+            event.preventDefault();
+        } else {
+            if (event.target.value.includes("-")) {
+                event.preventDefault();
+            } else {
+                if (event.target.value.length > 0) {
+                    event.preventDefault();
+                }
+            }
+        }
+    }
+
+    // Handle . and ,
+    if ([',', '.'].includes(event.key)) {
+        if (event.target.value.includes('.') || event.target.value.includes(',')) {
+            event.preventDefault();
+        } else if (event.target.value.length === 0) {
+            event.preventDefault();
+        }
+    }
+
+    // Blur element on enter
     if (event.keyCode === 13) {
         event.target.blur();
     }
 }
 
-document.getElementById("object-name").onkeydown = blurElementOnEnter;
-document.getElementById("mass-input").onkeydown = blurElementOnEnter;
+document.getElementById("object-name").onkeydown = handleKeyDown;
+document.getElementById("mass-input").onkeydown = handleKeyDown;
 
-document.getElementById("width-input").onkeydown = blurElementOnEnter;
-document.getElementById("height-input").onkeydown = blurElementOnEnter;
-document.getElementById("depth-input").onkeydown = blurElementOnEnter;
+document.getElementById("width-input").onkeydown = handleKeyDown;
+document.getElementById("height-input").onkeydown = handleKeyDown;
+document.getElementById("depth-input").onkeydown = handleKeyDown;
 
-document.getElementById("position-x-input").onkeydown = blurElementOnEnter;
-document.getElementById("position-y-input").onkeydown = blurElementOnEnter;
-document.getElementById("position-z-input").onkeydown = blurElementOnEnter;
+document.getElementById("position-x-input").onkeydown = handleKeyDown;
+document.getElementById("position-y-input").onkeydown = handleKeyDown;
+document.getElementById("position-z-input").onkeydown = handleKeyDown;
 
-document.getElementById("rotation-x-input").onkeydown = blurElementOnEnter;
-document.getElementById("rotation-y-input").onkeydown = blurElementOnEnter;
-document.getElementById("rotation-z-input").onkeydown = blurElementOnEnter;
+document.getElementById("rotation-x-input").onkeydown = handleKeyDown;
+document.getElementById("rotation-y-input").onkeydown = handleKeyDown;
+document.getElementById("rotation-z-input").onkeydown = handleKeyDown;
 
-document.getElementById("velocity-x-input").onkeydown = blurElementOnEnter;
-document.getElementById("velocity-y-input").onkeydown = blurElementOnEnter;
-document.getElementById("velocity-z-input").onkeydown = blurElementOnEnter;
+document.getElementById("velocity-x-input").onkeydown = handleKeyDown;
+document.getElementById("velocity-y-input").onkeydown = handleKeyDown;
+document.getElementById("velocity-z-input").onkeydown = handleKeyDown;
 
-document.getElementById("angular-velocity-x-input").onkeydown = blurElementOnEnter;
-document.getElementById("angular-velocity-y-input").onkeydown = blurElementOnEnter;
-document.getElementById("angular-velocity-z-input").onkeydown = blurElementOnEnter;
+document.getElementById("angular-velocity-x-input").onkeydown = handleKeyDown;
+document.getElementById("angular-velocity-y-input").onkeydown = handleKeyDown;
+document.getElementById("angular-velocity-z-input").onkeydown = handleKeyDown;
 
-document.getElementById("acceleration-x-input").onkeydown = blurElementOnEnter;
-document.getElementById("acceleration-y-input").onkeydown = blurElementOnEnter;
-document.getElementById("acceleration-z-input").onkeydown = blurElementOnEnter;
+document.getElementById("acceleration-x-input").onkeydown = handleKeyDown;
+document.getElementById("acceleration-y-input").onkeydown = handleKeyDown;
+document.getElementById("acceleration-z-input").onkeydown = handleKeyDown;
 
 /* Right ui inputs */
 const setSize = (axis, event) => {
@@ -70,7 +106,7 @@ const setSize = (axis, event) => {
 
 const setPosition = (axis, event) => {
     if (event.target.value.length === 0 || isNaN(event.target.value)) {
-        event.target.focus();
+        event.target.value = 0;
         // createNotification(notificationList.inputEmpty, true);
     } else {
         simulation.selectedObject.mesh.position[axis] = parseFloat(event.target.value);
@@ -80,7 +116,7 @@ const setPosition = (axis, event) => {
 
 const setRotation = (axis, event) => {
     if (event.target.value.length === 0 || isNaN(event.target.value)) {
-        event.target.focus();
+        event.target.value = 0;
         // createNotification(notificationList.inputEmpty, true);
     } else {
         simulation.selectedObject.mesh.rotation[axis] = parseFloat(event.target.value);
@@ -90,7 +126,7 @@ const setRotation = (axis, event) => {
 
 const setVelocity = (axis, event) => {
     if (event.target.value.length === 0 || isNaN(event.target.value)) {
-        event.target.focus();
+        event.target.value = 0;
         // createNotification(notificationList.inputEmpty, true);
     } else {
         simulation.selectedObject.body.velocity[axis] = parseFloat(event.target.value);
@@ -99,7 +135,7 @@ const setVelocity = (axis, event) => {
 
 const setAngularVelocity = (axis, event) => {
     if (event.target.value.length === 0 || isNaN(event.target.value)) {
-        event.target.focus();
+        event.target.value = 0;
         // createNotification(notificationList.inputEmpty, true);
     } else {
         simulation.selectedObject.body.angularVelocity[axis] = parseFloat(event.target.value);
@@ -108,7 +144,7 @@ const setAngularVelocity = (axis, event) => {
 
 const setAcceleration = (axis, event) => {
     if (event.target.value.length === 0 || isNaN(event.target.value)) {
-        event.target.focus();
+        event.target.value = 0;
         // createNotification(notificationList.inputEmpty, true);
     } else {
         simulation.selectedObject.body.acceleration[axis] = parseFloat(event.target.value);
@@ -116,8 +152,8 @@ const setAcceleration = (axis, event) => {
 }
 
 document.getElementById("mass-input").onblur = (event) => {
-    if (event.target.value.length === 0 || isNaN(event.target.value)) {
-        event.target.focus();
+    if (event.target.value.length === 0 || isNaN(event.target.value) || parseInt(event.target.value) < 0) {
+        event.target.value = 1;
         // createNotification(notificationList.inputEmpty, true);
     } else {
         simulation.selectedObject.body.mass = parseFloat(event.target.value);
@@ -133,7 +169,7 @@ document.getElementById("object-name").onblur = (event) => {
 
         document.getElementById(`radio_label_${simulation.selectedObject.mesh.uuid}`).innerHTML = value;
     } else {
-        event.target.focus();
+        event.target.value = simulation.selectedObject.mesh.name;
     }
 }
 
