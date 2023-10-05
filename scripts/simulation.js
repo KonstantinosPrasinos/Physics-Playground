@@ -130,6 +130,9 @@ class Simulation {
         this.savedState = [];
         this.world.time = 0;
 
+        // Reset clock to 0
+        document.getElementById("time").innerHTML = "0.000";
+
 
         if (this.selectedObject) {
             // Enable inputs if object selected

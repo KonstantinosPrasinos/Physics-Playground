@@ -36,6 +36,8 @@ const setBackgroundWithTheme = () =>{
 const setCameraPerspective = () => {
     perspectiveCamera.position.set(camera.position.x, camera.position.y, camera.position.z);
     perspectiveCamera.rotation.set(camera.rotation.x, camera.rotation.y, camera.rotation.z);
+
+    perspectiveCamera.following = camera.following;
     
     camera = perspectiveCamera;
     camera.updateMatrixWorld();
@@ -47,6 +49,8 @@ const setCameraPerspective = () => {
 const setCameraOrthographic = () => {
     orthographicCamera.position.set(camera.position.x, camera.position.y, camera.position.z);
     orthographicCamera.rotation.set(camera.rotation.x, camera.rotation.y, camera.rotation.z);
+
+    orthographicCamera.following = camera.following;
 
     camera = orthographicCamera;
     camera.updateMatrixWorld();
@@ -96,6 +100,14 @@ function initControls() {
         }
     })
 
+    orbitControls.addEventListener("start", () => {
+        // If camera is following object, unfollow it
+        if (camera.following) {
+            camera.following.button.innerHTML = "videocam";
+            camera.following = null;
+        }
+    })
+
     transformControls.enabled = false;
     scene.add(transformControls);
 }
@@ -105,10 +117,13 @@ function initThree() {
 
     orthographicCamera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 1000);
     perspectiveCamera = new THREE.PerspectiveCamera(45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
+
     orthographicCamera.position.z = 50;
     perspectiveCamera.position.z = 50;
+
     scene.add(orthographicCamera);
     scene.add(perspectiveCamera);
+
     camera = orthographicCamera
 
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
