@@ -4,6 +4,7 @@ import {
 } from "./main.js";
 
 import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
+import {setTooltipPosition} from "./styling/right-bar-styling.js";
 
 window.onresize = () => {
     const emSize = parseInt(getComputedStyle(document.getElementById("viewportCanvas")).fontSize);
@@ -21,6 +22,8 @@ window.onresize = () => {
 
     orthographicCamera.updateProjectionMatrix();
     perspectiveCamera.updateProjectionMatrix();
+
+    setTooltipPosition();
 }
 
 document.getElementById("viewportCanvas").onclick = (event) => {
