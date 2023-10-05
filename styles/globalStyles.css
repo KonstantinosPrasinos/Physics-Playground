@@ -6,18 +6,21 @@
     --primary-color: #fafafa;
     --accent-color: #000000;
     --secondary-color: #ffffff;
+    --outline-color: #79747E;
 }
 
 .dark-theme {
     --primary-color: #2b2d30;
     --accent-color: #eaeaeb;
     --secondary-color: #1e1f22;
+    --outline-color: #938F99;
 }
 
 .midnight-theme {
     --primary-color: #1e1f22;
     --accent-color: #eaeaeb;
     --secondary-color: #000000;
+    --outline-color: #938F99;
 }
 
 /* Built-in elements */

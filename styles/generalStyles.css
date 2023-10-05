@@ -76,18 +76,25 @@
 
     background: var(--secondary-color);
     padding: 8px 12px;
-    border: 1px solid var(--accent-color);
+    border: 1px solid var(--outline-color);
     border-radius: 8px;
-
-    opacity: 1;
-    transition: opacity 0.2s ease-in-out, left 0s;
     width: 15em;
+
+    transition: opacity 0.2s ease-in-out, left 0s, scale 0.2s ease, translate 0.2s ease;
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.30), 0px 4px 8px 3px rgba(0, 0, 0, 0.15);
 }
 
 .Tooltip-Container.Collapsed {
-    opacity: 0;
-    transition-delay: 0s, 0.2s;
     left: calc(100% + 1000px) !important;
+    transition-delay: 0s, 0.2s, 0s, 0s;
+
+    opacity: 0;
+    scale: 0.9;
+    translate: 0 10px;
 }
 
 .input-with-pop-up-label {
@@ -102,14 +109,17 @@
     border: 1px solid var(--accent-color);
     border-radius: 4px;
     bottom: calc(-2em - 8px);
-    height: 1.25em;
-    width: 2.5em;
+    width: 3.5em;
+    box-sizing: border-box;
 
     text-align: center;
 
-    left: calc(50% - 1.675em);
+    left: calc(50% - 1.75em);
+
+    transition: all 0.2s ease-in-out;
+    transition-delay: 0.2s;
 
     opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-    transition-delay: 0.2s;
+    scale: 0.9;
+    translate: 0 2px;
 }

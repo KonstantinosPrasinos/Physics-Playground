@@ -148,20 +148,26 @@ document.getElementById("object-name").onblur = (event) => {
 }
 
 // Tooltips
+
+let selectedTooltipElement;
 const setTooltipVisibility = (tooltip, event) => {
+    if (selectedTooltipElement) {
+        selectedTooltipElement.classList.add("Collapsed");
+    }
+
     const fontSize = parseInt(getComputedStyle(event.target).fontSize);
 
     const posX = event.target.getBoundingClientRect().left;
     const posY = event.target.getBoundingClientRect().top;
 
     const sourceWidth = event.target.getBoundingClientRect().width;
-    const targetWidth = tooltip.getBoundingClientRect().width;
-    const targetHeight = tooltip.getBoundingClientRect().height;
+    const targetWidth = tooltip.getBoundingClientRect().width * (1 / 0.9); // 1 / 0.9 because 0.9 is the original scale
+    const targetHeight = tooltip.getBoundingClientRect().height * (1 / 0.9);
 
     let left = posX - 0.5 * targetWidth + 0.5 * sourceWidth;
 
-    if ((left + targetWidth +  0.5 * fontSize) > window.innerWidth) {
-        left = window.innerWidth - 0.5 * fontSize - targetWidth;
+    if (left + targetWidth +  0.5 * fontSize > window.innerWidth) {
+        left = window.innerWidth - fontSize - targetWidth;
     }
 
     if (tooltip.classList.contains("Collapsed")) {
@@ -169,8 +175,11 @@ const setTooltipVisibility = (tooltip, event) => {
         tooltip.style.top = `${posY - targetHeight - 0.5 * fontSize}px`;
 
         tooltip.classList.remove("Collapsed");
+
+        selectedTooltipElement = tooltip;
     } else {
         tooltip.classList.add("Collapsed");
+        selectedTooltipElement = null;
     }
 }
 
