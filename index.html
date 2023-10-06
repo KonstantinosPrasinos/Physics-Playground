@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="styles/rightBarStyles.css">
     <link rel="stylesheet" href="styles/settingsStyles.css">
     <link rel="stylesheet" href="styles/timelineStyles.css">
+    <link rel="stylesheet" href="styles/create-event-modal.css">
 </head>
 
 <body class="dark-theme">
@@ -488,8 +489,94 @@
                 </div>
             </div>
             <div id="timeline-parameters">
-
+                <div class="table-container">
+                    <div class="table-header">
+                        <div>Source</div>
+                        <div>Action</div>
+                        <div>Target</div>
+                    </div>
+                    <div class="table-body">
+                        <div>
+                            <div>Object 1</div>
+                            <div>collided</div>
+                            <div>Object2</div>
+                        </div>
+                        <div>
+                            <div>Object 1</div>
+                            <div>collided</div>
+                            <div>Object2</div>
+                        </div>
+                        <div>
+                            <div>Object 1</div>
+                            <div>velocity x</div>
+                            <div>10 m/s</div>
+                        </div>
+                    </div>
+                </div>
             </div>
+            <button class="Horizontal-Flex-Container" id="add-event-button">
+                Add new
+                <span class="material-symbols-outlined">
+                    add
+                </span>
+            </button>
+        </div>
+    </div>
+    <div id="create-event-overlay" class="collapsed">
+        <div id="create-event-modal">
+            <h1>Create a new event</h1>
+            <section id="create-event-description">
+                In order to create a new event you have to provide a source, a type of event to watch for and a target.
+                When an event triggers, the simulation will be paused and a message will be printed on the log.
+            </section>
+            <section id="create-event-content" class="Horizontal-Flex-Container">
+                <div class="select-container" id="event-source-select-container">
+                    <div class="select-main-container Clickable" id="event-source-select-main">
+                        Source
+                        <span class="material-symbols-outlined">
+                            expand_more
+                        </span>
+                    </div>
+                    <div class="select-options-container">
+                        <div class="Clickable select-option">Option 1</div>
+                        <div class="Clickable select-option">Option 2</div>
+                        <div class="Clickable select-option">Option 3</div>
+                        <div class="Clickable select-option">Option 4</div>
+                    </div>
+                </div>
+                <div class="select-container" id="event-type-select-container">
+                    <div class="select-main-container Clickable" id="event-type-select-main">
+                        Event type
+                        <span class="material-symbols-outlined">
+                            expand_more
+                        </span>
+                    </div>
+                    <div class="select-options-container">
+                        <div class="Clickable select-option">Option 1</div>
+                        <div class="Clickable select-option">Option 2</div>
+                        <div class="Clickable select-option">Option 3</div>
+                        <div class="Clickable select-option">Option 4</div>
+                    </div>
+                </div>
+                <div class="select-container" id="event-target-select-container">
+                    <div class="select-main-container Clickable" id="event-target-select-main">
+                        Target
+                        <span class="material-symbols-outlined">
+                            expand_more
+                        </span>
+                    </div>
+                    <div class="select-options-container">
+                        <div class="Clickable select-option">Option 1</div>
+                        <div class="Clickable select-option">Option 2</div>
+                        <div class="Clickable select-option">Option 3</div>
+                        <div class="Clickable select-option">Option 4</div>
+                    </div>
+                </div>
+            </section>
+            <section id="create-event-footer">
+                <button id="cancel-create-event-button">Cancel</button>
+                <button>Save</button>
+            </section>
         </div>
     </div>
     <script src="scripts/main.js" type="module"></script>
@@ -499,6 +586,6 @@
     <script src="scripts/styling/left-bar-styling.js" type="module"></script>
     <script src="scripts/styling/settings-page-styling.js" type="module"></script>
     <script src="scripts/styling/timeline-page-styling.js" type="module"></script>
+    <script src="scripts/styling/create-event-modal-styling.js" type="module"></script>
 </body>
-
 </html>

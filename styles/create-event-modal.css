@@ -1,0 +1,139 @@
+#create-event-overlay {
+    height: 100%;
+    width: 100%;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 4;
+
+    background-color: rgba(0, 0, 0, 0.5);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 1;
+    transition: z-index 0.01s, opacity 0.2s ease;
+    transition-delay: 0s, 0.01s;
+}
+
+#create-event-overlay.collapsed {
+    z-index: -1;
+    opacity: 0;
+
+    transition-delay: 0.2s, 0s;
+}
+
+#create-event-overlay.collapsed #create-event-modal {
+    scale: 0.9;
+}
+
+#create-event-modal {
+    width: 30%;
+
+    background-color: var(--primary-color);
+    padding: 40px;
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    transition: scale 0.2s ease;
+
+    scale: 1;
+}
+
+#create-event-content {
+    flex-grow: 1;
+
+    display: flex;
+    align-items: center;
+    margin-top: 32px;
+    margin-bottom: 32px;
+}
+
+#create-event-description {
+    opacity: 0.87
+}
+
+#create-event-footer {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.select-container {
+    flex-grow: 1;
+    position: relative;
+}
+
+.select-main-container {
+    box-sizing: border-box;
+    padding: 14px;
+    border-radius: 8px;
+    height: calc(1.5em + 28px);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background-color: var(--secondary-color);
+}
+
+.select-container .material-symbols-outlined {
+    transition: transform 0.2s ease;
+}
+
+.select-container.extended .material-symbols-outlined {
+    transform: rotate(180deg);
+}
+
+.select-container.extended .select-options-container {
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+    z-index: 2;
+
+    transition-delay: 0s, 0.01s, 0.01s, 0.01s;
+}
+
+.select-options-container {
+    position: absolute;
+    top: calc(2.5em + 28px);
+    left: 10px;
+    overflow: auto;
+
+    width: calc(100% - 20px);
+    max-height: calc(5.25em + 46px);
+
+    box-sizing: border-box;
+    padding: 4px 8px 4px 4px;
+    border-radius: 6px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    background-color: var(--secondary-color);
+    outline: 10px solid var(--secondary-color);
+
+    transition: z-index 0.01s, opacity 0.2s ease, scale 0.2s ease, translate 0.2s ease;
+    transition-delay: 0.2s, 0s, 0s, 0s;
+
+    opacity: 0;
+    scale: 0.9;
+    translate: 0 -10px;
+
+    z-index: -1;
+}
+
+.select-option {
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.select-option:hover {
+    background-color: var(--primary-color);
+}

@@ -26,6 +26,18 @@ window.onresize = () => {
     setTooltipPosition();
 }
 
+window.onclick = (event) => {
+    const overlay = document.getElementById("create-event-overlay")
+
+    if (event.target === overlay) {
+        document.getElementById("event-source-select-container").classList.remove("extended");
+        document.getElementById("event-type-select-container").classList.remove("extended");
+        document.getElementById("event-target-select-container").classList.remove("extended");
+
+        overlay.classList.add("collapsed")
+    }
+}
+
 document.getElementById("viewportCanvas").onclick = (event) => {
     if (simulation.selectedModeElement) {
         // Get intercepted objects
