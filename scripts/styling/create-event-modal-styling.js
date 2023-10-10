@@ -87,7 +87,7 @@ const hideModal = () => {
 // Select input handling
 document.getElementById("source-option-time").onclick = () => {
     document.getElementById("event-source-select-main-text").innerText = "Time";
-    inputsState.source = "time";
+    inputsState.source = "Time";
     inputsState.type = "reaches";
     inputsState.target = null;
 
@@ -255,7 +255,7 @@ document.getElementById("event-target-select-main-input").onkeydown = handleInpu
 // Bottom buttons
 document.getElementById("save-create-event-button").onclick = () => {
     // Save event and hide the Modal
-    simulation.events.push({...inputsState});
+    simulation.addEvent(inputsState);
     hideModal();
 }
 

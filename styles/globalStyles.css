@@ -317,7 +317,7 @@ input:disabled ~ .slider-value {
     padding: 0.75em;
     gap: 0.5em;
     height: 3em;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(2em, 1fr));
     border-bottom: 1px solid var(--primary-color);
     box-sizing: border-box;
     line-height: 1.5em;
@@ -328,7 +328,7 @@ input:disabled ~ .slider-value {
     display: grid;
     padding: 1em;
     gap: 0.5em;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(2em, 1fr));
     border-bottom: 1px solid var(--primary-color);
 }
 

@@ -12,6 +12,7 @@ class Simulation {
         this.camera = camera;
         this.selectedModeElement = null;
         this.events = [];
+        this.totalEvents = 0;
     }
 
     createBox() {
@@ -426,6 +427,50 @@ class Simulation {
         object.body.updateMassProperties();
     }
 
+    addEvent(event) {
+        const table = document.getElementById("events-table-body");
+
+        const row = document.createElement("DIV");
+        row.id = `events-table-row-${this.totalEvents}`;
+
+        // Get the name from the uuid
+        let sourceText;
+
+        if (event.source !== "Time") {
+            const objectUuid = event.source.substring(7, event.source.length);
+            sourceText = this.objects.find(object => object.mesh.uuid === objectUuid)?.mesh.name;
+        } else {
+            sourceText = event.source
+        }
+
+        const source = document.createElement("DIV");
+        source.innerText = sourceText;
+
+        const type = document.createElement("DIV");
+        type.innerText = event.type.replaceAll("-", " ");
+
+        let targetText;
+
+        if (event.target.substring(0, 7) === "number-") {
+            targetText = event.target.substring(7, event.target.length);
+        } else {
+            const objectUuid = event.target.substring(7, event.source.length);
+            targetText = this.objects.find(object => object.mesh.uuid === objectUuid)?.mesh.name;
+        }
+
+        const target = document.createElement("DIV");
+        target.innerText = targetText
+
+        row.appendChild(source);
+        row.appendChild(type);
+        row.appendChild(target);
+
+        table.appendChild(row);
+
+        this.events.push({...event, id: this.totalEvents});
+        this.totalEvents++;
+    }
+
     clear() {
         if (this.selectedObject) {
             this.deselectObject();
@@ -434,6 +479,8 @@ class Simulation {
         while (this.objects.length > 0) {
             this.#deleteObject(this.objects[0]);
         }
+
+        // Todo Clear events with objects
     }
 }
 
