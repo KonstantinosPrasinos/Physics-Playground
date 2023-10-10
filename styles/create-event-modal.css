@@ -66,7 +66,14 @@
 
 .select-container {
     flex-grow: 1;
+    width: 25%;
     position: relative;
+    transition: 0.2s opacity ease;
+}
+
+.select-container.Disabled .select-main-container {
+    opacity: 0.37;
+    cursor: not-allowed;
 }
 
 .select-main-container {
@@ -78,8 +85,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
 
     background-color: var(--secondary-color);
+    opacity: 0.87;
 }
 
 .select-container .material-symbols-outlined {
@@ -136,4 +145,46 @@
 
 .select-option:hover {
     background-color: var(--primary-color);
+}
+
+.event-type-icon {
+    opacity: 1;
+    scale: 1;
+    transition: all 0.2s ease;
+}
+
+.event-type-not-clickable #event-type-select-main {
+    cursor: unset !important;
+}
+
+.event-type-not-clickable #event-type-icon {
+    opacity: 0;
+    scale: 0.9;
+}
+
+/*#event-target-select-main-text {*/
+/*    font-size: inherit;*/
+/*}*/
+
+#event-target-select-main-input {
+    padding: 0;
+    font-size: inherit;
+    opacity: 1;
+}
+
+#event-target-select-main-input::placeholder {
+    opacity: 1;
+    color: inherit;
+}
+
+#event-target-select-main-input.not-editable {
+    cursor: pointer;
+}
+
+#event-target-select-main-input:disabled {
+    opacity: 1; /* to override opacity 0.38 normally added by Big-Text-Input */
+}
+
+#event-target-icon {
+    font-size: inherit;
 }

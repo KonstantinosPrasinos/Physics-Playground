@@ -407,3 +407,31 @@ path {
     stroke-width: 75;
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
 }
+
+.Normal-Button {
+    font-size: 1.25rem;
+    background-color: var(--secondary-color);
+    border-radius: 500px;
+    color: var(--accent-color);
+    padding: 0.5em 0.75em;
+}
+
+input.Big-Text-Input {
+    background: none;
+    border: none;
+    font-size: 1.17em;
+    color: var(--accent-color);
+    cursor: unset;
+    transition: 0.1s border-color ease-in-out;
+    border-bottom: 1px solid transparent;
+    border-radius: 0;
+}
+input.Big-Text-Input:disabled {
+    color: var(--accent-color);
+    opacity: 0.38;
+    cursor: not-allowed;
+}
+input.Big-Text-Input:focus-visible {
+    outline: none;
+    border-bottom: 1px solid var(--accent-color);
+}

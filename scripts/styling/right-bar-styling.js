@@ -263,4 +263,4 @@ document.getElementById("dimensions-tooltip-close-button").onclick = () => {
     document.getElementById("dimensions-tooltip").classList.add("Collapsed");
 }
 
-export {setTooltipPosition};
+export {setTooltipPosition, setTooltipVisibility};

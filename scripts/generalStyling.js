@@ -5,6 +5,7 @@ import {
 
 import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import {setTooltipPosition} from "./styling/right-bar-styling.js";
+import {hideModal} from "./styling/create-event-modal-styling.js";
 
 window.onresize = () => {
     const emSize = parseInt(getComputedStyle(document.getElementById("viewportCanvas")).fontSize);
@@ -30,11 +31,7 @@ window.onclick = (event) => {
     const overlay = document.getElementById("create-event-overlay")
 
     if (event.target === overlay) {
-        document.getElementById("event-source-select-container").classList.remove("extended");
-        document.getElementById("event-type-select-container").classList.remove("extended");
-        document.getElementById("event-target-select-container").classList.remove("extended");
-
-        overlay.classList.add("collapsed")
+        hideModal();
     }
 }
 

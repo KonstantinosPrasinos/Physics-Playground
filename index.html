@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="styles/generalStyles.css">
     <link rel="stylesheet" href="styles/globalStyles.css">
+    <link rel="stylesheet" href="styles/generalStyles.css">
     <link rel="stylesheet" href="styles/leftBarStyles.css">
     <link rel="stylesheet" href="styles/topBarStyles.css">
     <link rel="stylesheet" href="styles/rightBarStyles.css">
@@ -86,7 +86,7 @@
         </div>
         <div id="right-ui" class="Vertical-Flex-Container Big-Gap collapsed">
             <div class="input-with-pop-up-label">
-                <input id="object-name" value="No item is selected" disabled>
+                <input id="object-name" class="Big-Text-Input" value="No item is selected" disabled type="text">
                 <label for="object-name" class="popup-label" id="object-name-label">Object name</label>
             </div>
             <div id="right-ui-properties" class="Vertical-Flex-Container Big-Gap Disabled">
@@ -527,55 +527,62 @@
             <h1>Create a new event</h1>
             <section id="create-event-description">
                 In order to create a new event you have to provide a source, a type of event to watch for and a target.
-                When an event triggers, the simulation will be paused and a message will be printed on the log.
+                When an event triggers, the simulation will be paused and a message will be printed on the log.<br>
+                <strong>Tip: </strong> you need at least two objects to detect a collision
             </section>
             <section id="create-event-content" class="Horizontal-Flex-Container">
                 <div class="select-container" id="event-source-select-container">
                     <div class="select-main-container Clickable" id="event-source-select-main">
-                        Source
-                        <span class="material-symbols-outlined">
+                        <div id="event-source-select-main-text">Source</div>
+                        <span class="material-symbols-outlined" id="event-source-icon">
                             expand_more
                         </span>
                     </div>
-                    <div class="select-options-container">
-                        <div class="Clickable select-option">Option 1</div>
-                        <div class="Clickable select-option">Option 2</div>
-                        <div class="Clickable select-option">Option 3</div>
-                        <div class="Clickable select-option">Option 4</div>
+                    <div class="select-options-container" id="event-source-options-container">
+                        <div class="Clickable select-option" id="source-option-time">Time</div>
                     </div>
                 </div>
-                <div class="select-container" id="event-type-select-container">
+                <div class="select-container Disabled" id="event-type-select-container">
                     <div class="select-main-container Clickable" id="event-type-select-main">
-                        Event type
-                        <span class="material-symbols-outlined">
+                        <div id="event-type-select-main-text">Event type</div>
+                        <span class="material-symbols-outlined" id="event-type-icon">
                             expand_more
                         </span>
                     </div>
-                    <div class="select-options-container">
-                        <div class="Clickable select-option">Option 1</div>
-                        <div class="Clickable select-option">Option 2</div>
-                        <div class="Clickable select-option">Option 3</div>
-                        <div class="Clickable select-option">Option 4</div>
+                    <div class="select-options-container" id="type-options-container">
+                        <div class="Clickable select-option" id="type-option-collision">Collision</div>
+                        <div class="Clickable select-option" id="type-option-position-x">Position x</div>
+                        <div class="Clickable select-option" id="type-option-position-y">Position y</div>
+                        <div class="Clickable select-option" id="type-option-position-z">Position z</div>
+                        <div class="Clickable select-option" id="type-option-rotation-x">Rotation x</div>
+                        <div class="Clickable select-option" id="type-option-rotation-y">Rotation y</div>
+                        <div class="Clickable select-option" id="type-option-rotation-z">Rotation z</div>
+                        <div class="Clickable select-option" id="type-option-velocity-x">Velocity x</div>
+                        <div class="Clickable select-option" id="type-option-velocity-y">Velocity y</div>
+                        <div class="Clickable select-option" id="type-option-velocity-z">Velocity z</div>
+                        <div class="Clickable select-option" id="type-option-angular-velocity-x">Angular velocity x</div>
+                        <div class="Clickable select-option" id="type-option-angular-velocity-y">Angular velocity y</div>
+                        <div class="Clickable select-option" id="type-option-angular-velocity-z">Angular velocity z</div>
+                        <div class="Clickable select-option" id="type-option-acceleration-x">Acceleration x</div>
+                        <div class="Clickable select-option" id="type-option-acceleration-y">Acceleration y</div>
+                        <div class="Clickable select-option" id="type-option-acceleration-z">Acceleration z</div>
                     </div>
                 </div>
-                <div class="select-container" id="event-target-select-container">
+                <div class="select-container Disabled" id="event-target-select-container">
                     <div class="select-main-container Clickable" id="event-target-select-main">
-                        Target
-                        <span class="material-symbols-outlined">
-                            expand_more
+                        <input type="text" id="event-target-select-main-input" placeholder="Target" class="Big-Text-Input" disabled>
+                        <span class="material-symbols-outlined" id="event-target-icon">
+                            edit
                         </span>
                     </div>
-                    <div class="select-options-container">
-                        <div class="Clickable select-option">Option 1</div>
-                        <div class="Clickable select-option">Option 2</div>
-                        <div class="Clickable select-option">Option 3</div>
-                        <div class="Clickable select-option">Option 4</div>
+                    <div class="select-options-container" id="event-target-options-container">
+
                     </div>
                 </div>
             </section>
-            <section id="create-event-footer">
-                <button id="cancel-create-event-button">Cancel</button>
-                <button>Save</button>
+            <section id="create-event-footer" class="Horizontal-Flex-Container">
+                <button id="cancel-create-event-button" class="Normal-Button">Cancel</button>
+                <button class="Normal-Button">Save</button>
             </section>
         </div>
     </div>
