@@ -1,6 +1,6 @@
 import {collapseTimeline} from "./left-bar-styling.js";
 import {simulation} from "../main.js";
-import {deExtendSelectElement, initTypeOptions, setSource} from "./create-event-modal-styling.js";
+import {handleSourceObjectClick} from "./create-event-modal-styling.js";
 
 document.getElementById("close-timeline-button").onclick = () => {
     collapseTimeline();
@@ -16,14 +16,8 @@ document.getElementById("add-event-button").onclick = () => {
         option.innerText = object.mesh.name;
 
         option.onclick = () => {
-            // Set main element text to object name
-            document.getElementById("event-source-select-main-text").innerText = object.mesh.name;
-
-            setSource(`object-${object.mesh.uuid}`);
-
-            deExtendSelectElement();
-            initTypeOptions();
-        }
+            handleSourceObjectClick(object);
+        };
 
         document.getElementById("event-source-options-container").appendChild(option);
     }

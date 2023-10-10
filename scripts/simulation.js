@@ -11,6 +11,7 @@ class Simulation {
         this.world = world;
         this.camera = camera;
         this.selectedModeElement = null;
+        this.events = [];
     }
 
     createBox() {

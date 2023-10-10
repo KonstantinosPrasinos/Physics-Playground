@@ -1,12 +1,9 @@
 import {simulation} from "../main.js";
+import {handleInputKeyDown} from "./right-bar-styling.js";
 
 let extendedSelectElement;
 
 const inputsState = {source: null, type: null, target: null};
-
-const setSource = (newSource) => {
-    inputsState.source = newSource;
-}
 
 const deExtendSelectElement = () => {
     extendedSelectElement.classList.remove("extended");
@@ -24,7 +21,6 @@ const handleSelectClick = (event) => {
         document.getElementById("event-target-select-main-input").focus();
     } else {
         // Make it so that one select is extended at once
-
         const container = document.getElementById(`event-${selectTitle}-select-container`);
 
         if (!container.classList.contains("Disabled") && !container.classList.contains("event-type-not-clickable")) {
@@ -70,19 +66,46 @@ const hideModal = () => {
     document.getElementById("event-target-select-container").classList.remove("extended");
     document.getElementById("event-target-select-container").classList.add("Disabled");
 
+    document.getElementById("event-target-select-main-input").disabled = true;
+
     // Reset inputs
     document.getElementById("event-source-options-container").innerHTML = "<div class=\"Clickable select-option\" id=\"source-option-time\">Time</div>";
     document.getElementById("event-target-options-container").innerHTML = "";
     document.getElementById("event-target-select-main-input").value = "";
-}
 
-document.getElementById("cancel-create-event-button").onclick = hideModal;
+    inputsState.source = null;
+    inputsState.target = null;
+    inputsState.type = null;
+}
 
 // Select input handling
 document.getElementById("source-option-time").onclick = () => {
     document.getElementById("event-source-select-main-text").innerText = "Time";
     inputsState.source = "time";
     inputsState.type = "reaches";
+    inputsState.target = null;
+
+    // Disable save button
+    document.getElementById("save-create-event-button").disabled = true;
+
+    deExtendSelectElement();
+    initTypeOptions();
+}
+
+
+const handleSourceObjectClick = (object) => {
+    // Set main element text to object name
+    document.getElementById("event-source-select-main-text").innerText = object.mesh.name;
+    // Reset type select header
+    document.getElementById("event-type-select-main-text").innerText = "Event type";
+
+    // Set state and reset other input states
+    inputsState.source = `object-${object.mesh.uuid}`;
+    inputsState.type = null;
+    inputsState.target = null;
+
+    // Disable save button
+    document.getElementById("save-create-event-button").disabled = true;
 
     deExtendSelectElement();
     initTypeOptions();
@@ -91,9 +114,13 @@ document.getElementById("source-option-time").onclick = () => {
 const initTypeOptions = () => {
     // If first option is time then it shouldn't be a dropdown
     if (document.getElementById("event-source-select-main-text").innerText === "Time") {
+        const typeContainer = document.getElementById("event-type-select-container");
+
         // Change main container to not be clickable
-        document.getElementById("event-type-select-container").classList.remove("Disabled");
-        document.getElementById("event-type-select-container").classList.add("event-type-not-clickable");
+        typeContainer.classList.remove("Disabled");
+        typeContainer.classList.add("event-type-not-clickable");
+
+        document.getElementById("event-type-select-main-text").innerText = "reaches";
 
         initTargetOptions();
     } else {
@@ -151,7 +178,8 @@ const initTargetOptions = () => {
 
                 deExtendSelectElement();
 
-                console.log(inputsState);
+                // Enable save button
+                document.getElementById("save-create-event-button").disabled = false;
             }
 
             document.getElementById("event-target-options-container").appendChild(option);
@@ -177,6 +205,10 @@ const initTargetOptions = () => {
 const handleTypeInput = (event) => {
     const clickedElement = event.target;
     inputsState.type = clickedElement.id.substring(12, clickedElement.id.length);
+    inputsState.target = null;
+
+    // Disable save button
+    document.getElementById("save-create-event-button").disabled = true;
 
     document.getElementById("event-type-select-main-text").innerText = clickedElement.innerText;
 
@@ -201,4 +233,26 @@ document.getElementById("event-target-select-main-input").onfocus = (event) => {
     }
 }
 
-export {deExtendSelectElement, initTypeOptions, hideModal, setSource};
+document.getElementById("event-target-select-main-input").onkeyup = (event) => {
+    // Enable or disable save button
+    if (event.target.value.length > 0) {
+        document.getElementById("save-create-event-button").disabled = false;
+        inputsState.target = `number-${parseFloat(event.target.value)}`;
+    } else {
+        document.getElementById("save-create-event-button").disabled = true;
+        inputsState.target = null;
+    }
+}
+
+document.getElementById("event-target-select-main-input").onkeydown = handleInputKeyDown;
+
+// Bottom buttons
+document.getElementById("save-create-event-button").onclick = () => {
+    // Save event and hide the Modal
+    simulation.events.push({...inputsState});
+    hideModal();
+}
+
+document.getElementById("cancel-create-event-button").onclick = hideModal;
+
+export {deExtendSelectElement, initTypeOptions, hideModal, handleSourceObjectClick};
