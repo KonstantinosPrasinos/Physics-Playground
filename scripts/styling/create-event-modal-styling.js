@@ -69,7 +69,13 @@ const hideModal = () => {
     document.getElementById("event-target-select-main-input").disabled = true;
 
     // Reset inputs
-    document.getElementById("event-source-options-container").innerHTML = "<div class=\"Clickable select-option\" id=\"source-option-time\">Time</div>";
+    const sourceOptionsContainer = document.getElementById("event-source-options-container");
+
+    while (sourceOptionsContainer.children.length > 1) {
+        // This is done in order to always keep the source option
+        sourceOptionsContainer.removeChild(sourceOptionsContainer.lastChild);
+    }
+
     document.getElementById("event-target-options-container").innerHTML = "";
     document.getElementById("event-target-select-main-input").value = "";
 
