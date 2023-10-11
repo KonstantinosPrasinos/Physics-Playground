@@ -200,6 +200,8 @@ const updatePhysics = () => {
         document.getElementById("angular-velocity-y-input").value = simulation.selectedObject.body.angularVelocity.y.toFixed(3);
         document.getElementById("angular-velocity-z-input").value = simulation.selectedObject.body.angularVelocity.z.toFixed(3);
     }
+
+    simulation.checkEvents();
 }
 
 function animate() {

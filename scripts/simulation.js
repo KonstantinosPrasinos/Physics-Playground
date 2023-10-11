@@ -100,6 +100,12 @@ class Simulation {
         return type + '-' + count;
     }
 
+    pause() {
+        // Pause simulation
+        document.getElementById("top-play").innerText = "play_arrow";
+        this.isPaused = true;
+    }
+
     rewindState() {
         // Reset objects to previous state
         for (const object of this.savedState) {
@@ -142,6 +148,11 @@ class Simulation {
 
             // Populate inputs again
             this.addDataToFields(this.selectedObject.body, this.selectedObject.mesh)
+        }
+
+        // Reset all event fulfillment times
+        for (const index in this.events) {
+            this.events[index].fulfillmentTime = null;
         }
 
         // Enable disabled buttons
@@ -429,7 +440,7 @@ class Simulation {
 
     addEvent(event) {
         const id = this.totalEvents;
-        const eventWithId = {...event, id: id}
+        const eventWithId = {...event, id: id, fulfillmentTime: null}
         this.events.push(eventWithId);
 
 
@@ -444,8 +455,9 @@ class Simulation {
         if (event.source !== "Time") {
             const objectUuid = event.source.substring(7, event.source.length);
             sourceText = this.objects.find(object => object.mesh.uuid === objectUuid)?.mesh.name;
+            row.className = "event-row-source-object";
         } else {
-            sourceText = event.source
+            sourceText = event.source;
         }
 
         const source = document.createElement("DIV");
@@ -459,7 +471,7 @@ class Simulation {
         if (event.target.substring(0, 7) === "number-") {
             targetText = event.target.substring(7, event.target.length);
         } else {
-            const objectUuid = event.target.substring(7, event.source.length);
+            const objectUuid = event.target.substring(7, event.target.length);
             targetText = this.objects.find(object => object.mesh.uuid === objectUuid)?.mesh.name;
         }
 
@@ -483,7 +495,30 @@ class Simulation {
 
         table.appendChild(row);
 
+        // If event is collision add CANNON collision event
+        if (eventWithId.type === "collision") {
+            const objectUuid = eventWithId.source.substring(7, eventWithId.source.length);
+            const sourceBody = this.objects.find(object => object.mesh.uuid === objectUuid)?.body;
+
+            sourceBody.addEventListener("collide", (cannonEvent) => { // Spider-Man 2099 is not happy
+                if (!eventWithId.fulfillmentTime || eventWithId.fulfillmentTime === this.world.time - this.world.dt) {
+                    const collisionBodyUuid = this.objects.find(obj => obj.body.id === cannonEvent.body.id).mesh.uuid;
+                    const targetUuid = eventWithId.target.substring(7, eventWithId.target.length);
+
+                    if (collisionBodyUuid === targetUuid) {
+                        this.pause();
+                    }
+                }
+
+                eventWithId.fulfillmentTime = this.world.time;
+            })
+        }
+
         this.totalEvents++;
+    }
+
+    #handleCollisionEvent(cannonEvent) {
+
     }
 
     removeEvent(event) {
@@ -491,9 +526,51 @@ class Simulation {
         document.getElementById("events-table-body").removeChild(document.getElementById(`events-table-row-${event.id}`));
 
         // Do other stuff
+        if (event.type === "collision") {
+
+        }
 
         // Remove entry from array
         this.events.splice(this.events.indexOf(event), 1);
+    }
+
+    checkEvents() {
+        const derivatives = {
+            position: "velocity",
+            rotation: "angularVelocity",
+            velocity: "acceleration"
+        }
+
+        this.events.forEach((event) => {
+            // For event with a source of time
+            if (!event.fulfillmentTime || event.fulfillmentTime === this.world.time - this.world.dt ) { // make sure the same event doesn't get fulfilled back to back
+                if (event.source === "Time") {
+                    const targetTime = parseFloat(event.target.substring(7, event.target.length)) * 2;
+
+                    if (targetTime >= this.world.time - this.world.dt && targetTime <= this.world.time + this.world.dt) {
+                        this.pause();
+                    }
+                } else if (event.type !== "collision") {
+                    const axis = event.type.charAt(event.type.length - 1);
+
+                    // Make event case camelCase
+                    const type = event.type.substring(0, event.type.length - 2);
+
+                    // Get source body and target
+                    const objectUuid = event.source.substring(7, event.source.length);
+                    const sourceBody = this.objects.find(obj => obj.mesh.uuid === objectUuid).body;
+                    const target = parseFloat(event.target.substring(7, event.target.length));
+
+                    if (
+                        target >= sourceBody[type][axis] - sourceBody[derivatives[type]][axis] * this.world.dt &&
+                        target <= sourceBody[type][axis] + sourceBody[derivatives[type]][axis] * this.world.dt
+                    ) {
+                        event.fulfillmentTime = this.world.time;
+                        this.pause();
+                    }
+                }
+            }
+        })
     }
 
     clear() {
@@ -505,7 +582,14 @@ class Simulation {
             this.#deleteObject(this.objects[0]);
         }
 
-        // Todo Clear events with objects
+        // Clear events with objects
+        this.events = this.events.filter(event => event.source === "Time");
+
+        const childrenToBeRemoved = document.querySelectorAll(".event-row-source-object");
+
+        childrenToBeRemoved.forEach(child => {
+            child.remove();
+        })
     }
 }
 
