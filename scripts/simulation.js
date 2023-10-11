@@ -354,7 +354,7 @@ class Simulation {
         const removeButton = document.createElement("BUTTON");
 
         removeButton.classList.add("material-symbols-outlined");
-        removeButton.innerHTML = "remove";
+        removeButton.innerHTML = "delete";
 
         removeButton.onclick = () => {
             this.#deleteObject(this.objects[index]);
@@ -428,10 +428,15 @@ class Simulation {
     }
 
     addEvent(event) {
+        const id = this.totalEvents;
+        const eventWithId = {...event, id: id}
+        this.events.push(eventWithId);
+
+
         const table = document.getElementById("events-table-body");
 
         const row = document.createElement("DIV");
-        row.id = `events-table-row-${this.totalEvents}`;
+        row.id = `events-table-row-${id}`;
 
         // Get the name from the uuid
         let sourceText;
@@ -461,14 +466,34 @@ class Simulation {
         const target = document.createElement("DIV");
         target.innerText = targetText
 
+        // Generate the remove button
+        const removeButton = document.createElement("BUTTON");
+
+        removeButton.classList.add("material-symbols-outlined");
+        removeButton.innerHTML = "delete";
+
+        removeButton.onclick = () => {
+            this.removeEvent(eventWithId);
+        }
+
         row.appendChild(source);
         row.appendChild(type);
         row.appendChild(target);
+        row.appendChild(removeButton);
 
         table.appendChild(row);
 
-        this.events.push({...event, id: this.totalEvents});
         this.totalEvents++;
+    }
+
+    removeEvent(event) {
+        // Remove row from table
+        document.getElementById("events-table-body").removeChild(document.getElementById(`events-table-row-${event.id}`));
+
+        // Do other stuff
+
+        // Remove entry from array
+        this.events.splice(this.events.indexOf(event), 1);
     }
 
     clear() {

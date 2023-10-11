@@ -411,7 +411,7 @@
 <!--                </g>-->
 <!--            </svg>-->
         </div>
-        <div id="timeline-box" class="collapsed">
+        <div id="timeline-box" class="collapsed Vertical-Flex-Container">
             <div id="timeline-title-bar" class="title-bar">
                 <h2>Timeline</h2>
                 <button class="material-symbols-outlined" id="close-timeline-button">
@@ -488,25 +488,25 @@
                     </div>
                 </div>
             </div>
-            <div id="timeline-parameters" class="Vertical-Flex-Container">
-                <h2>Events</h2>
-                <div class="table-container">
-                    <div class="table-header">
-                        <div>Source</div>
-                        <div>Event type</div>
-                        <div>Target</div>
-                    </div>
-                    <div class="table-body" id="events-table-body">
-
-                    </div>
+            <h2>Events</h2>
+            <div class="table-container" id="events-table">
+                <div class="table-header">
+                    <div>Source</div>
+                    <div>Event type</div>
+                    <div>Target</div>
+                    <div></div>
+                </div>
+                <div class="table-body" id="events-table-body">
                 </div>
             </div>
-            <button class="Horizontal-Flex-Container" id="add-event-button">
-                Add new
-                <span class="material-symbols-outlined">
+            <div class="Horizontal-Flex-Container" id="add-event-button-container">
+                <button class="Normal-Button Small" id="add-event-button">
+                    Add new event
+                    <span class="material-symbols-outlined">
                     add
                 </span>
-            </button>
+                </button>
+            </div>
         </div>
     </div>
     <div id="create-event-overlay" class="collapsed">

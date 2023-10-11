@@ -47,7 +47,7 @@ button {
     border: none;
     color: inherit;
     transform-origin: center center;
-    transition: 0.2s opacity ease-in-out, 0.2s scale ease-in-out, 0.2s background-color ease-in-out;
+    transition: 0.2s opacity ease-in-out, 0.1s scale ease-in-out, 0.2s background-color ease-in-out;
     padding: 6px;
     border-radius: 8px;
     opacity: 0.6;
@@ -310,6 +310,9 @@ input:disabled ~ .slider-value {
     border-radius: 5px;
     overflow: hidden;
     font-size: 0.875rem;
+    outline: 10px solid var(--secondary-color);
+    box-sizing: border-box;
+    width: calc(100% - 20px);
 }
 .table-header {
     background-color: var(--secondary-color);
@@ -414,6 +417,9 @@ path {
     border-radius: 500px;
     color: var(--accent-color);
     padding: 0.5em 0.75em;
+}
+.Normal-Button.Small {
+    font-size: 1rem;
 }
 
 input.Big-Text-Input {

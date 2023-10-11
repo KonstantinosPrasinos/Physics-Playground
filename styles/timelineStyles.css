@@ -19,12 +19,46 @@
 
 #timeline-container {
     height: 45%;
-    width: 100%;
 }
 #timeline-parameters {
     grid-area: parameters;
+    flex-grow: 1;
 }
 
 #timeline-title-bar {
     grid-area: title-bar;
+}
+
+#events-table {
+    flex-grow: 1;
+    overflow: auto;
+}
+
+#events-table .table-header {
+    grid-template-columns: 1fr 1fr 0.5fr 0.5fr;
+}
+
+#events-table .table-body > div {
+    grid-template-columns: 1fr 1fr 0.5fr 0.5fr;
+}
+
+#events-table .material-symbols-outlined {
+    line-height: 1.5em;
+    font-size: inherit;
+    padding: 0;
+}
+
+#add-event-button-container {
+    justify-content: flex-end;
+}
+
+#add-event-button {
+    flex-grow: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 10px;
+    box-sizing: border-box;
 }

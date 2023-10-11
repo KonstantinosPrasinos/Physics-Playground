@@ -31,6 +31,7 @@
 
 #create-event-modal {
     width: 30%;
+    min-width: 35em;
 
     background-color: var(--primary-color);
     padding: 40px;
