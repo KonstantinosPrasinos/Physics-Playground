@@ -470,12 +470,16 @@ class Simulation {
         type.innerText = event.type.replaceAll("-", " ");
 
         let targetText;
+        const targetEventText = event.target.split("-");
 
-        if (event.target.substring(0, 7) === "number-") {
+        if (targetEventText[0] === "number") {
             targetText = event.target.substring(7, event.target.length);
-        } else {
+        } else if (targetEventText[0] === "object") {
             const objectUuid = event.target.substring(7, event.target.length);
             targetText = this.objects.find(object => object.mesh.uuid === objectUuid)?.mesh.name;
+        } else {
+            // For anything
+            targetText = "anything";
         }
 
         const target = document.createElement("DIV");
@@ -503,8 +507,12 @@ class Simulation {
             const objectUuid = eventWithId.source.substring(7, eventWithId.source.length);
             const sourceBody = this.objects.find(object => object.mesh.uuid === objectUuid)?.body;
 
-            // Add event id to the body
-            sourceBody.collisionEventIds.push(id);
+            if (eventWithId.target === "anything") {
+                sourceBody.triggerEventWithEverything = true;
+            } else {
+                // Add event id to the body
+                sourceBody.collisionEventIds.push(id);
+            }
 
             if (!sourceBody.hasEventListener) {
                 sourceBody.addEventListener("collide", this.#handleCollisionEvent.bind(this));
@@ -515,13 +523,19 @@ class Simulation {
     }
 
     #handleCollisionEvent(cannonEvent) { // Spider-Man 2099 is not happy
-        if (cannonEvent.target.collisionEventIds.length > 0 || cannonEvent.target.triggerEventWithEverything) {
-            if (cannonEvent.target.triggerEventWithEverything) {
+        if (
+            cannonEvent.target.collisionEventIds.length > 0 ||
+            cannonEvent.body.collisionEventIds.length > 0 ||
+            cannonEvent.target.triggerEventWithEverything ||
+            cannonEvent.body.triggerEventWithEverything
+        ) {
+            if (cannonEvent.target.triggerEventWithEverything || cannonEvent.body.triggerEventWithEverything) {
                 this.pause();
             } else {
-                const events = this.events.filter(event => cannonEvent.target.collisionEventIds.includes(event.id));
+                // Check for events in target
+                const targetEvents = this.events.filter(event => cannonEvent.target.collisionEventIds.includes(event.id));
 
-                events.forEach(event => {
+                targetEvents.forEach(event => {
                     if (!event.fulfillmentTime || event.fulfillmentTime === this.world.time - this.world.dt) {
                         const collisionBodyUuid = this.objects.find(obj => obj.body.id === cannonEvent.body.id).mesh.uuid;
                         const targetUuid = event.target.substring(7, event.target.length);
@@ -532,12 +546,12 @@ class Simulation {
                     }
 
                     event.fulfillmentTime = this.world.time;
-                })
+                });
             }
         }
     }
 
-    removeEvent(event) {
+    removeEvent(event, calledByOtherAnythingEvent = false) {
         // Remove row from table
         document.getElementById("events-table-body").removeChild(document.getElementById(`events-table-row-${event.id}`));
 
@@ -546,7 +560,19 @@ class Simulation {
             const objectUuid = event.source.substring(7, event.source.length);
             const sourceBody = this.objects.find(object => object.mesh.uuid === objectUuid)?.body;
 
-            sourceBody.collisionEventIds.splice(sourceBody.collisionEventIds.indexOf(event.id));
+            if (event.target === "anything") {
+                sourceBody.triggerEventWithEverything = false;
+                // If not called by other source
+                if (!calledByOtherAnythingEvent) {
+                    // Delete other similar events
+                    this.events
+                        .filter(tempEvent => tempEvent.source === event.source && tempEvent.target === "anything")
+                        .forEach(tempEvent => this.removeEvent(tempEvent, true));
+                }
+            } else {
+                // Add id to collision event array
+                sourceBody.collisionEventIds.splice(sourceBody.collisionEventIds.indexOf(event.id));
+            }
         }
 
         // Remove entry from array

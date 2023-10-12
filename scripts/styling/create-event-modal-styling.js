@@ -72,11 +72,17 @@ const hideModal = () => {
     const sourceOptionsContainer = document.getElementById("event-source-options-container");
 
     while (sourceOptionsContainer.children.length > 1) {
-        // This is done in order to always keep the source option
+        // This is done in order to always keep the source option, keep time option
         sourceOptionsContainer.removeChild(sourceOptionsContainer.lastChild);
     }
 
-    document.getElementById("event-target-options-container").innerHTML = "";
+    const targetOptionsContainer = document.getElementById("event-target-options-container");
+
+    while (targetOptionsContainer.children.length > 1) {
+        // Keep the anything option
+        targetOptionsContainer.removeChild(targetOptionsContainer.lastChild);
+    }
+
     document.getElementById("event-target-select-main-input").value = "";
 
     inputsState.source = null;
@@ -165,7 +171,12 @@ const initTargetOptions = () => {
         document.getElementById("event-target-select-main-input").classList.add("not-editable");
 
         // Remove old options and add new options to select component
-        document.getElementById("event-target-options-container").innerHTML = "";
+        const targetOptionsContainer = document.getElementById("event-target-options-container");
+
+        while (targetOptionsContainer.children.length > 1) {
+            // Keep the anything option
+            targetOptionsContainer.removeChild(targetOptionsContainer.lastChild);
+        }
 
         const objectUuid = inputsState.source.substring(7, inputsState.source.length);
 
@@ -234,9 +245,22 @@ selectOptions.forEach((element) => {
 
 // Target input
 document.getElementById("event-target-select-main-input").onfocus = (event) => {
+    // So that text input is not triggered on collision event, in order to only have select
     if (inputsState.type === "collision") {
         event.target.blur();
     }
+}
+
+document.getElementById("target-option-anything").onclick = () => {
+    // Set main element text to object name
+    document.getElementById("event-target-select-main-input").value = "Anything";
+
+    inputsState.target = `anything`
+
+    deExtendSelectElement();
+
+    // Enable save button
+    document.getElementById("save-create-event-button").disabled = false;
 }
 
 document.getElementById("event-target-select-main-input").onkeyup = (event) => {
