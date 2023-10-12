@@ -637,10 +637,17 @@ class Simulation {
     }
 
     reset() {
+        // Clear events
         for (const child of document.getElementById("events-table-body").children) {
             child.remove();
         }
 
+        this.events = [];
+
+        // Clear timeline
+        timeline.clearEntries();
+
+        // Clear all objects
         this.clear(false);
     }
 
