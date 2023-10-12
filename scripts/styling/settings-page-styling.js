@@ -6,6 +6,7 @@ import {
     simulation
 } from "../main.js";
 import {collapseSettings} from "./left-bar-styling.js";
+import {events} from "../events.js";
 
 const cameraFovValue = document.getElementById("camera-fov-slider-value");
 const cameraFovSlider = document.getElementById("camera-fov-slider");
@@ -238,7 +239,7 @@ document.getElementById("upload-button-input").onchange = (event) => {
                     jsonEvent.target = `object-${newUuids[oldUuid]}`
                 }
 
-                simulation.addEvent(jsonEvent);
+                events.addEvent(jsonEvent);
             }
         } catch (e) {
             // Invalid file type

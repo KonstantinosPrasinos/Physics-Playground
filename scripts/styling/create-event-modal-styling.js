@@ -1,5 +1,6 @@
 import {simulation} from "../main.js";
 import {handleInputKeyDown} from "./right-bar-styling.js";
+import {events} from "../events.js";
 
 let extendedSelectElement;
 
@@ -279,7 +280,7 @@ document.getElementById("event-target-select-main-input").onkeydown = handleInpu
 // Bottom buttons
 document.getElementById("save-create-event-button").onclick = () => {
     // Save event and hide the Modal
-    simulation.addEvent(inputsState);
+    events.addEvent(inputsState);
     hideModal();
 }
 
