@@ -457,6 +457,7 @@ class Simulation {
 
         if (event.source !== "Time") {
             const objectUuid = event.source.substring(7, event.source.length);
+
             sourceText = this.objects.find(object => object.mesh.uuid === objectUuid)?.mesh.name;
             row.className = "event-row-source-object";
         } else {
@@ -618,7 +619,15 @@ class Simulation {
         })
     }
 
-    clear() {
+    reset() {
+        for (const child of document.getElementById("events-table-body").children) {
+            child.remove();
+        }
+
+        this.clear(false);
+    }
+
+    clear(removeEvents = true) {
         if (this.selectedObject) {
             this.deselectObject();
         }
@@ -628,13 +637,15 @@ class Simulation {
         }
 
         // Clear events with objects
-        this.events = this.events.filter(event => event.source === "Time");
+        if (removeEvents) {
+            this.events = this.events.filter(event => event.source === "Time");
 
-        const childrenToBeRemoved = document.querySelectorAll(".event-row-source-object");
+            const childrenToBeRemoved = document.querySelectorAll(".event-row-source-object");
 
-        childrenToBeRemoved.forEach(child => {
-            child.remove();
-        })
+            childrenToBeRemoved.forEach(child => {
+                child.remove();
+            })
+        }
     }
 }
 
