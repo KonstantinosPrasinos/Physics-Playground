@@ -1,4 +1,6 @@
 import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
+import {timeline} from "./timeline.js";
+import {events} from "./events.js";
 
 class Simulation {
     constructor(scene, world, camera) {
@@ -32,6 +34,9 @@ class Simulation {
         });
 
         tempBody.acceleration = new CANNON.Vec3(0, 0, 0);
+        tempBody.collisionEventIds = [];
+        tempBody.hasEventListener = false;
+        tempBody.triggerEventWithEverything = false;
 
         let shape;
 
@@ -98,6 +103,12 @@ class Simulation {
         return type + '-' + count;
     }
 
+    pause() {
+        // Pause simulation
+        document.getElementById("top-play").innerText = "play_arrow";
+        this.isPaused = true;
+    }
+
     rewindState() {
         // Reset objects to previous state
         for (const object of this.savedState) {
@@ -141,6 +152,9 @@ class Simulation {
             // Populate inputs again
             this.addDataToFields(this.selectedObject.body, this.selectedObject.mesh)
         }
+
+        // Reset all event fulfillment times
+        events.resetFulfillmentTimes()
 
         // Enable disabled buttons
         document.getElementById("add-cube-button").disabled = false;
@@ -352,7 +366,7 @@ class Simulation {
         const removeButton = document.createElement("BUTTON");
 
         removeButton.classList.add("material-symbols-outlined");
-        removeButton.innerHTML = "remove";
+        removeButton.innerHTML = "delete";
 
         removeButton.onclick = () => {
             this.#deleteObject(this.objects[index]);
@@ -425,13 +439,29 @@ class Simulation {
         object.body.updateMassProperties();
     }
 
-    clear() {
+    reset() {
+        // Clear events
+        events.clear()
+
+        // Clear timeline
+        timeline.clearEntries();
+
+        // Clear all objects
+        this.clear(false);
+    }
+
+    clear(removeEvents = true) {
         if (this.selectedObject) {
             this.deselectObject();
         }
 
         while (this.objects.length > 0) {
             this.#deleteObject(this.objects[0]);
+        }
+
+        // Clear events with objects
+        if (removeEvents) {
+            events.clearThoseWithObject();
         }
     }
 }

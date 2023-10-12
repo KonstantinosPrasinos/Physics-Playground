@@ -6,6 +6,7 @@ import {
     simulation
 } from "../main.js";
 import {collapseSettings} from "./left-bar-styling.js";
+import {events} from "../events.js";
 
 const cameraFovValue = document.getElementById("camera-fov-slider-value");
 const cameraFovSlider = document.getElementById("camera-fov-slider");
@@ -114,8 +115,12 @@ document.getElementById("camera-fov-container").onwheel = (event) => {
 document.getElementById("download-button").onclick = (event) => {
     if (simulation.objects.length > 0) {
         // Assemble the object to download
-        let downloadableObject = {};
+        let downloadableObject = {
+            objects: {},
+            events: {}
+        };
 
+        // Assemble objects object
         for (const object of simulation.objects) {
             let temp = {
 
@@ -137,8 +142,14 @@ document.getElementById("download-button").onclick = (event) => {
             temp.scale = {x: object.mesh.scale.x, y: object.mesh.scale.y, z: object.mesh.scale.z};
 
             temp.name = object.mesh.name;
+            temp.mass = object.body.mass;
 
-            downloadableObject[object.mesh.uuid] = temp;
+            downloadableObject.objects[object.mesh.uuid] = temp;
+        }
+
+        // Assemble events object
+        for (const event of simulation.events) {
+            downloadableObject.events[event.id] = {...event, id: undefined, fulfillmentTime: undefined};
         }
 
         // Encode object
@@ -163,15 +174,18 @@ document.getElementById("upload-button-input").onchange = (event) => {
         // Process the JSON data here
         try {
             const data = JSON.parse(contents);
+            const newUuids = {};
 
             // Clear simulation
-            simulation.clear();
+            simulation.reset();
 
             // Add new objects to simulation
-            for (const key in data) {
-                const jsonObject = data[key];
+            for (const key in data?.objects) {
+                const jsonObject = data.objects[key];
 
                 const object = simulation.createObject(jsonObject.type);
+
+                newUuids[key] = object.mesh.uuid;
 
                 object.mesh.rotation.x = jsonObject.rotation.x;
                 object.mesh.rotation.y = jsonObject.rotation.y;
@@ -208,9 +222,28 @@ document.getElementById("upload-button-input").onchange = (event) => {
             }
 
             simulation.deselectObject();
+
+            // Add new events to simulation
+            for (const key in data?.events) {
+                const jsonEvent = data.events[key];
+
+                if (jsonEvent.source.includes("object")) {
+                    const oldUuid = jsonEvent.source.substring(7, jsonEvent.source.length);
+                    
+                    jsonEvent.source = `object-${newUuids[oldUuid]}`
+                }
+
+                if (jsonEvent.target.includes("object")) {
+                    const oldUuid = jsonEvent.target.substring(7, jsonEvent.target.length);
+
+                    jsonEvent.target = `object-${newUuids[oldUuid]}`
+                }
+
+                events.addEvent(jsonEvent);
+            }
         } catch (e) {
             // Invalid file type
-            console.error(e.message);
+            console.error(e);
         }
     };
 

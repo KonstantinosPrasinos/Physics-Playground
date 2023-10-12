@@ -5,6 +5,7 @@ import {
 
 import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import {setTooltipPosition} from "./styling/right-bar-styling.js";
+import {hideModal} from "./styling/create-event-modal-styling.js";
 
 window.onresize = () => {
     const emSize = parseInt(getComputedStyle(document.getElementById("viewportCanvas")).fontSize);
@@ -24,6 +25,14 @@ window.onresize = () => {
     perspectiveCamera.updateProjectionMatrix();
 
     setTooltipPosition();
+}
+
+window.onclick = (event) => {
+    const overlay = document.getElementById("create-event-overlay")
+
+    if (event.target === overlay) {
+        hideModal();
+    }
 }
 
 document.getElementById("viewportCanvas").onclick = (event) => {

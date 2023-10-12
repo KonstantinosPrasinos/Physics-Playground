@@ -3,6 +3,7 @@ import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
 import {Simulation} from "./simulation.js";
+import {events} from "./events.js";
 
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
@@ -200,6 +201,8 @@ const updatePhysics = () => {
         document.getElementById("angular-velocity-y-input").value = simulation.selectedObject.body.angularVelocity.y.toFixed(3);
         document.getElementById("angular-velocity-z-input").value = simulation.selectedObject.body.angularVelocity.z.toFixed(3);
     }
+
+    events.checkEvents();
 }
 
 function animate() {

@@ -1,32 +1,37 @@
 import {changeTimeStep, setTransformControlsEnabled, simulation, transformControls} from "../main.js";
+import {timeline} from "../timeline.js";
 
 document.getElementById("top-play").onclick = (event) => {
     if (simulation.isPaused) {
         // Save object position and rotation
-        for (const object of simulation.objects) {
-            const savedObject = {
-                id: object.mesh.id,
-                position: {x: null, y: null, z: null},
-                quaternion: {x: null, y: null, z: null},
-                velocity: {x: null, y: null, z: null},
-                angularVelocity: {x: null, y: null, z: null}
-            };
+        if (simulation.world.time === 0) {
+            for (const object of simulation.objects) {
+                const savedObject = {
+                    id: object.mesh.id,
+                    position: {x: null, y: null, z: null},
+                    quaternion: {x: null, y: null, z: null},
+                    velocity: {x: null, y: null, z: null},
+                    angularVelocity: {x: null, y: null, z: null}
+                };
 
-            savedObject.position.x = object.mesh.position.x;
-            savedObject.position.y = object.mesh.position.y;
-            savedObject.position.z = object.mesh.position.z;
-            savedObject.quaternion.x = object.mesh.quaternion.x;
-            savedObject.quaternion.y = object.mesh.quaternion.y;
-            savedObject.quaternion.z = object.mesh.quaternion.z;
+                savedObject.position.x = object.mesh.position.x;
+                savedObject.position.y = object.mesh.position.y;
+                savedObject.position.z = object.mesh.position.z;
+                savedObject.quaternion.x = object.mesh.quaternion.x;
+                savedObject.quaternion.y = object.mesh.quaternion.y;
+                savedObject.quaternion.z = object.mesh.quaternion.z;
 
-            savedObject.velocity.x = object.body.velocity.x;
-            savedObject.velocity.y = object.body.velocity.y;
-            savedObject.velocity.z = object.body.velocity.z;
-            savedObject.angularVelocity.x = object.body.angularVelocity.x;
-            savedObject.angularVelocity.y = object.body.angularVelocity.y;
-            savedObject.angularVelocity.z = object.body.angularVelocity.z;
+                savedObject.velocity.x = object.body.velocity.x;
+                savedObject.velocity.y = object.body.velocity.y;
+                savedObject.velocity.z = object.body.velocity.z;
+                savedObject.angularVelocity.x = object.body.angularVelocity.x;
+                savedObject.angularVelocity.y = object.body.angularVelocity.y;
+                savedObject.angularVelocity.z = object.body.angularVelocity.z;
 
-            simulation.savedState.push(savedObject);
+                simulation.savedState.push(savedObject);
+            }
+
+            timeline.clearEntries()
         }
 
         // Resume simulation
@@ -53,8 +58,7 @@ document.getElementById("top-play").onclick = (event) => {
         }
     } else {
         // Pause simulation
-        event.target.innerText = "play_arrow";
-        simulation.isPaused = true;
+        simulation.pause();
     }
 }
 
