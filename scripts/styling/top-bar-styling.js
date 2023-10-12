@@ -1,4 +1,5 @@
 import {changeTimeStep, setTransformControlsEnabled, simulation, transformControls} from "../main.js";
+import {timeline} from "../timeline.js";
 
 document.getElementById("top-play").onclick = (event) => {
     if (simulation.isPaused) {
@@ -29,6 +30,8 @@ document.getElementById("top-play").onclick = (event) => {
 
                 simulation.savedState.push(savedObject);
             }
+
+            timeline.clearEntries()
         }
 
         // Resume simulation

@@ -1,4 +1,5 @@
 import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
+import {timeline} from "./timeline.js";
 
 class Simulation {
     constructor(scene, world, camera) {
@@ -446,7 +447,6 @@ class Simulation {
         const eventWithId = {...event, id: id, fulfillmentTime: null}
         this.events.push(eventWithId);
 
-
         const table = document.getElementById("events-table-body");
 
         const row = document.createElement("DIV");
@@ -511,7 +511,6 @@ class Simulation {
             if (eventWithId.target === "anything") {
                 sourceBody.triggerEventWithEverything = true;
             } else {
-                // Add event id to the body
                 sourceBody.collisionEventIds.push(id);
             }
 
@@ -530,10 +529,19 @@ class Simulation {
             cannonEvent.target.triggerEventWithEverything ||
             cannonEvent.body.triggerEventWithEverything
         ) {
+
+            const collisionBodyUuid = this.objects.find(obj => obj.body.id === cannonEvent.body.id).mesh.uuid;
+
             if (cannonEvent.target.triggerEventWithEverything || cannonEvent.body.triggerEventWithEverything) {
-                this.pause();
+                const collisionTargetUuid = this.objects.find(obj => obj.body.id === cannonEvent.target.id).mesh.uuid;
+                const event = this.events.find(tempEvent => tempEvent.source === `object-${collisionTargetUuid}` && tempEvent.target === "anything");
+
+                if (!event.fulfillmentTime || event.fulfillmentTime === this.world.time - this.world.dt) {
+                    this.handleEventTriggered({...event, target: `object-${collisionBodyUuid}`});
+                }
+
+                event.fulfillmentTime = this.world.time;
             } else {
-                // Check for events in target
                 const targetEvents = this.events.filter(event => cannonEvent.target.collisionEventIds.includes(event.id));
 
                 targetEvents.forEach(event => {
@@ -542,7 +550,7 @@ class Simulation {
                         const targetUuid = event.target.substring(7, event.target.length);
 
                         if (collisionBodyUuid === targetUuid) {
-                            this.pause();
+                            this.handleEventTriggered(event);
                         }
                     }
 
@@ -551,7 +559,16 @@ class Simulation {
             }
         }
     }
+    
+    handleEventTriggered(event) {
+        // If the event is source time then don't print
+        if (event.source !== "Time") {
+            timeline.addEntry(event);
+        }
 
+        this.pause();
+    }
+    
     removeEvent(event, calledByOtherAnythingEvent = false) {
         // Remove row from table
         document.getElementById("events-table-body").removeChild(document.getElementById(`events-table-row-${event.id}`));
@@ -594,7 +611,7 @@ class Simulation {
                     const targetTime = parseFloat(event.target.substring(7, event.target.length)) * 2;
 
                     if (targetTime >= this.world.time - this.world.dt && targetTime <= this.world.time + this.world.dt) {
-                        this.pause();
+                        this.handleEventTriggered(event);
                     }
                 } else if (event.type !== "collision") {
                     const axis = event.type.charAt(event.type.length - 1);
@@ -612,7 +629,7 @@ class Simulation {
                         target <= sourceBody[type][axis] + sourceBody[derivatives[type]][axis] * this.world.dt
                     ) {
                         event.fulfillmentTime = this.world.time;
-                        this.pause();
+                        this.handleEventTriggered(event);
                     }
                 }
             }
