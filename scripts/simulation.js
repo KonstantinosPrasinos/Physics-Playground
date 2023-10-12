@@ -34,6 +34,9 @@ class Simulation {
         });
 
         tempBody.acceleration = new CANNON.Vec3(0, 0, 0);
+        tempBody.collisionEventIds = [];
+        tempBody.hasEventListener = false;
+        tempBody.triggerEventWithEverything = false;
 
         let shape;
 
@@ -500,34 +503,50 @@ class Simulation {
             const objectUuid = eventWithId.source.substring(7, eventWithId.source.length);
             const sourceBody = this.objects.find(object => object.mesh.uuid === objectUuid)?.body;
 
-            sourceBody.addEventListener("collide", (cannonEvent) => { // Spider-Man 2099 is not happy
-                if (!eventWithId.fulfillmentTime || eventWithId.fulfillmentTime === this.world.time - this.world.dt) {
-                    const collisionBodyUuid = this.objects.find(obj => obj.body.id === cannonEvent.body.id).mesh.uuid;
-                    const targetUuid = eventWithId.target.substring(7, eventWithId.target.length);
+            // Add event id to the body
+            sourceBody.collisionEventIds.push(id);
 
-                    if (collisionBodyUuid === targetUuid) {
-                        this.pause();
-                    }
-                }
-
-                eventWithId.fulfillmentTime = this.world.time;
-            })
+            if (!sourceBody.hasEventListener) {
+                sourceBody.addEventListener("collide", this.#handleCollisionEvent.bind(this));
+            }
         }
 
         this.totalEvents++;
     }
 
-    #handleCollisionEvent(cannonEvent) {
+    #handleCollisionEvent(cannonEvent) { // Spider-Man 2099 is not happy
+        if (cannonEvent.target.collisionEventIds.length > 0 || cannonEvent.target.triggerEventWithEverything) {
+            if (cannonEvent.target.triggerEventWithEverything) {
+                this.pause();
+            } else {
+                const events = this.events.filter(event => cannonEvent.target.collisionEventIds.includes(event.id));
 
+                events.forEach(event => {
+                    if (!event.fulfillmentTime || event.fulfillmentTime === this.world.time - this.world.dt) {
+                        const collisionBodyUuid = this.objects.find(obj => obj.body.id === cannonEvent.body.id).mesh.uuid;
+                        const targetUuid = event.target.substring(7, event.target.length);
+
+                        if (collisionBodyUuid === targetUuid) {
+                            this.pause();
+                        }
+                    }
+
+                    event.fulfillmentTime = this.world.time;
+                })
+            }
+        }
     }
 
     removeEvent(event) {
         // Remove row from table
         document.getElementById("events-table-body").removeChild(document.getElementById(`events-table-row-${event.id}`));
 
-        // Do other stuff
         if (event.type === "collision") {
+            // Remove this event from the body
+            const objectUuid = event.source.substring(7, event.source.length);
+            const sourceBody = this.objects.find(object => object.mesh.uuid === objectUuid)?.body;
 
+            sourceBody.collisionEventIds.splice(sourceBody.collisionEventIds.indexOf(event.id));
         }
 
         // Remove entry from array
