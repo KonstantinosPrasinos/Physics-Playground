@@ -313,7 +313,9 @@ input:disabled ~ .slider-value {
     outline: 10px solid var(--secondary-color);
     box-sizing: border-box;
     width: calc(100% - 20px);
+    margin: 10px 0 10px 10px;
 }
+
 .table-header {
     background-color: var(--secondary-color);
     display: grid;

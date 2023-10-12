@@ -6,7 +6,7 @@
     width: 25em;
     background-color: var(--primary-color);
     transition: 0.3s ease-in-out transform;
-    padding: 0.75em;
+    padding: 1.25em 0.75em;
     box-sizing: border-box;
 
     display: flex;
@@ -18,7 +18,7 @@
 }
 
 #timeline-container {
-    height: 45%;
+    height: calc(45% - 20px);
 }
 #timeline-parameters {
     grid-area: parameters;
@@ -62,4 +62,8 @@
 
     gap: 10px;
     box-sizing: border-box;
+}
+
+#events-header {
+    margin-top: 10px;
 }
