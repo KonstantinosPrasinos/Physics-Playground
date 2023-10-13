@@ -269,6 +269,10 @@ input[type="text"]:disabled {
     height: 100%;
 }
 
+.Justify-Content-Center {
+    justify-content: center;
+}
+
 .Max-Width {
     width: 100%;
 }
@@ -388,29 +392,6 @@ input:disabled ~ .slider-value {
 .Button:enabled {
     filter: brightness(0.87);
     scale: 0.9;
-}
-
-@keyframes moveLeftAndRight {
-    0%, 50%, 100% {
-        transform: translateX(0); /* Start and end position, no horizontal movement */
-    }
-    25% {
-        transform: translateX(-2px); /* Move 20px to the left */
-    }
-    75% {
-        transform: translateX(2px); /* Move 20px to the right */
-    }
-}
-
-svg {
-    animation: moveLeftAndRight 2s linear infinite; /* Adjust the duration as needed */
-}
-
-path {
-    fill: var(--primary-color);
-    stroke: var(--accent-color);
-    stroke-width: 75;
-    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
 }
 
 .Normal-Button {

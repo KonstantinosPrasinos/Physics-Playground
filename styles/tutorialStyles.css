@@ -1,0 +1,78 @@
+@keyframes moveLeftAndRight {
+    0% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(-10px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes moveLeftAndRightFacingLeft {
+    0% {
+    transform: translateX(0) rotate(180deg);
+    }
+    50% {
+        transform: translateX(10px) rotate(180deg);
+    }
+    100% {
+        transform: translateX(0) rotate(180deg);
+    }
+}
+
+svg {
+    animation: 2s infinite moveLeftAndRightFacingLeft;
+    animation-timing-function: ease-in-out;
+}
+
+path {
+    fill: var(--primary-color);
+    stroke: var(--accent-color);
+    stroke-width: 75;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+}
+
+#tutorial-overlay.facing-right {
+    flex-direction: row-reverse;
+}
+
+.facing-right > svg {
+    animation: 2s infinite moveLeftAndRight;
+}
+
+.align-top {
+    align-items: flex-start;
+}
+
+#tutorial-overlay {
+    gap: 30px;
+    position: fixed;
+    z-index: 5;
+    flex-direction: row;
+
+    transition: left 0.3s, top 0.3s;
+}
+
+#tutorial-overlay.collapsed {
+    display: none;
+}
+
+#tutorial-text-container {
+    background-color: var(--primary-color);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--accent-color);
+    max-width: 500px;
+}
+
+#close-tutorial-button {
+    justify-content: flex-end;
+}
+
+#close-tutorial-button > button {
+    padding: 0;
+}
+
+
