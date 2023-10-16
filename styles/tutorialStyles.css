@@ -12,13 +12,25 @@
 
 @keyframes moveLeftAndRightFacingLeft {
     0% {
-    transform: translateX(0) rotate(180deg);
+        transform: translateX(0) rotate(180deg);
     }
     50% {
         transform: translateX(10px) rotate(180deg);
     }
     100% {
         transform: translateX(0) rotate(180deg);
+    }
+}
+
+@keyframes moveLeftAndRightFacingUp {
+    0% {
+        transform: translateY(0) rotate(270deg);
+    }
+    50% {
+        transform: translateY(10px) rotate(270deg);
+    }
+    100% {
+        transform: translateX(0) rotate(270deg);
     }
 }
 
@@ -38,12 +50,21 @@ path {
     flex-direction: row-reverse;
 }
 
-.facing-right > svg {
+#tutorial-overlay.facing-right > svg {
     animation: 2s infinite moveLeftAndRight;
 }
 
-.align-top {
+#tutorial-overlay.facing-up {
+    flex-direction: column;
     align-items: flex-start;
+}
+
+#tutorial-overlay.facing-up > svg {
+    animation: 2s infinite moveLeftAndRightFacingUp;
+}
+
+#tutorial-overlay.facing-up.facing-right {
+    align-items: flex-end;
 }
 
 #tutorial-overlay {
@@ -64,14 +85,10 @@ path {
     padding: 20px;
     border-radius: 8px;
     border: 1px solid var(--accent-color);
-    max-width: 500px;
+    max-width: 350px;
 }
 
 #close-tutorial-button {
-    justify-content: flex-end;
-}
-
-#close-tutorial-button > button {
     padding: 0;
 }
 

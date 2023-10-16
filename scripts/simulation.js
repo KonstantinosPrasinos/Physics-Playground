@@ -280,7 +280,7 @@ class Simulation {
         document.getElementById("acceleration-z-input").value = "";
     }
 
-    #deleteObject(object) {
+    deleteObject(object) {
         const {mesh, body} = object;
         const index = this.objects.indexOf(object);
 
@@ -369,7 +369,7 @@ class Simulation {
         removeButton.innerHTML = "delete";
 
         removeButton.onclick = () => {
-            this.#deleteObject(this.objects[index]);
+            this.deleteObject(this.objects[index]);
         }
 
         // Append all the nodes to their parent
@@ -456,7 +456,7 @@ class Simulation {
         }
 
         while (this.objects.length > 0) {
-            this.#deleteObject(this.objects[0]);
+            this.deleteObject(this.objects[0]);
         }
 
         // Clear events with objects

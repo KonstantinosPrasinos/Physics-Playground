@@ -4,15 +4,23 @@ const rightUiToggle = document.getElementById("collapse-right-ui-button")
 const rightUi = document.getElementById("right-ui");
 const rightRoundedCorner = document.getElementById("rounded-corner-right");
 
+const collapseRightUi = () => {
+    rightUi.classList.add("collapsed")
+    rightUiToggle.classList.add("collapsed")
+    rightRoundedCorner.classList.add("collapsed")
+}
+
+const extendRightUi = () => {
+    rightUi.classList.remove("collapsed")
+    rightUiToggle.classList.remove("collapsed")
+    rightRoundedCorner.classList.remove("collapsed")
+}
+
 document.getElementById("collapse-right-ui-button").onclick = () => {
     if (rightUi.classList.contains("collapsed")) {
-        rightUi.classList.remove("collapsed")
-        rightUiToggle.classList.remove("collapsed")
-        rightRoundedCorner.classList.remove("collapsed")
+        extendRightUi();
     } else {
-        rightUi.classList.add("collapsed")
-        rightUiToggle.classList.add("collapsed")
-        rightRoundedCorner.classList.add("collapsed")
+        collapseRightUi();
     }
 }
 
@@ -263,4 +271,4 @@ document.getElementById("dimensions-tooltip-close-button").onclick = () => {
     document.getElementById("dimensions-tooltip").classList.add("Collapsed");
 }
 
-export {setTooltipPosition, setTooltipVisibility, handleInputKeyDown};
+export {setTooltipPosition, setTooltipVisibility, handleInputKeyDown, extendRightUi, collapseRightUi};
