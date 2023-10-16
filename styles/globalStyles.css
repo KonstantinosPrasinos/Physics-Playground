@@ -400,9 +400,14 @@ input:disabled ~ .slider-value {
     border-radius: 500px;
     color: var(--accent-color);
     padding: 0.5em 0.75em;
+    flex-shrink: 0;
 }
 .Normal-Button.Small {
     font-size: 1rem;
+}
+
+.Normal-Button.Very-Small {
+    font-size: 0.75rem;
 }
 
 input.Big-Text-Input {

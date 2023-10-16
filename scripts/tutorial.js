@@ -120,8 +120,7 @@ const tutorial = {
         this.currentStep = 0;
         const tutorialOverlay = document.getElementById("tutorial-overlay");
 
-        tutorialOverlay.classList = ["collapsed"]
-
+        tutorialOverlay.classList.add("collapsed");
         simulation.reset();
 
         localStorage.setItem("hasSeenTutorial", true);
@@ -130,6 +129,7 @@ const tutorial = {
     setStep1() {
         // Prepare step
         document.getElementById("step-tutorial-left").disabled = true;
+        document.getElementById("tutorial-overlay").classList.remove("collapsed");
 
         let horizontalAdjustment = 0;
 
@@ -295,8 +295,8 @@ if (!hasSeenTutorial) {
     tutorial.setStep1();
 }
 
-tutorial.setStep1();
-
 document.getElementById("step-tutorial-right").onclick = tutorial.stepForward.bind(tutorial);
 document.getElementById("step-tutorial-left").onclick = tutorial.stepBackward.bind(tutorial);
 document.getElementById("close-tutorial-button").onclick = tutorial.setTutorialOff;
+
+export {tutorial};
