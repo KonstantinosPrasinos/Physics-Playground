@@ -73,11 +73,18 @@ path {
     z-index: 5;
     flex-direction: row;
 
-    transition: left 0.3s, top 0.3s;
+    transition: left 0.3s, top 0.3s, opacity 0.2s, visibility 0s, transform 0.2s;
+    transition-delay: 0s, 0s, 0s, 0.01s, 0s, 0.01s;
+    transform-origin: left;
+    transform: scale(1);
+    opacity: 1;
 }
 
 #tutorial-overlay.collapsed {
-    display: none;
+    visibility: hidden;
+    transform: scale(0.9);
+    transition-delay: 0s, 0s, 0s, 0.3s, 0s;
+    opacity: 0;
 }
 
 #tutorial-text-container {

@@ -112,6 +112,8 @@ const tutorial = {
 
         left -= horizontalAdjustment;
 
+        console.log(left, top, elementDimensions.width, tutorialDimensions.width)
+
         tutorialOverlay.style.top = `${top}px`;
         tutorialOverlay.style.left = `${left}px`;
     },
@@ -286,6 +288,11 @@ const tutorial = {
 
         // Hide tutorial
         this.setTutorialOff();
+    },
+    handleResize() {
+        if (this.currentStep > 0) {
+            this[`setStep${this.currentStep}`]();
+        }
     }
 };
 
