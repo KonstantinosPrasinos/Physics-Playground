@@ -7,6 +7,7 @@ import {
 } from "../main.js";
 import {collapseSettings} from "./left-bar-styling.js";
 import {events} from "../events.js";
+import {tutorial} from "../tutorial.js";
 
 const cameraFovValue = document.getElementById("camera-fov-slider-value");
 const cameraFovSlider = document.getElementById("camera-fov-slider");
@@ -327,11 +328,18 @@ document.getElementById("device-theme-toggle").onchange = (event) => {
         // Disable theme picker
     } else {
         setColorSchemeEvent(false);
-        userSettings.us
+        // userSettings.us
     }
 
     userSettings.useDeviceTheme = event.target.checked;
     saveSettingsToLocalStorage();
+}
+
+document.getElementById("show-tutorial-button").onclick = () => {
+    collapseSettings();
+    setTimeout(() => {
+        tutorial.init();
+    }, 375)
 }
 
 loadSettingsFromLocalStorage();

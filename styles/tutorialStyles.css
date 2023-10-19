@@ -1,0 +1,102 @@
+@keyframes moveLeftAndRight {
+    0% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(-10px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes moveLeftAndRightFacingLeft {
+    0% {
+        transform: translateX(0) rotate(180deg);
+    }
+    50% {
+        transform: translateX(10px) rotate(180deg);
+    }
+    100% {
+        transform: translateX(0) rotate(180deg);
+    }
+}
+
+@keyframes moveLeftAndRightFacingUp {
+    0% {
+        transform: translateY(0) rotate(270deg);
+    }
+    50% {
+        transform: translateY(10px) rotate(270deg);
+    }
+    100% {
+        transform: translateX(0) rotate(270deg);
+    }
+}
+
+svg {
+    animation: 2s infinite moveLeftAndRightFacingLeft;
+    animation-timing-function: ease-in-out;
+}
+
+path {
+    fill: var(--primary-color);
+    stroke: var(--accent-color);
+    stroke-width: 75;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+}
+
+#tutorial-overlay.facing-right {
+    flex-direction: row-reverse;
+}
+
+#tutorial-overlay.facing-right > svg {
+    animation: 2s infinite moveLeftAndRight;
+}
+
+#tutorial-overlay.facing-up {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#tutorial-overlay.facing-up > svg {
+    animation: 2s infinite moveLeftAndRightFacingUp;
+}
+
+#tutorial-overlay.facing-up.facing-right {
+    align-items: flex-end;
+}
+
+#tutorial-overlay {
+    gap: 30px;
+    position: fixed;
+    z-index: 5;
+    flex-direction: row;
+
+    transition: left 0.3s, top 0.3s, opacity 0.2s, visibility 0s, transform 0.2s;
+    transition-delay: 0s, 0s, 0s, 0.01s, 0s, 0.01s;
+    transform-origin: left;
+    transform: scale(1);
+    opacity: 1;
+}
+
+#tutorial-overlay.collapsed {
+    visibility: hidden;
+    transform: scale(0.9);
+    transition-delay: 0s, 0s, 0s, 0.3s, 0s;
+    opacity: 0;
+}
+
+#tutorial-text-container {
+    background-color: var(--primary-color);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--accent-color);
+    max-width: 350px;
+}
+
+#close-tutorial-button {
+    padding: 0;
+}
+
+

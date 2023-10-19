@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="styles/settingsStyles.css">
     <link rel="stylesheet" href="styles/timelineStyles.css">
     <link rel="stylesheet" href="styles/create-event-modal.css">
+    <link rel="stylesheet" href="styles/tutorialStyles.css">
 </head>
 
 <body class="dark-theme">
@@ -217,9 +218,9 @@
                 </div>
                 <div id="right-second-degree-grid" class="right-properties-grid">
                     <div class="Vertical-Flex-Container">
-                        <label for="velocity-x-input" class="Title-Small">Velocity</label>
+                        <div class="Title-Small">Velocity</div>
                         <div class="Horizontal-Flex-Container">
-                            <div class="Label">X</div>
+                            <label for="velocity-x-input" id="label-velocity-x" class="Label">X</label>
                             <div class="Horizontal-Flex-Container Small-Gap">
                                 <input disabled class="right-ui-input" type="text" id="velocity-x-input">
                                 <div class="Label-Small">
@@ -355,6 +356,19 @@
                                 <input type="radio" id="midnight-theme-radio" value="midnight" class="theme-radio-button" name="theme-radio">
                                 <label for="midnight-theme-radio" class="popup-label" id="midnight-theme-radio-label">Midnight</label>
                             </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="settings-subsection">
+                    <label for="device-theme-toggle" class="Title-Small">Use device theme</label>
+                    <div class="settings-subsubsection">
+                        <div class="Label">
+                            Click to show the app tutorial.
+                            <br>
+                            This will reset the simulation
+                        </div>
+                        <div class="settings-content">
+                            <button class="Normal-Button Small" id="show-tutorial-button">Show tutorial</button>
                         </div>
                     </div>
                 </section>
@@ -508,6 +522,25 @@
             </section>
         </div>
     </div>
+    <div id="tutorial-overlay" class="Horizontal-Flex-Container collapsed">
+        <svg id="tutorial-pointer" class="facing-right" width="24" height="24" viewBox="1300 750 1100 550" xmlns="http://www.w3.org/2000/svg">
+            <g stroke-linecap="round" id="Layer_2">
+                <path d="M1350.16,584.06 Q1358.54,581.35 1374.08,588.58 Q1845.88,808.11 2317.69,1027.63 Q2350.96,1043.11 2317.25,1057.96 Q1839.12,1268.60 1360.99,1479.24 Q1339.34,1488.78 1331.78,1479.80" fill="none" stroke="rgb(255, 255, 255)" stroke-width="30.00" stroke-opacity="1.00" stroke-linejoin="round"/>
+                <path d="M1340.00,592.00 Q1526.00,1021.00 1328.00,1471.00" fill="none" stroke="rgb(255, 255, 255)" stroke-width="30.00" stroke-opacity="1.00" stroke-linejoin="round"/>
+            </g>
+        </svg>
+        <div id="tutorial-text-container" class="Vertical-Flex-Container">
+            <div class="Horizontal-Flex-Container Align-Top">
+                <span id="tutorial-text">Click here to add a cube to the scene</span>
+                <button class="material-symbols-outlined" id="close-tutorial-button">close</button>
+            </div>
+            <div class="Horizontal-Flex-Container">
+                <button class="material-symbols-outlined" id="step-tutorial-left"> chevron_left </button>
+                <span id="tutorial-step-text">1 / 10</span>
+                <button class="material-symbols-outlined" id="step-tutorial-right"> chevron_right </button>
+            </div>
+        </div>
+    </div>
     <script src="scripts/main.js" type="module"></script>
     <script src="scripts/generalStyling.js" type="module"></script>
     <script src="scripts/styling/top-bar-styling.js" type="module"></script>
@@ -517,5 +550,6 @@
     <script src="scripts/styling/timeline-page-styling.js" type="module"></script>
     <script src="scripts/styling/create-event-modal-styling.js" type="module"></script>
     <script src="scripts/timeline.js" type="module"></script>
+    <script src="scripts/tutorial.js" type="module"></script>
 </body>
 </html>

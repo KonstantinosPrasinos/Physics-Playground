@@ -6,6 +6,7 @@ import {
 import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import {setTooltipPosition} from "./styling/right-bar-styling.js";
 import {hideModal} from "./styling/create-event-modal-styling.js";
+import {tutorial} from "./tutorial.js";
 
 window.onresize = () => {
     const emSize = parseInt(getComputedStyle(document.getElementById("viewportCanvas")).fontSize);
@@ -25,15 +26,28 @@ window.onresize = () => {
     perspectiveCamera.updateProjectionMatrix();
 
     setTooltipPosition();
+
+    tutorial.handleResize();
 }
 
-window.onclick = (event) => {
-    const overlay = document.getElementById("create-event-overlay")
 
-    if (event.target === overlay) {
-        hideModal();
+document.addEventListener("click", (event) => {
+    const tutorialAllowedElements = [
+        tutorial.currentStepClickEventTarget,
+        document.getElementById("close-tutorial-button"),
+        document.getElementById("step-tutorial-left"),
+        document.getElementById("step-tutorial-right")
+    ];
+
+    if (tutorial.currentStep !== 0 && !tutorialAllowedElements.includes(event.target)) {
+        event.preventDefault();
+        event.stopPropagation();
+    } else {
+        if (event.target === document.getElementById("create-event-overlay")) {
+            hideModal();
+        }
     }
-}
+}, true)
 
 document.getElementById("viewportCanvas").onclick = (event) => {
     if (simulation.selectedModeElement) {
