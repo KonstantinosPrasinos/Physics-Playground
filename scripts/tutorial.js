@@ -7,6 +7,7 @@ const tutorial = {
     maxStep: 7,
     tutorialText: document.getElementById("tutorial-text"),
     stepText: document.getElementById("tutorial-step-text"),
+    currentStepClickEventTarget: null,
 
     stepForward() {
         if (this.currentStep < this.maxStep) {
@@ -18,7 +19,7 @@ const tutorial = {
         // Actions for if the step is skipped
         switch (this.currentStep - 1) {
             case 1:
-                document.getElementById("add-cube-button").click();
+                simulation.createBox();
                 break;
             case 2:
                 extendRightUi();
@@ -28,7 +29,7 @@ const tutorial = {
                 document.getElementById("velocity-x-input").value = 1;
                 break;
             case 4:
-                document.getElementById(`radio_input_${simulation.objects[1].mesh.uuid}`).click();
+                simulation.selectObject(simulation.objects[1]);
                 break;
             case 5:
             case 6:
@@ -112,8 +113,6 @@ const tutorial = {
 
         left -= horizontalAdjustment;
 
-        console.log(left, top, elementDimensions.width, tutorialDimensions.width)
-
         tutorialOverlay.style.top = `${top}px`;
         tutorialOverlay.style.left = `${left}px`;
     },
@@ -128,10 +127,18 @@ const tutorial = {
         localStorage.setItem("hasSeenTutorial", true);
     },
 
+    init() {
+        simulation.reset();
+        collapseRightUi();
+
+        this.setStep1();
+    },
+
     setStep1() {
         // Prepare step
         document.getElementById("step-tutorial-left").disabled = true;
         document.getElementById("tutorial-overlay").classList.remove("collapsed");
+        document.getElementById("step-tutorial-right").innerText = "chevron_right";
 
         let horizontalAdjustment = 0;
 
@@ -143,6 +150,9 @@ const tutorial = {
         // Change tutorial text
         this.tutorialText.innerText = "Click here to add a cube to the scene";
         document.getElementById("tutorial-step-text").innerText = `1 / ${this.maxStep}`;
+
+        // Set click target to element
+        this.currentStepClickEventTarget = document.getElementById("add-cube-button");
 
         // Add event listener to affected element
         document.getElementById("add-cube-button").addEventListener("click", this.setStep2.bind(this), {once: true});
@@ -169,6 +179,9 @@ const tutorial = {
         this.tutorialText.innerText = "Click here to expand or collapse the object property panel";
         document.getElementById("tutorial-step-text").innerText = `2 / ${this.maxStep}`;
 
+        // Set click target to element
+        this.currentStepClickEventTarget = document.getElementById("collapse-right-ui-button");
+
         // Add event listener to affected element
         document.getElementById("collapse-right-ui-button").addEventListener("click", this.setStep3.bind(this), {once: true})
 
@@ -191,6 +204,9 @@ const tutorial = {
         this.tutorialText.innerText = "Here you can change the properties of the selected object. Change the velocity to any number you want";
         document.getElementById("tutorial-step-text").innerText = `3 / ${this.maxStep}`;
 
+        // Set click target to element
+        this.currentStepClickEventTarget = null;
+
         // Add event listener to affected element
         document.getElementById("velocity-x-input").addEventListener("blur", this.setStep4.bind(this), {once: true})
 
@@ -212,6 +228,8 @@ const tutorial = {
             simulation.synchronizePosition(box);
 
             box.mesh.material.color.set(`#00ff00`);
+
+            simulation.selectObject(simulation.objects[0]);
         } else {
             box = simulation.objects[1];
         }
@@ -221,6 +239,9 @@ const tutorial = {
         // Change tutorial text
         this.tutorialText.innerText = "Here you can select other objects. We have added a new object for you. Select it by clicking it.";
         document.getElementById("tutorial-step-text").innerText = `4 / ${this.maxStep}`;
+
+        // Set click target to element
+        this.currentStepClickEventTarget = document.getElementById(`radio_input_${box.mesh.uuid}`);
 
         // Add event listener to affected element
         document.getElementById(`radio_input_${box.mesh.uuid}`).addEventListener("change", this.setStep5.bind(this), {once: true})
@@ -237,6 +258,9 @@ const tutorial = {
         this.tutorialText.innerText = "Press the play button to start the simulation.";
         document.getElementById("tutorial-step-text").innerText = `5 / ${this.maxStep}`;
 
+        // Set click target to element
+        this.currentStepClickEventTarget = document.getElementById("top-play");
+
         // Add event listener to affected element
         document.getElementById("top-play").addEventListener("click", this.setStep6.bind(this), {once: true})
 
@@ -251,6 +275,9 @@ const tutorial = {
         // Change tutorial text
         this.tutorialText.innerText = "Press the pause button to pause the simulation.";
         document.getElementById("tutorial-step-text").innerText = `6 / ${this.maxStep}`;
+
+        // Set click target to element
+        this.currentStepClickEventTarget = document.getElementById("top-play");
 
         // Add event listener to affected element
         setTimeout(() => {
@@ -269,8 +296,11 @@ const tutorial = {
         this.tutorialText.innerText = "Press the replay button to reset the simulation.";
         document.getElementById("tutorial-step-text").innerText = `7 / ${this.maxStep}`;
 
+        // Set click target to element
+        this.currentStepClickEventTarget = document.getElementById("top-replay");
+
         // Change next icon
-        document.getElementById("step-tutorial-right").innerText = "check_small"
+        document.getElementById("step-tutorial-right").innerText = "check_small";
 
         // Add event listener to affected element
         document.getElementById("top-replay").addEventListener("click", this.setStepFinal.bind(this), {once: true})

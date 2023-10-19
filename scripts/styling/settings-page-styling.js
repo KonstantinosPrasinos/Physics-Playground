@@ -338,7 +338,7 @@ document.getElementById("device-theme-toggle").onchange = (event) => {
 document.getElementById("show-tutorial-button").onclick = () => {
     collapseSettings();
     setTimeout(() => {
-        tutorial.setStep1();
+        tutorial.init();
     }, 375)
 }
 

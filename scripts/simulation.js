@@ -109,32 +109,34 @@ class Simulation {
         this.isPaused = true;
     }
 
-    rewindState() {
+    rewindState(resetObjects = true) {
         // Reset objects to previous state
-        for (const object of this.savedState) {
-            const targetObject = this.objects.find(tempObject => tempObject.mesh.id === object.id);
+        if (resetObjects) {
+            for (const object of this.savedState) {
+                const targetObject = this.objects.find(tempObject => tempObject.mesh.id === object.id);
 
-            targetObject.mesh.position.x = object.position.x;
-            targetObject.mesh.position.y = object.position.y;
-            targetObject.mesh.position.z = object.position.z;
-            targetObject.body.position.x = object.position.x;
-            targetObject.body.position.y = object.position.y;
-            targetObject.body.position.z = object.position.z;
+                targetObject.mesh.position.x = object.position.x;
+                targetObject.mesh.position.y = object.position.y;
+                targetObject.mesh.position.z = object.position.z;
+                targetObject.body.position.x = object.position.x;
+                targetObject.body.position.y = object.position.y;
+                targetObject.body.position.z = object.position.z;
 
-            targetObject.mesh.quaternion.x = object.quaternion.x;
-            targetObject.mesh.quaternion.y = object.quaternion.y;
-            targetObject.mesh.quaternion.z = object.quaternion.z;
-            targetObject.body.quaternion.x = object.quaternion.x;
-            targetObject.body.quaternion.y = object.quaternion.y;
-            targetObject.body.quaternion.z = object.quaternion.z;
+                targetObject.mesh.quaternion.x = object.quaternion.x;
+                targetObject.mesh.quaternion.y = object.quaternion.y;
+                targetObject.mesh.quaternion.z = object.quaternion.z;
+                targetObject.body.quaternion.x = object.quaternion.x;
+                targetObject.body.quaternion.y = object.quaternion.y;
+                targetObject.body.quaternion.z = object.quaternion.z;
 
-            targetObject.body.velocity.x = object.velocity.x;
-            targetObject.body.velocity.y = object.velocity.y;
-            targetObject.body.velocity.z = object.velocity.z;
+                targetObject.body.velocity.x = object.velocity.x;
+                targetObject.body.velocity.y = object.velocity.y;
+                targetObject.body.velocity.z = object.velocity.z;
 
-            targetObject.body.angularVelocity.x = object.angularVelocity.x;
-            targetObject.body.angularVelocity.y = object.angularVelocity.y;
-            targetObject.body.angularVelocity.z = object.angularVelocity.z;
+                targetObject.body.angularVelocity.x = object.angularVelocity.x;
+                targetObject.body.angularVelocity.y = object.angularVelocity.y;
+                targetObject.body.angularVelocity.z = object.angularVelocity.z;
+            }
         }
 
         // Reset state
@@ -379,7 +381,7 @@ class Simulation {
         containerDiv.appendChild(removeButton);
 
         document.getElementById("right-ui-objects-list").appendChild(containerDiv);
-        radioInput.click();
+        this.selectObject(this.objects[index])
     }
 
     synchronizePosition(object) {
@@ -448,6 +450,9 @@ class Simulation {
 
         // Clear all objects
         this.clear(false);
+
+        // Reset time to 0
+        this.rewindState(false);
     }
 
     clear(removeEvents = true) {
