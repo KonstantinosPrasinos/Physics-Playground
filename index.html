@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="styles/timelineStyles.css">
     <link rel="stylesheet" href="styles/create-event-modal.css">
     <link rel="stylesheet" href="styles/tutorialStyles.css">
+    <link rel="stylesheet" href="styles/bookmarksStyles.css">
 </head>
 
 <body class="dark-theme">
@@ -54,6 +55,9 @@
                 </button>
             </div>
             <div id="bottom-left-buttons-container">
+                <button class="material-symbols-outlined" id="bookmarks-button">
+                    bookmarks
+                </button>
                 <button class="material-symbols-outlined" id="timeline-button">
                     timeline
                 </button>
@@ -463,6 +467,23 @@
                 </button>
             </div>
         </div>
+        <div id="bookmarks-box" class="collapsed">
+            <div id="bookmarks-title-bar" class="title-bar">
+                <h2>Bookmarks</h2>
+                <button class="material-symbols-outlined" id="close-bookmarks-button">
+                    close
+                </button>
+            </div>
+            <div class="Vertical-Flex-Container Vertical-Flex-Container" id="bookmarks-content">
+                <div class="bookmark-container" id="no-bookmarks">No bookmarks saved</div>
+            </div>
+            <div class="Horizontal-Flex-Container">
+                <button class="Normal-Button Very-Small" id="bookmark-button">
+                    Save current scene
+                    <span class="material-symbols-outlined">bookmark</span>
+                </button>
+            </div>
+        </div>
     </div>
     <div id="create-event-overlay" class="collapsed">
         <div id="create-event-modal">
@@ -551,5 +572,6 @@
     <script src="scripts/styling/create-event-modal-styling.js" type="module"></script>
     <script src="scripts/timeline.js" type="module"></script>
     <script src="scripts/tutorial.js" type="module"></script>
+    <script src="scripts/styling/bookmarks-page-styling.js" type="module"></script>
 </body>
 </html>

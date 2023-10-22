@@ -469,6 +469,57 @@ class Simulation {
             events.clearThoseWithObject();
         }
     }
+    
+    loadFromObject(data) {
+        const newUuids = {};
+        
+        // Clear simulation
+        this.reset();
+
+        // Add new objects to simulation
+        for (const key in data) {
+            const jsonObject = data[key];
+
+            const object = this.createObject(jsonObject.type);
+
+            newUuids[key] = object.mesh.uuid;
+
+            object.mesh.rotation.x = jsonObject.rotation.x;
+            object.mesh.rotation.y = jsonObject.rotation.y;
+            object.mesh.rotation.z = jsonObject.rotation.z;
+
+            this.synchronizeRotation(object);
+
+            object.mesh.position.x = jsonObject.position.x;
+            object.mesh.position.y = jsonObject.position.y;
+            object.mesh.position.z = jsonObject.position.z;
+
+            this.synchronizePosition(object);
+
+            object.mesh.scale.x = jsonObject.scale.x;
+            object.mesh.scale.y = jsonObject.scale.y;
+            object.mesh.scale.z = jsonObject.scale.z;
+
+            this.synchronizeSize("x", object);
+
+            object.mesh.material.color.set(`#${jsonObject.color}`);
+
+            object.mesh.name = jsonObject.name;
+
+            object.body.velocity.x = jsonObject.velocity.x;
+            object.body.velocity.y = jsonObject.velocity.y;
+            object.body.velocity.z = jsonObject.velocity.z;
+
+            object.body.angularVelocity.x = jsonObject.angularVelocity.x;
+            object.body.angularVelocity.y = jsonObject.angularVelocity.y;
+            object.body.angularVelocity.z = jsonObject.angularVelocity.z;
+
+            object.body.mass = jsonObject.mass;
+            object.body.updateMassProperties();
+        }
+
+        this.deselectObject();
+    }
 }
 
 export {Simulation};

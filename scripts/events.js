@@ -220,6 +220,26 @@ const events = {
         }
 
         this.events = [];
+    },
+
+    loadFromObject(object, newUuids) {
+        for (const key in object) {
+            const jsonEvent = object[key];
+
+            if (jsonEvent.source.includes("object")) {
+                const oldUuid = jsonEvent.source.substring(7, jsonEvent.source.length);
+
+                jsonEvent.source = `object-${newUuids[oldUuid]}`
+            }
+
+            if (jsonEvent.target.includes("object")) {
+                const oldUuid = jsonEvent.target.substring(7, jsonEvent.target.length);
+
+                jsonEvent.target = `object-${newUuids[oldUuid]}`
+            }
+
+            events.addEvent(jsonEvent);
+        }
     }
 }
 

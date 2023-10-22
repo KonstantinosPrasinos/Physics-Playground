@@ -401,6 +401,9 @@ input:disabled ~ .slider-value {
     color: var(--accent-color);
     padding: 0.5em 0.75em;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 .Normal-Button.Small {
     font-size: 1rem;
