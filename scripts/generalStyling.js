@@ -81,6 +81,13 @@ document.addEventListener("keypress", (event) => {
     }
 })
 
+// Wait for font icons to load before starting tutorial
+document.fonts.ready.then(() => {
+    if (localStorage.getItem('hasSeenTutorial') !== "true") {
+        tutorial.setStep1();
+    }
+})
+
 document.getElementById("close-mobile-overlay-button").onclick = () => {
     document.getElementById("mobile-overlay").classList.add("collapsed");
 }

@@ -8,6 +8,7 @@ const tutorial = {
     tutorialText: document.getElementById("tutorial-text"),
     stepText: document.getElementById("tutorial-step-text"),
     currentStepClickEventTarget: null,
+    hasLoaded: false,
 
     stepForward() {
         if (this.currentStep < this.maxStep) {
@@ -81,6 +82,13 @@ const tutorial = {
                 // Facing left
                 left = elementDimensions.right;
                 top = elementDimensions.top - tutorialDimensions.height / 2 + elementDimensions.height / 2;
+
+                // If hasLoaded is false, the element is 0.9 times the size it should be, so it should be 1/9 * 1/2 the height more up
+                if (!this.hasLoaded) {
+                    top = top -  (1 / 18) * tutorialDimensions.height;
+                    this.hasLoaded = true;
+                }
+
                 break;
             case 2:
                 // Facing right, top aligned
@@ -119,6 +127,7 @@ const tutorial = {
 
     setTutorialOff() {
         this.currentStep = 0;
+        this.hasLoaded = false;
         const tutorialOverlay = document.getElementById("tutorial-overlay");
 
         tutorialOverlay.classList.add("collapsed");
@@ -325,12 +334,6 @@ const tutorial = {
         }
     }
 };
-
-const hasSeenTutorial = localStorage.getItem('hasSeenTutorial') === "true";
-
-if (!hasSeenTutorial) {
-    tutorial.setStep1();
-}
 
 document.getElementById("step-tutorial-right").onclick = tutorial.stepForward.bind(tutorial);
 document.getElementById("step-tutorial-left").onclick = tutorial.stepBackward.bind(tutorial);
