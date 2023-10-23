@@ -92,6 +92,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    cursor: pointer;
 }
 
 #object-name:hover:not(:focus-visible):not(:disabled) ~ #object-name-label {

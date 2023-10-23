@@ -30,7 +30,8 @@ class Simulation {
         const tempBody = new CANNON.Body({
             mass: 1,
             linearDamping: 0,
-            fixedRotation: true
+            fixedRotation: true,
+            angularDamping: 0
         });
 
         tempBody.acceleration = new CANNON.Vec3(0, 0, 0);
@@ -260,6 +261,7 @@ class Simulation {
 
         // Remove all data from fields
         document.getElementById("object-name").value = "No item is selected"
+        document.getElementById("item-color-picker").value = "#ff0000"
         document.getElementById("width-input").value = "";
         document.getElementById("height-input").value = "";
         document.getElementById("depth-input").value = "";
