@@ -23,6 +23,9 @@
     opacity: 1;
     color: inherit;
 }
+#event-target-select-main-input-label {
+    display: none;
+}
 
 #event-target-select-main-input.not-editable {
     cursor: pointer;
