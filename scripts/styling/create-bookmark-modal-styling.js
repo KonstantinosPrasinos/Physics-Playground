@@ -1,4 +1,4 @@
-import {bookmarks} from "./bookmarks-page-styling.js";
+import {bookmarks} from "../bookmarks.js";
 
 const hideModal = () => {
     // Hide the modal

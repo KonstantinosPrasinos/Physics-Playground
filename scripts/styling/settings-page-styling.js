@@ -183,6 +183,10 @@ document.getElementById("upload-button-input").onchange = (event) => {
                 const newUuids = simulation.loadFromObject(data.objects);
 
                 events.loadFromObject(data.events, newUuids);
+
+                // Enable download and save scene buttons
+                document.getElementById("download-button").setAttribute("aria-disabled", "false")
+                document.getElementById("bookmark-button").disabled = false;
             }
         } catch (e) {
             // Invalid file type

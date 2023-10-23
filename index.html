@@ -409,7 +409,7 @@
                     <div class="Title-Small">Export scene</div>
                     <div class="settings-subsubsection">
                         <div class="Label">Pressing this button will download a json file you can later import</div>
-                        <a id="download-button" class="material-symbols-outlined Button">download</a>
+                        <a id="download-button" class="material-symbols-outlined Button" aria-disabled="true">download</a>
                     </div>
                 </section>
                 <section class="settings-subsection">
@@ -479,7 +479,7 @@
                 <div class="bookmark-container" id="no-bookmarks">No bookmarks saved</div>
             </div>
             <div class="Horizontal-Flex-Container">
-                <button class="Normal-Button Small" id="bookmark-button">
+                <button class="Normal-Button Small" id="bookmark-button" disabled>
                     Save current scene
                     <span class="material-symbols-outlined">bookmark</span>
                 </button>
@@ -506,11 +506,11 @@
     </div>
     <div id="create-event-overlay" class="modal-overlay collapsed">
         <div id="create-event-modal" class="modal">
-            <h1 class="modal-title">Create a new event</h1>
-            <section id="create-event-description" class="modal-description">
-                In order to create a new event you have to provide a source, a type of event to watch for and a target.
+            <section class="modal-text">
+                <h2 class="modal-title Headline-Small">Create event</h2>
+                <span class="modal-description">In order to create a new event you have to provide a source, a type of event to watch for and a target.
                 When an event triggers, the simulation will be paused and a message will be printed on the log.<br>
-                <strong>Tip: </strong> you need at least two objects to detect a collision
+                <strong>Tip: </strong> you need at least two objects to detect a collision</span>
             </section>
             <section id="create-event-content" class="Horizontal-Flex-Container modal-content">
                 <div class="select-container" id="event-source-select-container">

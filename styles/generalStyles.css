@@ -157,6 +157,7 @@
 }
 
 .modal {
+    max-width: 40%;
     background-color: var(--primary-color);
     padding: 24px;
     border-radius: 10px;

@@ -79,6 +79,10 @@ class Simulation {
         this.#addItemToList(this.objects.length - 1);
         this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
 
+        // Enable download and save scene buttons
+        document.getElementById("download-button").setAttribute("aria-disabled", "false")
+        document.getElementById("bookmark-button").disabled = false;
+
         return object;
     }
 
