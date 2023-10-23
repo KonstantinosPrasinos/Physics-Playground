@@ -64,12 +64,16 @@ const handleInputKeyDown = (event) => {
     }
 
     // Blur element on enter
+    handleEnterDown(event);
+}
+
+const handleEnterDown = (event) => {
     if (event.keyCode === 13) {
         event.target.blur();
     }
 }
 
-document.getElementById("object-name").onkeydown = handleInputKeyDown;
+document.getElementById("object-name").onkeydown = handleEnterDown;
 document.getElementById("mass-input").onkeydown = handleInputKeyDown;
 
 document.getElementById("width-input").onkeydown = handleInputKeyDown;

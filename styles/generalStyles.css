@@ -278,8 +278,18 @@
 .select-option {
     padding: 8px;
     border-radius: 4px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    flex-shrink: 0;
 }
 
 .select-option:hover {
     background-color: var(--primary-color);
+}
+
+.select-main-text {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
