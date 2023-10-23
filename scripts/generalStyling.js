@@ -74,3 +74,9 @@ document.getElementById("viewportCanvas").onclick = (event) => {
         }
     }
 }
+
+document.addEventListener("keypress", (event) => {
+    if (!["BUTTON", "INPUT"].includes(document.activeElement.tagName) && event.code === "Space") {
+        document.getElementById("top-play").click();
+    }
+})
