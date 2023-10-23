@@ -30,13 +30,14 @@ const highlightButton = (event) => {
 const collapseSettings = () => {
     settingsUi.classList.add("collapsed")
     leftRoundedCorner.classList.remove("extended");
-    document.onclick = undefined;
-    settingsUi.ontransitionend = undefined;
 }
 
 document.getElementById("settings-button").onclick = () => {
     if (!timelineUi.classList.contains("collapsed")) {
         collapseTimeline();
+    }
+    if (!document.getElementById("bookmarks-box").classList.contains("collapsed")) {
+        collapseBookmarks();
     }
     if (settingsUi.classList.contains("collapsed")) {
         settingsUi.classList.remove("collapsed");
@@ -52,19 +53,42 @@ const leftRoundedCorner = document.getElementById("rounded-corner-left");
 const collapseTimeline = () => {
     timelineUi.classList.add("collapsed");
     leftRoundedCorner.classList.remove("double-extended");
-    document.onclick = undefined;
-    timelineUi.ontransitionend = undefined;
 }
 
 document.getElementById("timeline-button").onclick = () => {
-    if (!document.getElementById("settings-button").classList.contains("collapsed")) {
+    if (!document.getElementById("settings-box").classList.contains("collapsed")) {
         collapseSettings();
+    }
+    if (!document.getElementById("bookmarks-box").classList.contains("collapsed")) {
+        collapseBookmarks();
     }
     if (timelineUi.classList.contains("collapsed")) {
         timelineUi.classList.remove("collapsed");
         leftRoundedCorner.classList.add("double-extended");
     } else {
         collapseTimeline();
+    }
+}
+
+const bookmarksUi = document.getElementById("bookmarks-box");
+
+const collapseBookmarks = () => {
+    bookmarksUi.classList.add("collapsed");
+    leftRoundedCorner.classList.remove("extended");
+}
+
+document.getElementById("bookmarks-button").onclick = () => {
+    if (!document.getElementById("settings-box").classList.contains("collapsed")) {
+        collapseSettings();
+    }
+    if (!timelineUi.classList.contains("collapsed")) {
+        collapseTimeline();
+    }
+    if (bookmarksUi.classList.contains("collapsed")) {
+        bookmarksUi.classList.remove("collapsed");
+        leftRoundedCorner.classList.add("extended");
+    } else {
+        collapseBookmarks();
     }
 }
 
@@ -86,4 +110,4 @@ document.getElementById("add-cube-button").onclick = simulation.createBox.bind(s
 document.getElementById("add-sphere-button").onclick = simulation.createSphere.bind(simulation);
 
 
-export {collapseSettings, collapseTimeline};
+export {collapseSettings, collapseTimeline, collapseBookmarks};

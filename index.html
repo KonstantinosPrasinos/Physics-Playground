@@ -17,6 +17,8 @@
     <link rel="stylesheet" href="styles/timelineStyles.css">
     <link rel="stylesheet" href="styles/create-event-modal.css">
     <link rel="stylesheet" href="styles/tutorialStyles.css">
+    <link rel="stylesheet" href="styles/bookmarksStyles.css">
+    <link rel="stylesheet" href="styles/bookmarkModalStyles.css">
 </head>
 
 <body class="dark-theme">
@@ -54,6 +56,9 @@
                 </button>
             </div>
             <div id="bottom-left-buttons-container">
+                <button class="material-symbols-outlined" id="bookmarks-button">
+                    bookmarks
+                </button>
                 <button class="material-symbols-outlined" id="timeline-button">
                     timeline
                 </button>
@@ -463,16 +468,51 @@
                 </button>
             </div>
         </div>
+        <div id="bookmarks-box" class="collapsed">
+            <div id="bookmarks-title-bar" class="title-bar">
+                <h2>Bookmarks</h2>
+                <button class="material-symbols-outlined" id="close-bookmarks-button">
+                    close
+                </button>
+            </div>
+            <div class="Vertical-Flex-Container Vertical-Flex-Container" id="bookmarks-content">
+                <div class="bookmark-container" id="no-bookmarks">No bookmarks saved</div>
+            </div>
+            <div class="Horizontal-Flex-Container">
+                <button class="Normal-Button Small" id="bookmark-button">
+                    Save current scene
+                    <span class="material-symbols-outlined">bookmark</span>
+                </button>
+            </div>
+        </div>
     </div>
-    <div id="create-event-overlay" class="collapsed">
-        <div id="create-event-modal">
-            <h1>Create a new event</h1>
-            <section id="create-event-description">
+    <div id="create-bookmark-overlay" class="modal-overlay collapsed">
+        <div id="create-bookmark-modal" class="modal">
+            <section class="modal-text">
+                <h2 class="modal-title Headline-Small">Create bookmark</h2>
+                <span class="modal-description">In order to create a bookmark you need to provide a title for it.</span>
+            </section>
+            <section class="modal-content">
+                <div class="text-input-container">
+                    <label for="bookmark-title-input" class="Label-Medium">Bookmark title</label>
+                    <input type="text" placeholder="Descriptive title example" id="bookmark-title-input">
+                </div>
+            </section>
+            <section id="create-bookmark-footer" class="Horizontal-Flex-Container modal-footer">
+                <button id="cancel-create-bookmark-button" class="Normal-Button">Cancel</button>
+                <button id="save-create-bookmark-button" class="Normal-Button" disabled>Save</button>
+            </section>
+        </div>
+    </div>
+    <div id="create-event-overlay" class="modal-overlay collapsed">
+        <div id="create-event-modal" class="modal">
+            <h1 class="modal-title">Create a new event</h1>
+            <section id="create-event-description" class="modal-description">
                 In order to create a new event you have to provide a source, a type of event to watch for and a target.
                 When an event triggers, the simulation will be paused and a message will be printed on the log.<br>
                 <strong>Tip: </strong> you need at least two objects to detect a collision
             </section>
-            <section id="create-event-content" class="Horizontal-Flex-Container">
+            <section id="create-event-content" class="Horizontal-Flex-Container modal-content">
                 <div class="select-container" id="event-source-select-container">
                     <div class="select-main-container Clickable" id="event-source-select-main">
                         <div id="event-source-select-main-text">Source</div>
@@ -516,7 +556,7 @@
                     </div>
                 </div>
             </section>
-            <section id="create-event-footer" class="Horizontal-Flex-Container">
+            <section id="create-event-footer" class="Horizontal-Flex-Container modal-footer">
                 <button id="cancel-create-event-button" class="Normal-Button">Cancel</button>
                 <button id="save-create-event-button" class="Normal-Button" disabled>Save</button>
             </section>
@@ -551,5 +591,7 @@
     <script src="scripts/styling/create-event-modal-styling.js" type="module"></script>
     <script src="scripts/timeline.js" type="module"></script>
     <script src="scripts/tutorial.js" type="module"></script>
+    <script src="scripts/styling/bookmarks-page-styling.js" type="module"></script>
+    <script src="scripts/styling/create-bookmark-modal-styling.js" type="module"></script>
 </body>
 </html>

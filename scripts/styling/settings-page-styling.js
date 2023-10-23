@@ -113,48 +113,51 @@ document.getElementById("camera-fov-container").onwheel = (event) => {
     }
 }
 
+const generateSceneObject = () => {
+    let downloadableObject = {
+        objects: {},
+        events: {}
+    };
+
+    // Assemble objects object
+    for (const object of simulation.objects) {
+        let temp = {
+
+        }
+
+        temp.position = {x: object.mesh.position.x, y: object.mesh.position.y, z: object.mesh.position.z};
+        temp.rotation = {x: object.mesh.rotation.x, y: object.mesh.rotation.y, z: object.mesh.rotation.z};
+
+        if (object.mesh.geometry.type === "BoxGeometry") {
+            temp.type = "Cube";
+        } else {
+            temp.type = "Sphere";
+        }
+
+        temp.velocity = {x: object.body.velocity.x, y: object.body.velocity.y, z: object.body.velocity.z};
+        temp.angularVelocity = {x: object.body.angularVelocity.x, y: object.body.angularVelocity.y, z: object.body.angularVelocity.z};
+
+        temp.color = object.mesh.material.color.getHexString();
+        temp.scale = {x: object.mesh.scale.x, y: object.mesh.scale.y, z: object.mesh.scale.z};
+
+        temp.name = object.mesh.name;
+        temp.mass = object.body.mass;
+
+        downloadableObject.objects[object.mesh.uuid] = temp;
+    }
+
+    // Assemble events object
+    for (const event of events.events) {
+        downloadableObject.events[event.id] = {...event, id: undefined, fulfillmentTime: undefined};
+    }
+
+    return downloadableObject
+}
+
 document.getElementById("download-button").onclick = (event) => {
     if (simulation.objects.length > 0) {
-        // Assemble the object to download
-        let downloadableObject = {
-            objects: {},
-            events: {}
-        };
-
-        // Assemble objects object
-        for (const object of simulation.objects) {
-            let temp = {
-
-            }
-
-            temp.position = {x: object.mesh.position.x, y: object.mesh.position.y, z: object.mesh.position.z};
-            temp.rotation = {x: object.mesh.rotation.x, y: object.mesh.rotation.y, z: object.mesh.rotation.z};
-
-            if (object.mesh.geometry.type === "BoxGeometry") {
-                temp.type = "Cube";
-            } else {
-                temp.type = "Sphere";
-            }
-
-            temp.velocity = {x: object.body.velocity.x, y: object.body.velocity.y, z: object.body.velocity.z};
-            temp.angularVelocity = {x: object.body.angularVelocity.x, y: object.body.angularVelocity.y, z: object.body.angularVelocity.z};
-
-            temp.color = object.mesh.material.color.getHexString();
-            temp.scale = {x: object.mesh.scale.x, y: object.mesh.scale.y, z: object.mesh.scale.z};
-
-            temp.name = object.mesh.name;
-            temp.mass = object.body.mass;
-
-            downloadableObject.objects[object.mesh.uuid] = temp;
-        }
-
-        // Assemble events object
-        for (const event of simulation.events) {
-            downloadableObject.events[event.id] = {...event, id: undefined, fulfillmentTime: undefined};
-        }
-
         // Encode object
-        const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(downloadableObject));
+        const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(generateSceneObject()));
 
         // Download object
         event.target.setAttribute("href", data);
@@ -175,72 +178,11 @@ document.getElementById("upload-button-input").onchange = (event) => {
         // Process the JSON data here
         try {
             const data = JSON.parse(contents);
-            const newUuids = {};
 
-            // Clear simulation
-            simulation.reset();
+            if (data?.objects) {
+                const newUuids = simulation.loadFromObject(data.objects);
 
-            // Add new objects to simulation
-            for (const key in data?.objects) {
-                const jsonObject = data.objects[key];
-
-                const object = simulation.createObject(jsonObject.type);
-
-                newUuids[key] = object.mesh.uuid;
-
-                object.mesh.rotation.x = jsonObject.rotation.x;
-                object.mesh.rotation.y = jsonObject.rotation.y;
-                object.mesh.rotation.z = jsonObject.rotation.z;
-
-                simulation.synchronizeRotation(object);
-
-                object.mesh.position.x = jsonObject.position.x;
-                object.mesh.position.y = jsonObject.position.y;
-                object.mesh.position.z = jsonObject.position.z;
-
-                simulation.synchronizePosition(object);
-
-                object.mesh.scale.x = jsonObject.scale.x;
-                object.mesh.scale.y = jsonObject.scale.y;
-                object.mesh.scale.z = jsonObject.scale.z;
-
-                simulation.synchronizeSize("x", object);
-
-                object.mesh.material.color.set(`#${jsonObject.color}`);
-
-                object.mesh.name = jsonObject.name;
-
-                object.body.velocity.x = jsonObject.velocity.x;
-                object.body.velocity.y = jsonObject.velocity.y;
-                object.body.velocity.z = jsonObject.velocity.z;
-
-                object.body.angularVelocity.x = jsonObject.angularVelocity.x;
-                object.body.angularVelocity.y = jsonObject.angularVelocity.y;
-                object.body.angularVelocity.z = jsonObject.angularVelocity.z;
-
-                object.body.mass = jsonObject.mass;
-                object.body.updateMassProperties();
-            }
-
-            simulation.deselectObject();
-
-            // Add new events to simulation
-            for (const key in data?.events) {
-                const jsonEvent = data.events[key];
-
-                if (jsonEvent.source.includes("object")) {
-                    const oldUuid = jsonEvent.source.substring(7, jsonEvent.source.length);
-                    
-                    jsonEvent.source = `object-${newUuids[oldUuid]}`
-                }
-
-                if (jsonEvent.target.includes("object")) {
-                    const oldUuid = jsonEvent.target.substring(7, jsonEvent.target.length);
-
-                    jsonEvent.target = `object-${newUuids[oldUuid]}`
-                }
-
-                events.addEvent(jsonEvent);
+                events.loadFromObject(data.events, newUuids);
             }
         } catch (e) {
             // Invalid file type
@@ -343,3 +285,5 @@ document.getElementById("show-tutorial-button").onclick = () => {
 }
 
 loadSettingsFromLocalStorage();
+
+export {generateSceneObject};

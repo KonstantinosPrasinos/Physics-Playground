@@ -1,0 +1,62 @@
+#bookmarks-box {
+    position: fixed;
+    top: 3em;
+    left: 3em;
+    height: calc(100% - 3em);
+    width: 20em;
+    background-color: var(--primary-color);
+    transition: 0.3s ease-in-out transform;
+    padding: 1.25em 0.75em;
+    box-sizing: border-box;
+
+    display: flex;
+    gap: 1em;
+    flex-direction: column;
+}
+
+#bookmarks-box.collapsed {
+    transform: translateX(-23em);
+}
+
+#bookmarks-content {
+    flex-grow: 1;
+    overflow: auto;
+    padding-right: 10px;
+}
+
+@keyframes bookmarkAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.bookmark-container {
+    background-color: var(--secondary-color);
+    padding: 12px;
+    border-radius: 10px;
+
+    animation: 0.2s bookmarkAppear;
+}
+
+.bookmark-container > span {
+    flex-grow: 1;
+}
+
+.bookmark-container > .material-symbols-outlined {
+    font-size: 1.25rem;
+    padding: 0;
+}
+
+#no-bookmarks {
+    display: none;
+}
+
+#no-bookmarks:only-child {
+    display: unset;
+}
