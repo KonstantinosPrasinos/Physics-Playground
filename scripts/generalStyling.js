@@ -87,3 +87,7 @@ document.fonts.ready.then(() => {
         tutorial.setStep1();
     }
 })
+
+document.getElementById("close-mobile-overlay-button").onclick = () => {
+    document.getElementById("mobile-overlay").classList.add("collapsed");
+}
