@@ -21,7 +21,8 @@ let userSettings = {
 
 const loadSettingsFromLocalStorage = () => {
     // Get from local storage
-    userSettings = JSON.parse(localStorage.getItem("userSettings"));
+    const localStorageUserSettings = JSON.parse(localStorage.getItem("userSettings"))
+    if (localStorageUserSettings) userSettings = localStorageUserSettings;
 
     // Update settings ui
     if (userSettings.useDeviceTheme) {

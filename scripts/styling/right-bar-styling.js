@@ -47,7 +47,7 @@ const handleInputKeyDown = (event) => {
             if (event.target.value.includes("-")) {
                 event.preventDefault();
             } else {
-                if (event.target.value.length > 0) {
+                if (event.target.selectionStart > 0) {
                     event.preventDefault();
                 }
             }
@@ -58,7 +58,7 @@ const handleInputKeyDown = (event) => {
     if ([',', '.'].includes(event.key)) {
         if (event.target.value.includes('.') || event.target.value.includes(',')) {
             event.preventDefault();
-        } else if (event.target.value.length === 0) {
+        } else if (event.target.selectionStart === 0) {
             event.preventDefault();
         }
     }

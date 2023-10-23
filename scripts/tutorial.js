@@ -326,7 +326,7 @@ const tutorial = {
     }
 };
 
-const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
+const hasSeenTutorial = localStorage.getItem('hasSeenTutorial') === "true";
 
 if (!hasSeenTutorial) {
     tutorial.setStep1();
