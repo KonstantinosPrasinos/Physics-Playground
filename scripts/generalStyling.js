@@ -80,3 +80,7 @@ document.addEventListener("keypress", (event) => {
         document.getElementById("top-play").click();
     }
 })
+
+document.getElementById("close-mobile-overlay-button").onclick = () => {
+    document.getElementById("mobile-overlay").classList.add("collapsed");
+}
