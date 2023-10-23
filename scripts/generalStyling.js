@@ -80,3 +80,10 @@ document.addEventListener("keypress", (event) => {
         document.getElementById("top-play").click();
     }
 })
+
+// Wait for font icons to load before starting tutorial
+document.fonts.ready.then(() => {
+    if (localStorage.getItem('hasSeenTutorial') !== "true") {
+        tutorial.setStep1();
+    }
+})
