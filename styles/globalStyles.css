@@ -200,6 +200,13 @@ input[type="text"]:disabled {
 
     transition: opacity 0.15s ease-in-out;
 }
+.Label-Medium {
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 16px; /* 133.333% */
+    letter-spacing: 0.5px;
+}
 .Label-Small {
     opacity: 0.6;
     font-size: 0.65rem;
@@ -212,6 +219,15 @@ input[type="text"]:disabled {
 .Tooltip-Small {
     font-size: 0.75rem;
     line-height: 0.75rem;
+}
+
+.Headline-Small {
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 32px;
+
+    opacity: 0.87;
 }
 
 /* Separators */
@@ -431,4 +447,14 @@ input.Big-Text-Input:disabled {
 input.Big-Text-Input:focus-visible {
     outline: none;
     border-bottom: 1px solid var(--accent-color);
+}
+
+.text-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.text-input-container > label {
+    margin-left: 12px;
 }

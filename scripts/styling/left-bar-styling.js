@@ -86,7 +86,7 @@ document.getElementById("bookmarks-button").onclick = () => {
     }
     if (bookmarksUi.classList.contains("collapsed")) {
         bookmarksUi.classList.remove("collapsed");
-        leftRoundedCorner.classList.add("double-extended");
+        leftRoundedCorner.classList.add("extended");
     } else {
         collapseBookmarks();
     }

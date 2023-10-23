@@ -1,0 +1,14 @@
+#bookmark-title-input {
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid var(--outline-color);
+    border-radius: 8px;
+    width: auto;
+    outline: 1px solid transparent;
+
+    transition: outline 0.1s ease-in-out;
+}
+
+#bookmark-title-input:focus-visible {
+    outline: 2px solid var(--outline-color);
+}

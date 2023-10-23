@@ -519,6 +519,8 @@ class Simulation {
         }
 
         this.deselectObject();
+
+        return newUuids;
     }
 }
 

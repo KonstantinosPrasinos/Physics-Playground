@@ -57,32 +57,39 @@ const bookmarks = {
         localStorage.setItem('bookmarks', JSON.stringify(this.bookmarks));
     },
 
-    save() {
-        const sceneObject = generateSceneObject();
+    save(title) {
+        if (simulation.objects.length > 0) {
+            const sceneObject = generateSceneObject();
 
-        // Generate id;
-        let id;
+            // Generate id;
+            let id;
 
-        for (let i = 0; i < this.bookmarks.length + 1; i++) {
-            const found = this.bookmarks.find(bookmark => bookmark.id === i);
+            for (let i = 0; i < this.bookmarks.length + 1; i++) {
+                const found = this.bookmarks.find(bookmark => bookmark.id === i);
 
-            if (!found) {
-                id = i;
-                break;
+                if (!found) {
+                    id = i;
+                    break;
+                }
             }
+
+            sceneObject.title = title;
+            sceneObject.id = id;
+
+            this.bookmarks.push(sceneObject);
+            this.addBookmarkToList(sceneObject);
+
+            this.updateLocalStorage();
         }
-
-        sceneObject.title = "This is a temp title";
-        sceneObject.id = id;
-
-        this.bookmarks.push(sceneObject);
-        this.addBookmarkToList(sceneObject);
-
-        this.updateLocalStorage();
     }
 };
-
-document.getElementById("bookmark-button").onclick = bookmarks.save.bind(bookmarks);
 document.getElementById("close-bookmarks-button").onclick = collapseBookmarks;
+document.getElementById("bookmark-button").onclick = () => {
+    if (simulation.objects.length > 0) {
+        document.getElementById("create-bookmark-overlay").classList.remove("collapsed");
+    }
+}
 
 bookmarks.init();
+
+export {bookmarks};
