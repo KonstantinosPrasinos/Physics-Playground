@@ -88,7 +88,11 @@
 }
 
 .right-ui-object-name {
-    flex-grow: 1;
+    width: calc(100% - 6em);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
 }
 
 #object-name:hover:not(:focus-visible):not(:disabled) ~ #object-name-label {

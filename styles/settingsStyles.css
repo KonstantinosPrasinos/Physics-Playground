@@ -141,3 +141,12 @@
     scale: 1;
     translate: 0 0;
 }
+
+#download-button[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.38;
+}
+
+#download-button[aria-disabled="true"]:hover {
+    filter: brightness(0.6);
+}

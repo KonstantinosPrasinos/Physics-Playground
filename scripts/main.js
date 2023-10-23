@@ -196,10 +196,6 @@ const updatePhysics = () => {
         document.getElementById("velocity-x-input").value = simulation.selectedObject.body.velocity.x.toFixed(3);
         document.getElementById("velocity-y-input").value = simulation.selectedObject.body.velocity.y.toFixed(3);
         document.getElementById("velocity-z-input").value = simulation.selectedObject.body.velocity.z.toFixed(3);
-
-        document.getElementById("angular-velocity-x-input").value = simulation.selectedObject.body.angularVelocity.x.toFixed(3);
-        document.getElementById("angular-velocity-y-input").value = simulation.selectedObject.body.angularVelocity.y.toFixed(3);
-        document.getElementById("angular-velocity-z-input").value = simulation.selectedObject.body.angularVelocity.z.toFixed(3);
     }
 
     events.checkEvents();

@@ -30,7 +30,8 @@ class Simulation {
         const tempBody = new CANNON.Body({
             mass: 1,
             linearDamping: 0,
-            fixedRotation: true
+            fixedRotation: true,
+            angularDamping: 0
         });
 
         tempBody.acceleration = new CANNON.Vec3(0, 0, 0);
@@ -79,6 +80,10 @@ class Simulation {
         this.#addItemToList(this.objects.length - 1);
         this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
 
+        // Enable download and save scene buttons
+        document.getElementById("download-button").setAttribute("aria-disabled", "false")
+        document.getElementById("bookmark-button").disabled = false;
+
         return object;
     }
 
@@ -109,32 +114,34 @@ class Simulation {
         this.isPaused = true;
     }
 
-    rewindState() {
+    rewindState(resetObjects = true) {
         // Reset objects to previous state
-        for (const object of this.savedState) {
-            const targetObject = this.objects.find(tempObject => tempObject.mesh.id === object.id);
+        if (resetObjects) {
+            for (const object of this.savedState) {
+                const targetObject = this.objects.find(tempObject => tempObject.mesh.id === object.id);
 
-            targetObject.mesh.position.x = object.position.x;
-            targetObject.mesh.position.y = object.position.y;
-            targetObject.mesh.position.z = object.position.z;
-            targetObject.body.position.x = object.position.x;
-            targetObject.body.position.y = object.position.y;
-            targetObject.body.position.z = object.position.z;
+                targetObject.mesh.position.x = object.position.x;
+                targetObject.mesh.position.y = object.position.y;
+                targetObject.mesh.position.z = object.position.z;
+                targetObject.body.position.x = object.position.x;
+                targetObject.body.position.y = object.position.y;
+                targetObject.body.position.z = object.position.z;
 
-            targetObject.mesh.quaternion.x = object.quaternion.x;
-            targetObject.mesh.quaternion.y = object.quaternion.y;
-            targetObject.mesh.quaternion.z = object.quaternion.z;
-            targetObject.body.quaternion.x = object.quaternion.x;
-            targetObject.body.quaternion.y = object.quaternion.y;
-            targetObject.body.quaternion.z = object.quaternion.z;
+                targetObject.mesh.quaternion.x = object.quaternion.x;
+                targetObject.mesh.quaternion.y = object.quaternion.y;
+                targetObject.mesh.quaternion.z = object.quaternion.z;
+                targetObject.body.quaternion.x = object.quaternion.x;
+                targetObject.body.quaternion.y = object.quaternion.y;
+                targetObject.body.quaternion.z = object.quaternion.z;
 
-            targetObject.body.velocity.x = object.velocity.x;
-            targetObject.body.velocity.y = object.velocity.y;
-            targetObject.body.velocity.z = object.velocity.z;
+                targetObject.body.velocity.x = object.velocity.x;
+                targetObject.body.velocity.y = object.velocity.y;
+                targetObject.body.velocity.z = object.velocity.z;
 
-            targetObject.body.angularVelocity.x = object.angularVelocity.x;
-            targetObject.body.angularVelocity.y = object.angularVelocity.y;
-            targetObject.body.angularVelocity.z = object.angularVelocity.z;
+                targetObject.body.angularVelocity.x = object.angularVelocity.x;
+                targetObject.body.angularVelocity.y = object.angularVelocity.y;
+                targetObject.body.angularVelocity.z = object.angularVelocity.z;
+            }
         }
 
         // Reset state
@@ -254,6 +261,7 @@ class Simulation {
 
         // Remove all data from fields
         document.getElementById("object-name").value = "No item is selected"
+        document.getElementById("item-color-picker").value = "#ff0000"
         document.getElementById("width-input").value = "";
         document.getElementById("height-input").value = "";
         document.getElementById("depth-input").value = "";
@@ -280,7 +288,7 @@ class Simulation {
         document.getElementById("acceleration-z-input").value = "";
     }
 
-    #deleteObject(object) {
+    deleteObject(object) {
         const {mesh, body} = object;
         const index = this.objects.indexOf(object);
 
@@ -369,7 +377,7 @@ class Simulation {
         removeButton.innerHTML = "delete";
 
         removeButton.onclick = () => {
-            this.#deleteObject(this.objects[index]);
+            this.deleteObject(this.objects[index]);
         }
 
         // Append all the nodes to their parent
@@ -379,7 +387,7 @@ class Simulation {
         containerDiv.appendChild(removeButton);
 
         document.getElementById("right-ui-objects-list").appendChild(containerDiv);
-        radioInput.click();
+        this.selectObject(this.objects[index])
     }
 
     synchronizePosition(object) {
@@ -448,6 +456,9 @@ class Simulation {
 
         // Clear all objects
         this.clear(false);
+
+        // Reset time to 0
+        this.rewindState(false);
     }
 
     clear(removeEvents = true) {
@@ -456,13 +467,66 @@ class Simulation {
         }
 
         while (this.objects.length > 0) {
-            this.#deleteObject(this.objects[0]);
+            this.deleteObject(this.objects[0]);
         }
 
         // Clear events with objects
         if (removeEvents) {
             events.clearThoseWithObject();
         }
+    }
+    
+    loadFromObject(data) {
+        const newUuids = {};
+        
+        // Clear simulation
+        this.reset();
+
+        // Add new objects to simulation
+        for (const key in data) {
+            const jsonObject = data[key];
+
+            const object = this.createObject(jsonObject.type);
+
+            newUuids[key] = object.mesh.uuid;
+
+            object.mesh.rotation.x = jsonObject.rotation.x;
+            object.mesh.rotation.y = jsonObject.rotation.y;
+            object.mesh.rotation.z = jsonObject.rotation.z;
+
+            this.synchronizeRotation(object);
+
+            object.mesh.position.x = jsonObject.position.x;
+            object.mesh.position.y = jsonObject.position.y;
+            object.mesh.position.z = jsonObject.position.z;
+
+            this.synchronizePosition(object);
+
+            object.mesh.scale.x = jsonObject.scale.x;
+            object.mesh.scale.y = jsonObject.scale.y;
+            object.mesh.scale.z = jsonObject.scale.z;
+
+            this.synchronizeSize("x", object);
+
+            object.mesh.material.color.set(`#${jsonObject.color}`);
+
+            object.mesh.name = jsonObject.name;
+
+            object.body.velocity.x = jsonObject.velocity.x;
+            object.body.velocity.y = jsonObject.velocity.y;
+            object.body.velocity.z = jsonObject.velocity.z;
+
+            object.body.angularVelocity.x = jsonObject.angularVelocity.x;
+            object.body.angularVelocity.y = jsonObject.angularVelocity.y;
+            object.body.angularVelocity.z = jsonObject.angularVelocity.z;
+
+            object.body.mass = jsonObject.mass;
+            object.body.updateMassProperties();
+        }
+
+        this.deselectObject();
+
+        return newUuids;
     }
 }
 

@@ -1,7 +1,7 @@
 import {changeTimeStep, setTransformControlsEnabled, simulation, transformControls} from "../main.js";
 import {timeline} from "../timeline.js";
 
-document.getElementById("top-play").onclick = (event) => {
+const handlePlayClick = () => {
     if (simulation.isPaused) {
         // Save object position and rotation
         if (simulation.world.time === 0) {
@@ -35,7 +35,7 @@ document.getElementById("top-play").onclick = (event) => {
         }
 
         // Resume simulation
-        event.target.innerText = "pause";
+        document.getElementById("top-play").innerText = "pause";
         simulation.isPaused = false;
 
         // Disable inputs if object selected
@@ -62,7 +62,9 @@ document.getElementById("top-play").onclick = (event) => {
     }
 }
 
-document.getElementById("top-replay").onclick = () => {
+document.getElementById("top-play").onclick = handlePlayClick;
+
+const handleReplayClick = () => {
     // Pause simulation
     document.getElementById("top-play").innerText = "play_arrow";
     simulation.isPaused = true;
@@ -70,6 +72,8 @@ document.getElementById("top-replay").onclick = () => {
     // Rewind simulation to previous state
     simulation.rewindState();
 }
+
+document.getElementById("top-replay").onclick = handleReplayClick;
 
 // Time scale slider
 
@@ -99,3 +103,5 @@ document.getElementById("time-scale-container").onwheel = (event) => {
 
     changeTimeStep(timeScaleSlider.value);
 }
+
+export {handlePlayClick, handleReplayClick};

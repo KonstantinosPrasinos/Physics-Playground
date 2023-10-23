@@ -4,15 +4,23 @@ const rightUiToggle = document.getElementById("collapse-right-ui-button")
 const rightUi = document.getElementById("right-ui");
 const rightRoundedCorner = document.getElementById("rounded-corner-right");
 
+const collapseRightUi = () => {
+    rightUi.classList.add("collapsed")
+    rightUiToggle.classList.add("collapsed")
+    rightRoundedCorner.classList.add("collapsed")
+}
+
+const extendRightUi = () => {
+    rightUi.classList.remove("collapsed")
+    rightUiToggle.classList.remove("collapsed")
+    rightRoundedCorner.classList.remove("collapsed")
+}
+
 document.getElementById("collapse-right-ui-button").onclick = () => {
     if (rightUi.classList.contains("collapsed")) {
-        rightUi.classList.remove("collapsed")
-        rightUiToggle.classList.remove("collapsed")
-        rightRoundedCorner.classList.remove("collapsed")
+        extendRightUi();
     } else {
-        rightUi.classList.add("collapsed")
-        rightUiToggle.classList.add("collapsed")
-        rightRoundedCorner.classList.add("collapsed")
+        collapseRightUi();
     }
 }
 
@@ -39,7 +47,7 @@ const handleInputKeyDown = (event) => {
             if (event.target.value.includes("-")) {
                 event.preventDefault();
             } else {
-                if (event.target.value.length > 0) {
+                if (event.target.selectionStart > 0) {
                     event.preventDefault();
                 }
             }
@@ -50,18 +58,22 @@ const handleInputKeyDown = (event) => {
     if ([',', '.'].includes(event.key)) {
         if (event.target.value.includes('.') || event.target.value.includes(',')) {
             event.preventDefault();
-        } else if (event.target.value.length === 0) {
+        } else if (event.target.selectionStart === 0) {
             event.preventDefault();
         }
     }
 
     // Blur element on enter
+    handleEnterDown(event);
+}
+
+const handleEnterDown = (event) => {
     if (event.keyCode === 13) {
         event.target.blur();
     }
 }
 
-document.getElementById("object-name").onkeydown = handleInputKeyDown;
+document.getElementById("object-name").onkeydown = handleEnterDown;
 document.getElementById("mass-input").onkeydown = handleInputKeyDown;
 
 document.getElementById("width-input").onkeydown = handleInputKeyDown;
@@ -263,4 +275,4 @@ document.getElementById("dimensions-tooltip-close-button").onclick = () => {
     document.getElementById("dimensions-tooltip").classList.add("Collapsed");
 }
 
-export {setTooltipPosition, setTooltipVisibility, handleInputKeyDown};
+export {setTooltipPosition, setTooltipVisibility, handleInputKeyDown, extendRightUi, collapseRightUi};

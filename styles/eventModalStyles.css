@@ -1,0 +1,40 @@
+.event-type-icon {
+    opacity: 1;
+    scale: 1;
+    transition: all 0.2s ease;
+}
+
+.event-type-not-clickable #event-type-select-main {
+    cursor: unset !important;
+}
+
+.event-type-not-clickable #event-type-icon {
+    opacity: 0;
+    scale: 0.9;
+}
+
+#event-target-select-main-input {
+    padding: 0;
+    font-size: inherit;
+    opacity: 1;
+}
+
+#event-target-select-main-input::placeholder {
+    opacity: 1;
+    color: inherit;
+}
+#event-target-select-main-input-label {
+    display: none;
+}
+
+#event-target-select-main-input.not-editable {
+    cursor: pointer;
+}
+
+#event-target-select-main-input:disabled {
+    opacity: 1; /* to override opacity 0.38 normally added by Big-Text-Input */
+}
+
+#event-target-icon {
+    font-size: inherit;
+}
