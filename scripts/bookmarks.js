@@ -29,7 +29,7 @@ const bookmarks = {
         openButton.className = 'material-symbols-outlined';
         openButton.innerText = 'open_in_new';
 
-        openButton.onclick = () => {
+        openButton.addEventListener("click", () => {
             const newUuids = simulation.loadFromObject(bookmark.objects);
 
             events.loadFromObject(bookmark.events, newUuids);
@@ -37,17 +37,17 @@ const bookmarks = {
             // Enable download and save scene buttons
             document.getElementById("download-button").setAttribute("aria-disabled", "false")
             document.getElementById("bookmark-button").disabled = false;
-        }
+        });
 
         const deleteButton = document.createElement('BUTTON');
         deleteButton.className = 'material-symbols-outlined';
         deleteButton.innerText = 'delete';
 
-        deleteButton.onclick = () => {
+        deleteButton.addEventListener("click", () => {
             container.remove();
             this.bookmarks.splice(this.bookmarks.indexOf(bookmark), 1);
             this.updateLocalStorage();
-        }
+        });
 
         container.appendChild(textSpan);
         container.appendChild(openButton);

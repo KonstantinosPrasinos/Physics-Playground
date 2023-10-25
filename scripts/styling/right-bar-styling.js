@@ -16,15 +16,15 @@ const extendRightUi = () => {
     rightRoundedCorner.classList.remove("collapsed")
 }
 
-document.getElementById("collapse-right-ui-button").onclick = () => {
+document.getElementById("collapse-right-ui-button").addEventListener("click", () => {
     if (rightUi.classList.contains("collapsed")) {
         extendRightUi();
     } else {
         collapseRightUi();
     }
-}
+});
 
-document.getElementById("clear-scene-button").onclick = simulation.clear.bind(simulation);
+document.getElementById("clear-scene-button").addEventListener("click", simulation.clear.bind(simulation));
 const handleInputKeyDown = (event) => {
     // Cancel event on not allowed characters
     const allowedKeys = [
@@ -73,32 +73,32 @@ const handleEnterDown = (event) => {
     }
 }
 
-document.getElementById("object-name").onkeydown = handleEnterDown;
-document.getElementById("mass-input").onkeydown = handleInputKeyDown;
+document.getElementById("object-name").addEventListener("keydown", handleEnterDown);
+document.getElementById("mass-input").addEventListener("keydown", handleInputKeyDown);
 
-document.getElementById("width-input").onkeydown = handleInputKeyDown;
-document.getElementById("height-input").onkeydown = handleInputKeyDown;
-document.getElementById("depth-input").onkeydown = handleInputKeyDown;
+document.getElementById("width-input").addEventListener("keydown", handleInputKeyDown);
+document.getElementById("height-input").addEventListener("keydown", handleInputKeyDown);
+document.getElementById("depth-input").addEventListener("keydown", handleInputKeyDown);
 
-document.getElementById("position-x-input").onkeydown = handleInputKeyDown;
-document.getElementById("position-y-input").onkeydown = handleInputKeyDown;
-document.getElementById("position-z-input").onkeydown = handleInputKeyDown;
+document.getElementById("position-x-input").addEventListener("keydown", handleInputKeyDown);
+document.getElementById("position-y-input").addEventListener("keydown", handleInputKeyDown);
+document.getElementById("position-z-input").addEventListener("keydown", handleInputKeyDown);
 
-document.getElementById("rotation-x-input").onkeydown = handleInputKeyDown;
-document.getElementById("rotation-y-input").onkeydown = handleInputKeyDown;
-document.getElementById("rotation-z-input").onkeydown = handleInputKeyDown;
+document.getElementById("rotation-x-input").addEventListener("keydown", handleInputKeyDown);
+document.getElementById("rotation-y-input").addEventListener("keydown", handleInputKeyDown);
+document.getElementById("rotation-z-input").addEventListener("keydown", handleInputKeyDown);
 
-document.getElementById("velocity-x-input").onkeydown = handleInputKeyDown;
-document.getElementById("velocity-y-input").onkeydown = handleInputKeyDown;
-document.getElementById("velocity-z-input").onkeydown = handleInputKeyDown;
+document.getElementById("velocity-x-input").addEventListener("keydown", handleInputKeyDown);
+document.getElementById("velocity-y-input").addEventListener("keydown", handleInputKeyDown);
+document.getElementById("velocity-z-input").addEventListener("keydown", handleInputKeyDown);
 
-document.getElementById("angular-velocity-x-input").onkeydown = handleInputKeyDown;
-document.getElementById("angular-velocity-y-input").onkeydown = handleInputKeyDown;
-document.getElementById("angular-velocity-z-input").onkeydown = handleInputKeyDown;
+document.getElementById("angular-velocity-x-input").addEventListener("keydown", handleInputKeyDown);
+document.getElementById("angular-velocity-y-input").addEventListener("keydown", handleInputKeyDown);
+document.getElementById("angular-velocity-z-input").addEventListener("keydown", handleInputKeyDown);
 
-document.getElementById("acceleration-x-input").onkeydown = handleInputKeyDown;
-document.getElementById("acceleration-y-input").onkeydown = handleInputKeyDown;
-document.getElementById("acceleration-z-input").onkeydown = handleInputKeyDown;
+document.getElementById("acceleration-x-input").addEventListener("keydown", handleInputKeyDown);
+document.getElementById("acceleration-y-input").addEventListener("keydown", handleInputKeyDown);
+document.getElementById("acceleration-z-input").addEventListener("keydown", handleInputKeyDown);
 
 /* Right ui inputs */
 const setSize = (axis, event) => {
@@ -255,24 +255,24 @@ const setTooltipVisibility = (tooltip) => {
     }
 }
 
-document.getElementById("mass-info-button").onclick = () => {
+document.getElementById("mass-info-button").addEventListener("click", () => {
     const tooltip = document.getElementById("mass-tooltip");
 
     setTooltipVisibility(tooltip);
-}
+});
 
-document.getElementById("mass-tooltip-close-button").onclick = () => {
+document.getElementById("mass-tooltip-close-button").addEventListener("click", () => {
     document.getElementById("mass-tooltip").classList.add("Collapsed");
-}
+});
 
-document.getElementById("dimensions-info-button").onclick = (event) => {
+document.getElementById("dimensions-info-button").addEventListener("click", (event) => {
     const tooltip = document.getElementById("dimensions-tooltip");
 
     setTooltipVisibility(tooltip, event);
-}
+});
 
-document.getElementById("dimensions-tooltip-close-button").onclick = () => {
+document.getElementById("dimensions-tooltip-close-button").addEventListener("click", () => {
     document.getElementById("dimensions-tooltip").classList.add("Collapsed");
-}
+});
 
 export {setTooltipPosition, setTooltipVisibility, handleInputKeyDown, extendRightUi, collapseRightUi};

@@ -58,36 +58,36 @@ const saveSettingsToLocalStorage = () => {
     localStorage.setItem("userSettings", JSON.stringify(userSettings));
 }
 
-document.getElementById("close-settings-button").onclick = () => {
+document.getElementById("close-settings-button").addEventListener("click", () => {
     collapseSettings();
-}
+});
 
-document.getElementById("light-theme-radio").onchange = () => {
+document.getElementById("light-theme-radio").addEventListener("change",  () => {
     if (document.body.className !== "light-theme") {
         document.body.className = "light-theme";
         setBackgroundWithTheme();
         userSettings.theme = "light";
         saveSettingsToLocalStorage();
     }
-}
+});
 
-document.getElementById("dark-theme-radio").onchange = () => {
+document.getElementById("dark-theme-radio").addEventListener("change", () => {
     if (document.body.className !== "dark-theme") {
         document.body.className = "dark-theme";
         setBackgroundWithTheme();
         userSettings.theme = "dark"
         saveSettingsToLocalStorage();
     }
-}
+});
 
-document.getElementById("midnight-theme-radio").onchange = () => {
+document.getElementById("midnight-theme-radio").addEventListener("click", () => {
     if (document.body.className !== "midnight-theme") {
         document.body.className = "midnight-theme";
         setBackgroundWithTheme();
         userSettings.theme = "midnight";
         saveSettingsToLocalStorage();
     }
-}
+});
 
 const updateCameraFovSliderValue = (value) => {
     const percentage = ((value - 20) / 90) * 100
@@ -155,7 +155,7 @@ const generateSceneObject = () => {
     return downloadableObject
 }
 
-document.getElementById("download-button").onclick = (event) => {
+document.getElementById("download-button").addEventListener("click", (event) => {
     if (simulation.objects.length > 0) {
         // Encode object
         const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(generateSceneObject()));
@@ -164,9 +164,9 @@ document.getElementById("download-button").onclick = (event) => {
         event.target.setAttribute("href", data);
         event.target.setAttribute("download", "scene.json");
     }
-}
+});
 
-document.getElementById("upload-button-input").onchange = (event) => {
+document.getElementById("upload-button-input").addEventListener("click", (event) => {
     const file = event.target.files[0];
 
     // Create a new FileReader instance
@@ -197,9 +197,9 @@ document.getElementById("upload-button-input").onchange = (event) => {
 
     // Trigger onload event
     reader.readAsText(file);
-}
+});
 
-document.getElementById("perspective-camera-radio").onchange = (event) => {
+document.getElementById("perspective-camera-radio").addEventListener("click", (event) => {
     if (event.target.checked) {
         setCameraPerspective();
         userSettings.cameraType = "Perspective";
@@ -209,9 +209,9 @@ document.getElementById("perspective-camera-radio").onchange = (event) => {
         document.getElementById("camera-fov-container-section").classList.remove("Disabled");
         document.getElementById("camera-fov-slider").disabled = false;
     }
-}
+});
 
-document.getElementById("orthographic-camera-radio").onchange = (event) => {
+document.getElementById("orthographic-camera-radio").addEventListener("click", (event) => {
     if (event.target.checked) {
         setCameraOrthographic();
         userSettings.cameraType = "Orthographic";
@@ -221,7 +221,7 @@ document.getElementById("orthographic-camera-radio").onchange = (event) => {
         document.getElementById("camera-fov-container-section").classList.add("Disabled");
         document.getElementById("camera-fov-slider").disabled = true;
     }
-}
+});
 
 const setDarkTheme = () => {
     document.body.className = "dark-theme";
@@ -269,7 +269,7 @@ const setColorSchemeEvent = (bool) => {
     }
 }
 
-document.getElementById("device-theme-toggle").onchange = (event) => {
+document.getElementById("device-theme-toggle").addEventListener("click", (event) => {
     if (event.target.checked) {
         setColorSchemeEvent(true);
         // Disable theme picker
@@ -280,14 +280,14 @@ document.getElementById("device-theme-toggle").onchange = (event) => {
 
     userSettings.useDeviceTheme = event.target.checked;
     saveSettingsToLocalStorage();
-}
+});
 
-document.getElementById("show-tutorial-button").onclick = () => {
+document.getElementById("show-tutorial-button").addEventListener("click", () => {
     collapseSettings();
     setTimeout(() => {
         tutorial.init();
     }, 375)
-}
+});
 
 loadSettingsFromLocalStorage();
 

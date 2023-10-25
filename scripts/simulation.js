@@ -329,13 +329,13 @@ class Simulation {
         radioInput.type = "checkbox";
         radioInput.classList = "Radio-Input";
         
-        radioInput.onchange = (event) => {
+        radioInput.addEventListener("change", (event) => {
             if (event.target.checked) {
                 this.selectObject(this.objects[index]);
             } else {
                 this.deselectObject();
             }
-        }
+        });
         
         // Generate the label
         const inputLabel = document.createElement("LABEL");
@@ -351,7 +351,7 @@ class Simulation {
         followButton.classList.add("material-symbols-outlined");
         followButton.innerHTML = "videocam";
         
-        followButton.onclick = () => {
+        followButton.addEventListener("click", () => {
             // Follow objectMesh
             if (followButton.innerHTML === "videocam") {
                 // Unfollow previous object
@@ -368,7 +368,7 @@ class Simulation {
                 this.camera.following = null;
                 followButton.innerHTML = "videocam";
             }
-        }
+        });
         
         // Generate the remove button
         const removeButton = document.createElement("BUTTON");
@@ -376,9 +376,9 @@ class Simulation {
         removeButton.classList.add("material-symbols-outlined");
         removeButton.innerHTML = "delete";
 
-        removeButton.onclick = () => {
+        removeButton.addEventListener("click", () => {
             this.deleteObject(this.objects[index]);
-        }
+        });
 
         // Append all the nodes to their parent
         containerDiv.appendChild(radioInput);

@@ -62,7 +62,7 @@ const handlePlayClick = () => {
     }
 }
 
-document.getElementById("top-play").onclick = handlePlayClick;
+document.getElementById("top-play").addEventListener("click", handlePlayClick);
 
 const handleReplayClick = () => {
     // Pause simulation
@@ -73,7 +73,7 @@ const handleReplayClick = () => {
     simulation.rewindState();
 }
 
-document.getElementById("top-replay").onclick = handleReplayClick;
+document.getElementById("top-replay").addEventListener("click", handleReplayClick);
 
 // Time scale slider
 
