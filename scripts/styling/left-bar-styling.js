@@ -32,7 +32,7 @@ const collapseSettings = () => {
     leftRoundedCorner.classList.remove("extended");
 }
 
-document.getElementById("settings-button").onclick = () => {
+document.getElementById("settings-button").addEventListener("click", () => {
     if (!timelineUi.classList.contains("collapsed")) {
         collapseTimeline();
     }
@@ -45,7 +45,7 @@ document.getElementById("settings-button").onclick = () => {
     } else {
         collapseSettings();
     }
-}
+});
 
 const timelineUi = document.getElementById("timeline-box");
 const leftRoundedCorner = document.getElementById("rounded-corner-left");
@@ -55,7 +55,7 @@ const collapseTimeline = () => {
     leftRoundedCorner.classList.remove("double-extended");
 }
 
-document.getElementById("timeline-button").onclick = () => {
+document.getElementById("timeline-button").addEventListener("click", () => {
     if (!document.getElementById("settings-box").classList.contains("collapsed")) {
         collapseSettings();
     }
@@ -68,7 +68,7 @@ document.getElementById("timeline-button").onclick = () => {
     } else {
         collapseTimeline();
     }
-}
+});
 
 const bookmarksUi = document.getElementById("bookmarks-box");
 
@@ -77,7 +77,7 @@ const collapseBookmarks = () => {
     leftRoundedCorner.classList.remove("extended");
 }
 
-document.getElementById("bookmarks-button").onclick = () => {
+document.getElementById("bookmarks-button").addEventListener("click", () => {
     if (!document.getElementById("settings-box").classList.contains("collapsed")) {
         collapseSettings();
     }
@@ -90,24 +90,24 @@ document.getElementById("bookmarks-button").onclick = () => {
     } else {
         collapseBookmarks();
     }
-}
+});
 
 /* Selection modes buttons */
-document.getElementById("translate-button").onclick = (event) => {
+document.getElementById("translate-button").addEventListener("click", (event) => {
     highlightButton(event)
-}
+});
 
-document.getElementById("scale-button").onclick = (event) => {
+document.getElementById("scale-button").addEventListener("click", (event) => {
     highlightButton(event);
-}
+});
 
-document.getElementById("rotate-button").onclick = (event) => {
+document.getElementById("rotate-button").addEventListener("click", (event) => {
     highlightButton(event);
-}
+});
 
 /* Create object buttons */
-document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation);
-document.getElementById("add-sphere-button").onclick = simulation.createSphere.bind(simulation);
+document.getElementById("add-cube-button").addEventListener("click", simulation.createBox.bind(simulation))
+document.getElementById("add-sphere-button").addEventListener("click", simulation.createSphere.bind(simulation));
 
 
 export {collapseSettings, collapseTimeline, collapseBookmarks};

@@ -133,7 +133,7 @@ const tutorial = {
         tutorialOverlay.classList.add("collapsed");
         simulation.reset();
 
-        localStorage.setItem("hasSeenTutorial", true);
+        localStorage.setItem("hasSeenTutorial", "true");
     },
 
     init() {
@@ -335,8 +335,8 @@ const tutorial = {
     }
 };
 
-document.getElementById("step-tutorial-right").onclick = tutorial.stepForward.bind(tutorial);
-document.getElementById("step-tutorial-left").onclick = tutorial.stepBackward.bind(tutorial);
-document.getElementById("close-tutorial-button").onclick = tutorial.setTutorialOff;
+document.getElementById("step-tutorial-right").addEventListener("click", tutorial.stepForward.bind(tutorial))
+document.getElementById("step-tutorial-left").addEventListener("click", tutorial.stepBackward.bind(tutorial))
+document.getElementById("close-tutorial-button").addEventListener("click", tutorial.setTutorialOff.bind(tutorial));
 
 export {tutorial};

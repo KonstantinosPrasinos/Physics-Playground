@@ -49,7 +49,7 @@ document.addEventListener("click", (event) => {
     }
 }, true)
 
-document.getElementById("viewportCanvas").onclick = (event) => {
+document.getElementById("viewportCanvas").addEventListener("click", (event) => {
     if (simulation.selectedModeElement) {
         // Get intercepted objects
         const xPos = (event.offsetX / parseInt(window.getComputedStyle(event.target).width)) * 2 - 1;
@@ -73,7 +73,7 @@ document.getElementById("viewportCanvas").onclick = (event) => {
             setTransformControlsEnabled(true);
         }
     }
-}
+});
 
 document.addEventListener("keypress", (event) => {
     if (!["BUTTON", "INPUT"].includes(document.activeElement.tagName) && event.code === "Space") {
@@ -88,6 +88,6 @@ document.fonts.ready.then(() => {
     }
 })
 
-document.getElementById("close-mobile-overlay-button").onclick = () => {
+document.getElementById("close-mobile-overlay-button").addEventListener("click", () => {
     document.getElementById("mobile-overlay").classList.add("collapsed");
-}
+});

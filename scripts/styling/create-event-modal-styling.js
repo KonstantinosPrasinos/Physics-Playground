@@ -41,11 +41,11 @@ const handleSelectClick = (event) => {
     }
 }
 
-document.getElementById("event-source-select-main").onclick = handleSelectClick;
+document.getElementById("event-source-select-main").addEventListener("click", handleSelectClick)
 
-document.getElementById("event-type-select-main").onclick = handleSelectClick;
+document.getElementById("event-type-select-main").addEventListener("click", handleSelectClick);
 
-document.getElementById("event-target-select-main").onclick = handleSelectClick;
+document.getElementById("event-target-select-main").addEventListener("click", handleSelectClick);
 
 const hideModal = () => {
     // Collapse overlay
@@ -92,7 +92,7 @@ const hideModal = () => {
 }
 
 // Select input handling
-document.getElementById("source-option-time").onclick = () => {
+document.getElementById("source-option-time").addEventListener("click", () => {
     document.getElementById("event-source-select-main-text").innerText = "Time";
     inputsState.source = "Time";
     inputsState.type = "reaches";
@@ -103,7 +103,7 @@ document.getElementById("source-option-time").onclick = () => {
 
     deExtendSelectElement();
     initTypeOptions();
-}
+});
 
 
 const handleSourceObjectClick = (object) => {
@@ -188,7 +188,7 @@ const initTargetOptions = () => {
             option.id = `target-option-${object.mesh.uuid}`;
             option.innerText = object.mesh.name;
 
-            option.onclick = () => {
+            option.addEventListener("click", () => {
                 // Set main element text to object name
                 document.getElementById("event-target-select-main-input").value = object.mesh.name;
 
@@ -198,7 +198,7 @@ const initTargetOptions = () => {
 
                 // Enable save button
                 document.getElementById("save-create-event-button").disabled = false;
-            }
+            });
 
             document.getElementById("event-target-options-container").appendChild(option);
         });
@@ -252,7 +252,7 @@ document.getElementById("event-target-select-main-input").onfocus = (event) => {
     }
 }
 
-document.getElementById("target-option-anything").onclick = () => {
+document.getElementById("target-option-anything").addEventListener("click", () => {
     // Set main element text to object name
     document.getElementById("event-target-select-main-input").value = "Anything";
 
@@ -262,9 +262,9 @@ document.getElementById("target-option-anything").onclick = () => {
 
     // Enable save button
     document.getElementById("save-create-event-button").disabled = false;
-}
+});
 
-document.getElementById("event-target-select-main-input").onkeyup = (event) => {
+document.getElementById("event-target-select-main-input").addEventListener("keyup", (event) => {
     // Enable or disable save button
     if (event.target.value.length > 0) {
         document.getElementById("save-create-event-button").disabled = false;
@@ -273,17 +273,17 @@ document.getElementById("event-target-select-main-input").onkeyup = (event) => {
         document.getElementById("save-create-event-button").disabled = true;
         inputsState.target = null;
     }
-}
+});
 
-document.getElementById("event-target-select-main-input").onkeydown = handleInputKeyDown;
+document.getElementById("event-target-select-main-input").addEventListener("keydown", handleInputKeyDown);
 
 // Bottom buttons
-document.getElementById("save-create-event-button").onclick = () => {
+document.getElementById("save-create-event-button").addEventListener("click", () => {
     // Save event and hide the Modal
     events.addEvent(inputsState);
     hideModal();
-}
+});
 
-document.getElementById("cancel-create-event-button").onclick = hideModal;
+document.getElementById("cancel-create-event-button").addEventListener("click", hideModal);
 
 export {deExtendSelectElement, initTypeOptions, hideModal, handleSourceObjectClick};

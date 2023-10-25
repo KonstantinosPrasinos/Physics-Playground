@@ -55,9 +55,9 @@ const events = {
         removeButton.classList.add("material-symbols-outlined");
         removeButton.innerHTML = "delete";
 
-        removeButton.onclick = () => {
+        removeButton.addEventListener("click", () => {
             this.removeEvent(eventWithId);
-        }
+        });
 
         row.appendChild(source);
         row.appendChild(type);
