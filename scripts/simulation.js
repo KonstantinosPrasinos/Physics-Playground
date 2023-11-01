@@ -289,6 +289,7 @@ class Simulation {
     }
 
     deleteObject(object) {
+        console.log(object, this.objects);
         const {mesh, body} = object;
         const index = this.objects.indexOf(object);
 
@@ -330,8 +331,12 @@ class Simulation {
         radioInput.classList = "Radio-Input";
         
         radioInput.addEventListener("change", (event) => {
+            console.log('test')
             if (event.target.checked) {
-                this.selectObject(this.objects[index]);
+                const objectId = event.target.parentNode.id.split("_")[2];
+                const object = this.objects.find(obj => obj.mesh.uuid === objectId);
+
+                this.selectObject(object);
             } else {
                 this.deselectObject();
             }
@@ -376,8 +381,11 @@ class Simulation {
         removeButton.classList.add("material-symbols-outlined");
         removeButton.innerHTML = "delete";
 
-        removeButton.addEventListener("click", () => {
-            this.deleteObject(this.objects[index]);
+        removeButton.addEventListener("click", (event) => {
+            const objectId = event.target.parentNode.id.split("_")[2];
+            const object = this.objects.find(obj => obj.mesh.uuid === objectId);
+
+            this.deleteObject(object);
         });
 
         // Append all the nodes to their parent
@@ -441,8 +449,12 @@ class Simulation {
             default:
                 break;
         }
+
         //Updates the size of the object
         object.body.shapes[0].updateBoundingSphereRadius();
+        // object.body.shapes[0].updateConvexPolyhedronRepresentation();
+
+        object.body.computeAABB();
         object.body.updateBoundingRadius();
         object.body.updateMassProperties();
     }
@@ -522,6 +534,8 @@ class Simulation {
 
             object.body.mass = jsonObject.mass;
             object.body.updateMassProperties();
+
+            object.body.acceleration = new CANNON.Vec3(jsonObject.acceleration.x, jsonObject.acceleration.y, jsonObject.acceleration.z);
         }
 
         this.deselectObject();

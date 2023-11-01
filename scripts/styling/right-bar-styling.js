@@ -179,7 +179,13 @@ document.getElementById("object-name").onblur = (event) => {
     if (value.length > 0) {
         simulation.selectedObject.mesh.name = value;
 
+        // Update the name of the object in the list
         document.getElementById(`radio_label_${simulation.selectedObject.mesh.uuid}`).innerHTML = value;
+
+        // Update the name of the object if it's included in an event
+        document.querySelectorAll(`.includes-object-${simulation.selectedObject.mesh.uuid}`).forEach(element => {
+            element.innerHTML = value;
+        });
     } else {
         event.target.value = simulation.selectedObject.mesh.name;
     }
@@ -244,13 +250,14 @@ const setTooltipVisibility = (tooltip) => {
         selectedTooltipElement.classList.add("Collapsed");
     }
 
-    if (tooltip.classList.contains("Collapsed")) {
-        selectedTooltipElement = tooltip;
-        setTooltipPosition(tooltip);
-        
-        tooltip.classList.remove("Collapsed");
+    if (selectedTooltipElement !== tooltip) {
+        if (tooltip.classList.contains("Collapsed")) {
+            selectedTooltipElement = tooltip;
+            setTooltipPosition(tooltip);
+
+            tooltip.classList.remove("Collapsed");
+        }
     } else {
-        tooltip.classList.add("Collapsed");
         selectedTooltipElement = null;
     }
 }
