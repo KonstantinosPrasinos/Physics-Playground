@@ -331,8 +331,12 @@ class Simulation {
         radioInput.classList = "Radio-Input";
         
         radioInput.addEventListener("change", (event) => {
+            console.log('test')
             if (event.target.checked) {
-                this.selectObject(this.objects[index]);
+                const objectId = event.target.parentNode.id.split("_")[2];
+                const object = this.objects.find(obj => obj.mesh.uuid === objectId);
+
+                this.selectObject(object);
             } else {
                 this.deselectObject();
             }
@@ -448,7 +452,8 @@ class Simulation {
 
         //Updates the size of the object
         object.body.shapes[0].updateBoundingSphereRadius();
-        object.body.shapes[0].updateConvexPolyhedronRepresentation();
+        // object.body.shapes[0].updateConvexPolyhedronRepresentation();
+
         object.body.computeAABB();
         object.body.updateBoundingRadius();
         object.body.updateMassProperties();
@@ -529,6 +534,8 @@ class Simulation {
 
             object.body.mass = jsonObject.mass;
             object.body.updateMassProperties();
+
+            object.body.acceleration = new CANNON.Vec3(jsonObject.acceleration.x, jsonObject.acceleration.y, jsonObject.acceleration.z);
         }
 
         this.deselectObject();

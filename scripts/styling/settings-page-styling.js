@@ -141,6 +141,8 @@ const generateSceneObject = () => {
         temp.color = object.mesh.material.color.getHexString();
         temp.scale = {x: object.mesh.scale.x, y: object.mesh.scale.y, z: object.mesh.scale.z};
 
+        temp.acceleration = {x: object.body.acceleration.x, y: object.body.acceleration.y, z: object.body.acceleration.z};
+
         temp.name = object.mesh.name;
         temp.mass = object.body.mass;
 
@@ -166,14 +168,13 @@ document.getElementById("download-button").addEventListener("click", (event) => 
     }
 });
 
-document.getElementById("upload-button-input").addEventListener("click", (event) => {
-    const file = event.target.files[0];
+document.getElementById("upload-button-input").addEventListener("change", (event) => {
 
     // Create a new FileReader instance
     const reader = new FileReader();
 
     // Handle file
-    reader.onload = (e) => {
+    reader.addEventListener("load",  (e) => {
         const contents = e.target.result;
 
         // Process the JSON data here
@@ -186,14 +187,16 @@ document.getElementById("upload-button-input").addEventListener("click", (event)
                 events.loadFromObject(data.events, newUuids);
 
                 // Enable download and save scene buttons
-                document.getElementById("download-button").setAttribute("aria-disabled", "false")
+                document.getElementById("download-button").setAttribute("aria-disabled", "false");
                 document.getElementById("bookmark-button").disabled = false;
             }
         } catch (e) {
             // Invalid file type
             console.error(e);
         }
-    };
+    });
+
+    const file = event.target.files[0];
 
     // Trigger onload event
     reader.readAsText(file);
