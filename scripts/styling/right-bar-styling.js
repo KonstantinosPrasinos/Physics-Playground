@@ -244,13 +244,14 @@ const setTooltipVisibility = (tooltip) => {
         selectedTooltipElement.classList.add("Collapsed");
     }
 
-    if (tooltip.classList.contains("Collapsed")) {
-        selectedTooltipElement = tooltip;
-        setTooltipPosition(tooltip);
-        
-        tooltip.classList.remove("Collapsed");
+    if (selectedTooltipElement !== tooltip) {
+        if (tooltip.classList.contains("Collapsed")) {
+            selectedTooltipElement = tooltip;
+            setTooltipPosition(tooltip);
+
+            tooltip.classList.remove("Collapsed");
+        }
     } else {
-        tooltip.classList.add("Collapsed");
         selectedTooltipElement = null;
     }
 }
