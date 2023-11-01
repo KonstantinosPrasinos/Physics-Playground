@@ -441,8 +441,11 @@ class Simulation {
             default:
                 break;
         }
+
         //Updates the size of the object
         object.body.shapes[0].updateBoundingSphereRadius();
+        object.body.shapes[0].updateConvexPolyhedronRepresentation();
+        object.body.computeAABB();
         object.body.updateBoundingRadius();
         object.body.updateMassProperties();
     }
