@@ -289,6 +289,7 @@ class Simulation {
     }
 
     deleteObject(object) {
+        console.log(object, this.objects);
         const {mesh, body} = object;
         const index = this.objects.indexOf(object);
 
@@ -376,8 +377,11 @@ class Simulation {
         removeButton.classList.add("material-symbols-outlined");
         removeButton.innerHTML = "delete";
 
-        removeButton.addEventListener("click", () => {
-            this.deleteObject(this.objects[index]);
+        removeButton.addEventListener("click", (event) => {
+            const objectId = event.target.parentNode.id.split("_")[2];
+            const object = this.objects.find(obj => obj.mesh.uuid === objectId);
+
+            this.deleteObject(object);
         });
 
         // Append all the nodes to their parent
