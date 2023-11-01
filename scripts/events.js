@@ -15,24 +15,30 @@ const events = {
         const row = document.createElement("DIV");
         row.id = `events-table-row-${id}`;
 
-        // Get the name from the uuid
-        let sourceText;
 
+        let sourceText;
+        const source = document.createElement("DIV");
+
+        // Get the name from the uuid
         if (event.source !== "Time") {
             const objectUuid = event.source.substring(7, event.source.length);
 
             sourceText = simulation.objects.find(object => object.mesh.uuid === objectUuid)?.mesh.name;
+
+            // In order to change the text when the object name is changed, add it's uuid as a class
+            source.classList.add(`includes-object-${objectUuid}`);
+
             row.className = "event-row-source-object";
         } else {
             sourceText = event.source;
         }
 
-        const source = document.createElement("DIV");
         source.innerText = sourceText;
 
         const type = document.createElement("DIV");
         type.innerText = event.type.replaceAll("-", " ");
 
+        const target = document.createElement("DIV");
         let targetText;
         const targetEventText = event.target.split("-");
 
@@ -41,12 +47,15 @@ const events = {
         } else if (targetEventText[0] === "object") {
             const objectUuid = event.target.substring(7, event.target.length);
             targetText = simulation.objects.find(object => object.mesh.uuid === objectUuid)?.mesh.name;
+
+            // In order to change the text when the object name is changed, add it's uuid as a class
+            target.classList.add(`includes-object-${objectUuid}`);
         } else {
             // For anything
             targetText = "anything";
         }
 
-        const target = document.createElement("DIV");
+
         target.innerText = targetText
 
         // Generate the remove button
